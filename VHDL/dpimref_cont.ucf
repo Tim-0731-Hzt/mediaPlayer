@@ -1,0 +1,36 @@
+NET "clk" LOC = "A8"; # Bank = 0, Pin name = IO_L32P_0/GCLK6, Type = GCLK, Signal name = GCLK
+
+NET "EppASTB" LOC = "N8"; # Bank = 5, Pin name = IO_L32P_5/GCLK2, Type = GCLK, Signal name = U-FLAGA
+NET "EppDSTB" LOC = "P7"; # Bank = 5, Pin name = IO, Type = I/O, Signal name = U-FLAGB
+NET "EppWRITE" LOC = "N7"; # Bank = 5, Pin name = IO_L30N_5, Type = I/O, Signal name = U-FLAGC
+NET "EppWAIT" LOC = "N5"; # Bank = , Pin name = IO, Type = I/O, Signal name = U-SLRD
+NET "DB<0>" LOC = "N12"; # Bank = 4, Pin name = IO/VREF_4, Type = VREF, Signal name = U-FD0
+NET "DB<1>" LOC = "P12"; # Bank = 4, Pin name = IO_L25N_4, Type = I/O, Signal name = U-FD1
+NET "DB<2>" LOC = "N11"; # Bank = 4, Pin name = IO_L27P_4/D1, Type = DUAL, Signal name = U-FD2
+NET "DB<3>" LOC = "P11"; # Bank = 4, Pin name = IO_L28N_4, Type = I/O, Signal name = U-FD3
+NET "DB<4>" LOC = "N10"; # Bank = 4, Pin name = IO_L29P_4, Type = I/O, Signal name = U-FD4
+NET "DB<5>" LOC = "P10"; # Bank = 4, Pin name = IO_L30N_4/D2, Type = DUAL, Signal name = U-FD5
+NET "DB<6>" LOC = "M10"; # Bank = 4, Pin name = IO_L29N_4, Type = I/O, Signal name = U-FD6
+NET "DB<7>" LOC = "R10"; # Bank = 4, Pin name = IO_L30P_4/D3, Type = DUAL, Signal name = U-FD7
+
+NET "btn<0>" LOC = "J13";
+NET "btn<1>" LOC = "K14";
+NET "btn<2>" LOC = "K13";
+NET "btn<3>" LOC = "K12";
+NET "sw<0>" LOC = "N15";
+NET "sw<1>" LOC = "J16";
+NET "sw<2>" LOC = "K16";
+NET "sw<3>" LOC = "K15";
+NET "sw<4>" LOC = "L15";
+NET "sw<5>" LOC = "M16";
+NET "sw<6>" LOC = "M15";
+NET "sw<7>" LOC = "N16";
+
+NET "Led<0>" LOC = "L14";
+NET "Led<1>" LOC = "L13";
+NET "Led<2>" LOC = "M14";
+NET "Led<3>" LOC = "L12";
+NET "Led<4>" LOC = "N14";
+NET "Led<5>" LOC = "M13";
+NET "Led<6>" LOC = "P14";
+NET "Led<7>" LOC = "R16";
