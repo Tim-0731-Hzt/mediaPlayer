@@ -125,6 +125,7 @@ architecture Behavioral of dpimref is
 
 	signal	clkMain		: std_logic;
 
+
 	-- Internal control signales
 	signal	ctlEppWait	: std_logic;
 	signal	ctlEppAstb	: std_logic;
@@ -140,8 +141,8 @@ architecture Behavioral of dpimref is
 	-- Registers
 	signal	regEppAdr	: std_logic_vector(3 downto 0);
 	signal	regData0	: std_logic_vector(7 downto 0);
-	signal	regData1	: std_logic_vector(7 downto 0);
-    signal  regData2	: std_logic_vector(7 downto 0);
+	signal	regData1	: std_logic_vector(7 downto 0) := "00000000";
+    signal  regData2	: std_logic_vector(7 downto 0) := "00000000";
     signal  regData3	: std_logic_vector(7 downto 0);
     signal  regData4	: std_logic_vector(7 downto 0);
 	signal	regData5	: std_logic_vector(7 downto 0);
@@ -158,14 +159,12 @@ begin
     ------------------------------------------------------------------------
 	-- Map basic status and control signals
     ------------------------------------------------------------------------
-
 	clkMain <= clk;
 
 	ctlEppAstb <= EppASTB;
 	ctlEppDstb <= EppDSTB;
 	ctlEppWr   <= EppWRITE;
 	EppWAIT    <= ctlEppWait;	-- drive WAIT from state machine output
-
 	-- Data bus direction control. The internal input data bus always
 	-- gets the port data bus. The port data bus drives the internal
 	-- output data bus onto the pins when the interface says we are doing
@@ -314,30 +313,99 @@ begin
 	-- we are in a 'write data register' state. This is combined with the
 	-- address in the address register to determine which register to write.
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+--	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+--		begin
+--			if clkMain = '1' and clkMain'Event then
+--				if ctlEppDwr = '1' and regEppAdr = "0000" then
+--					if btn(0) = '1' then
+--						regData0 <= "00000001";
+--					else
+--						regData0 <= "00000000";
+--					end if;
+--				end if;
+--			end if;
+--		end process;
+
+
+-- Button 0 Mapping, Outputs 1 when address being read is 0000. This is go to next song
+	process (clkMain, regEppAdr, btn(0))
 		begin
 			if clkMain = '1' and clkMain'Event then
-				if ctlEppDwr = '1' and regEppAdr = "0000" then
-					regData0 <= busEppIn;
-				end if;
+				--if regEppAdr = "0000" then
+					if btn(0) = '1' then 
+						regData0 <= "00000001";
+					else 
+						regData0 <= "00000000";
+					end if;
+				--end if;
 			end if;
 		end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+--Button 1 Mapping, Outputs 1 when the address being read is 0001. Maintains the 1 throughout unless pause happens
+	process (clkMain, regEppAdr, regData2, btn(1))
 		begin
 			if clkMain = '1' and clkMain'Event then
-				if ctlEppDwr = '1' and regEppAdr = "0001" then
-					regData1 <= busEppIn;
+				if regData2 = "00000001" then
+					regData1 <= "00000000";
 				end if;
+				--if regEppAdr = "0001" then
+				if btn(1) = '1' then 
+					regData1 <= "00000001";
+				end if;
+				--end if;
+			end if;
+		end process;
+		
+-- Button 2 Mapping, Outputs 1 when address being read is 0010. 
+	process (clkMain, regEppAdr, regData1, btn(2))
+		begin
+			if clkMain = '1' and clkMain'Event then
+				--if regEppAdr = "0010" then
+
+					if regData1 = "00000001" and btn(2) = '1' then
+						regData2 <= "00000001";
+					elsif regData1 = "00000000" and btn(2) = '1' then
+						regData2 <= "00000010";
+					end if;
+				--end if;
 			end if;
 		end process;
 
-	process (clkMain)
+-- Button 3 Mapping, Outputs 1 when the address being read is 0011. This is to go to previous song
+	process (clkMain, regEppAdr, btn(3))
 		begin
 			if clkMain = '1' and clkMain'Event then
-				regData2 <= regData0 + regData1;
+				--if regEppAdr = "0011" then
+					if btn(3) = '1' then 
+						regData3 <= "00000001";
+					else 
+						regData3 <= "00000000";
+					end if;
+				--end if;
 			end if;
 		end process;
+	
+	
+	
+--	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+--		begin
+--			if clkMain = '1' and clkMain'Event then
+--				if ctlEppDwr = '1' and regEppAdr = "0001" then
+--					regData1 <= busEppIn;
+--				end if;
+--			end if;
+--		end process;
+
+
+
+
+
+--	process (clkMain)
+--		begin
+--			if clkMain = '1' and clkMain'Event then
+--				regData2 <= regData0 + regData1;
+--			end if;
+--		end process;
 
 --	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
 --		begin
@@ -347,15 +415,16 @@ begin
 --				end if;
 --			end if;
 --		end process;
+	
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
-		begin
-			if clkMain = '1' and clkMain'Event then
-				if ctlEppDwr = '1' and regEppAdr = "0011" then
-					regData3 <= busEppIn;
-				end if;
-			end if;
-		end process;
+--	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+--		begin
+--			if clkMain = '1' and clkMain'Event then
+--				if ctlEppDwr = '1' and regEppAdr = "0011" then
+--					regData3 <= busEppIn;
+--				end if;
+--			end if;
+--		end process;
 
 	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
 		begin
