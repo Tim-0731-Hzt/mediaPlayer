@@ -31,7 +31,7 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 entity Timer is
-    generic(ClockFrequencyHz    : integer);
+    --generic(ClockFrequencyHz    : integer);
     port(   clk     : in std_logic;
             reset   : in std_logic;
             usec    : inout integer;
@@ -39,6 +39,7 @@ entity Timer is
 end Timer;
 
 architecture Behavioral of Timer is
+	-- signal for counting clock ticks
     signal ticks    : integer;
 begin
     process(clk) is
@@ -49,8 +50,8 @@ begin
                 usec <= 0;
                 msec <= 0;
             else
-                if ticks = ClockFrequencyHz - 1 then
-                    ticks <= 0
+                if ticks = 10 - 1 then
+                    ticks <= 0;
                     
                     if usec = 999 then
                         usec <= 0;
@@ -64,9 +65,10 @@ begin
                         usec <= usec + 1;
                     end if;
                 else
-                    tick <= tick + 1;
+                    ticks <= ticks + 1;
                 end if;
             end if;
         end if;
+	end process;
 end Behavioral;
 
