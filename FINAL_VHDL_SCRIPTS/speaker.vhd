@@ -75,13 +75,11 @@ begin
 	-- set signal hold_en to '1' when pulse occurs, wait 0.5s, return hold_en to '0'
 	signal_en_latch : process(clk)
 	variable cnt : integer range 0 to 25000000 := 0;
-	begin
-	
-		if (speaker_en = '1') then
-			hold_en <= '1';
-		end if;
-		
+	begin	
 		if (clk'event and clk = '1') then
+			if (speaker_en = '1') then
+				hold_en <= '1';
+			end if;
 			if (hold_en = '1') then
 			cnt := cnt + 1;
 			end if;
