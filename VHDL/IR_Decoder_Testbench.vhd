@@ -27,6 +27,8 @@
 --------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
  
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -48,12 +50,21 @@ ARCHITECTURE behavior OF IR_Decoder_Testbench IS
          done : OUT  std_logic
         );
     END COMPONENT;
-    
+	
+	COMPONENT Timer
+    PORT(
+         clk : IN  std_logic;
+         en : IN  std_logic;
+         reset : IN  std_logic;
+         usec : INOUT  integer;
+         msec : INOUT  integer
+        );
+    END COMPONENT;
 
    --Inputs
    signal clk : std_logic := '0';
    signal reset : std_logic := '0';
-   signal ir : std_logic := '0';
+   signal ir : std_logic := '1';
 
  	--Outputs
    signal data : std_logic_vector(11 downto 0);
@@ -72,6 +83,7 @@ BEGIN
           data => data,
           done => done
         );
+		
 
    -- Clock process definitions
    clk_process :process
@@ -88,11 +100,21 @@ BEGIN
    begin		
       -- hold reset state for 100 ns.
       wait for 100 ns;	
-
+	  
       wait for clk_period*10;
+		reset <= '1';
+      ir <= '0';
 
+      wait for 2700 us;
       -- insert stimulus here 
-
+		ir <= '1';
+		
+	wait for 100 us;
+	
+		ir <= '0';
+		
+	wait for 600 us;
+		ir <= '1';
       wait;
    end process;
 

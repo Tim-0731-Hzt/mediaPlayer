@@ -19,6 +19,8 @@
 ----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -39,14 +41,21 @@ end IR_Decoder;
 
 architecture Behavioral of IR_Decoder is
 	
-	component count_timer
-		port(   clk     : in std_logic;
-				reset   : in std_logic;
+	component Timer
+        port(   clk     : in std_logic;
+                en      : in std_logic;
+                reset   : in std_logic;
 				usec    : inout integer;
 				msec    : inout integer);
 	end component;
 	
-    type state is (S1, S2, S3, S4, S5);
+	component lshift12 is
+		PORT (w, Clock		: IN	STD_LOGIC;
+				En 			: IN	STD_LOGIC;
+				Q			: OUT	STD_LOGIC_VECTOR(1 TO 12));
+	end component;
+	
+    type state is (S1, S2, S3, S4, S5, S6);
     signal y    : state;
 
     -- Datapath signals
@@ -56,7 +65,7 @@ architecture Behavioral of IR_Decoder is
 	-- Timer signals
 	signal usec_out		: integer;
 	signal msec_out		: integer;
-	
+		
 begin
     fsm_transitions: process(reset, clk, ir)
     begin
@@ -77,8 +86,8 @@ begin
                 -- Count to 2.4ms to start decoding
                 when S2 =>
                 -- Check the timer
-					-- if timer < 2.6ms
-                    if msec_out < 2 then
+					-- if timer < 2.4ms
+                    if msec_out < 2 or usec_out < 400 then
                         if ir = '1' then    -- If a 1 is read then start again
                             y <= S1;
                         else                -- continue in state 2 to count the 0 signal time
@@ -100,16 +109,24 @@ begin
                 -- State 4 
                 -- time the 0 ir signal
                 when S4 =>
-                    if ir = '1' then        -- switch to state 5 to stop timer and
-                        y <= S3;            -- load the bit into the shift register
-                    elsif ir = '0' then
+                    if ir = '1' then                    -- switch to state 5/6 to stop timer
+						if usec_out = 600 then
+							y <= S5;                    -- if 0 for 0.6ms then go to state 5
+						elsif msec_out = 1 and usec_out = 200 then
+							y <= S6;                    -- if 0 for 1.2ms then go to state 6
+						end if;
+                    elsif ir = '0' then                 -- otherwise remain in state 4 to keep timing
                         y <= S4;
                     end if;
                     
-                -- Load the received bit into the shift register
-                -- then switch back to state 3 and wait for another ir 0 signal
-                when S5 =>
-                    y <= S3;
+				-- Load the bit 0 into the shift register
+				when S5 =>
+					y <= S3;
+					
+				-- Load the bit 1 into the shift register
+				when S6 =>
+					y <= S3;
+					
                 -- Add ending state
             end case;
         end if;
@@ -140,10 +157,19 @@ begin
                 RT <= '0';
                 ET <= '1';       -- Start timer
             when S5 =>
+				w <= '0';
                 ET <= '0';       -- Stop timer but don't reset it
+                EA <= '1';       -- Enable left shift register to load the received bit
+			when S6 =>
+				w <= '1';
+				ET <= '0';       -- Stop timer but don't reset it
                 EA <= '1';       -- Enable left shift register to load the received bit
         end case;
     end process;
+
+    Counter: Timer
+            port map (clk, ET, RT, usec_out, msec_out);
+    
 
 end Behavioral;
 

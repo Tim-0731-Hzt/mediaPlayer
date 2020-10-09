@@ -33,6 +33,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity Timer is
     --generic(ClockFrequencyHz    : integer);
     port(   clk     : in std_logic;
+            en      : in std_logic;
             reset   : in std_logic;
             usec    : inout integer;
             msec    : inout integer);
@@ -49,8 +50,8 @@ begin
                 ticks <= 0;
                 usec <= 0;
                 msec <= 0;
-            else
-                if ticks = 10 - 1 then
+            elsif en = '1' then
+                if ticks = 100 - 1 then
                     ticks <= 0;
                     
                     if usec = 999 then
