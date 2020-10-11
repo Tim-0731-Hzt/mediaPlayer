@@ -43,12 +43,12 @@ HIF				hif = hifInvalid;
 
 FILE* fhin = NULL;
 FILE* fhout = NULL;
-
+/*
 BYTE	idReg0;
 BYTE	idReg1;
 BYTE	idReg2;
 BYTE	idReg3;
-
+*/
 void ErrorExit();
 void DoGetReg();
 void StrcpyS(char* szDst, size_t cchDst, const char* szSrc);
@@ -71,53 +71,18 @@ int main(int cszArg, char* rgszArg[]) {
         return 0;
     }
 
-
-
-    BYTE	idData0;
-    BYTE	idData1;
-    BYTE	idData2;
-    BYTE	idData3;
-
-    char* szStop;
-
-    idReg0 = (BYTE)strtol(R0, &szStop, 10);
-    idReg1 = (BYTE)strtol(R1, &szStop, 10);
-    idReg2 = (BYTE)strtol(R2, &szStop, 10);
-    idReg3 = (BYTE)strtol(R3, &szStop, 10);
-
+ 
     while (1) {
-        if (!DeppGetReg(hif, idReg0, &idData0, fFalse)) {
-            printf("DeppGetReg failed\n");
-            ErrorExit();
-        }
-        Sleep(200);
-        if (!DeppGetReg(hif, idReg1, &idData1, fFalse)) {
-            printf("DeppGetReg failed\n");
-            ErrorExit();
-        }
-        Sleep(200);
-        if (!DeppGetReg(hif, idReg2, &idData2, fFalse)) {
-            printf("DeppGetReg failed\n");
-            ErrorExit();
-        }
-        Sleep(200);
-        if (!DeppGetReg(hif, idReg3, &idData3, fFalse)) {
-            printf("DeppGetReg failed\n");
-            ErrorExit();
-        }
-        Sleep(200);
-        if (idData0 != 0) {
-            printf("%d\n", idData0);
-        }
-        if (idData1 != 0) {
-            printf("%d\n", idData1);
-        }
-        if (idData2 != 0) {
-            printf("%d\n", idData2);
-        }
-        if (idData3 != 0) {
-            printf("%d\n", idData3);
-        }
+        DoGetReg();
+        printf("\n");
+        Sleep(500);
+    }
+    if (hif != hifInvalid) {
+        // DEPP API Call: DeppDisable
+        DeppDisable(hif);
+
+        // DMGR API Call: DmgrClose
+        DmgrClose(hif);
     }
     return 0;
 }
