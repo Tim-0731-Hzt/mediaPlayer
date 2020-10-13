@@ -39,7 +39,9 @@ entity media_control_box is
         EppWAIT 	: out std_logic;
  		  Led	: out std_logic_vector(7 downto 0); 
 		  sw	: in std_logic_vector(7 downto 0);
-		  btn	: in std_logic_vector(3 downto 0)
+		  btn	: in std_logic_vector(3 downto 0);
+		  an: out std_logic_vector(3 downto 0);
+		  ssg : out std_logic_vector (6 downto 0)
 	);
 end media_control_box;
 
@@ -62,7 +64,23 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 
-
+	COMPONENT seven_seg_display
+	PORT(
+		input : IN std_logic_vector(11 downto 0);   
+		clk		: IN std_logic;
+		segment_output : OUT std_logic_vector(3 downto 0);
+		anode_out : out std_logic_vector(3 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT single_sseg
+	PORT(
+		input : IN std_logic_vector(3 downto 0);          
+		segments : OUT std_logic_vector(6 downto 0)
+		);
+	END COMPONENT;
+	
+	signal sig_sseg : std_logic_vector (3 downto 0);
 begin
 	Inst_speaker: speaker PORT MAP(
 		clk => clk,
@@ -77,11 +95,22 @@ begin
 		button_mapping => led(7 downto 0)
 	);
 	
+	Inst_single_sseg: single_sseg PORT MAP(
+		input => sig_sseg,
+		segments => ssg
+		
+	);
 	
-	--LED(7 downto 1) <= "0000000";
-	EppWAIT <= '0';
+	Inst_seven_seg_display: seven_seg_display PORT MAP(
+		input => "101110101001",
+		clk => clk,
+		segment_output => sig_sseg,
+		anode_out => an
+	);
 
+	EppWAIT <= '0';
 	
+	--when an goes to 0, the display is active
 	
 end Behavioral;
 
