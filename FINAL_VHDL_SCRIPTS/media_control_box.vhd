@@ -41,7 +41,8 @@ entity media_control_box is
 		  sw	: in std_logic_vector(7 downto 0);
 		  btn	: in std_logic_vector(3 downto 0);
 		  an: out std_logic_vector(3 downto 0);
-		  ssg : out std_logic_vector (6 downto 0)
+		  ssg : out std_logic_vector (6 downto 0);
+		  speaker_audio : out std_logic
 	);
 end media_control_box;
 
@@ -80,12 +81,25 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT EPP_Communication_Module
+	PORT(
+		clk : IN std_logic;
+		EppASTB : IN std_logic;
+		EppDSTB : IN std_logic;
+		EppWrite : IN std_logic;
+		data_to_send : IN std_logic_vector(11 downto 0);    
+		DB : INOUT std_logic_vector(7 downto 0);      
+		EppWait : OUT std_logic
+		);
+	END COMPONENT;
+	
+	
 	signal sig_sseg : std_logic_vector (3 downto 0);
 begin
 	Inst_speaker: speaker PORT MAP(
 		clk => clk,
-		speaker_en => '0',
-		speaker_out => open
+		speaker_en => btn(0),
+		speaker_out => speaker_audio
 	);
 	
 	Inst_button_mapping: button_mapping PORT MAP(
@@ -108,9 +122,16 @@ begin
 		anode_out => an
 	);
 
-	EppWAIT <= '0';
-	
-	--when an goes to 0, the display is active
+	Inst_EPP_Communication_Module: EPP_Communication_Module PORT MAP(
+		clk => clk,
+		DB => DB,
+		EppASTB => EppASTB,
+		EppDSTB => EppDSTB,
+		EppWrite => EppWrite,
+		EppWait => EppWait,
+		data_to_send => "000100000001"
+	);
+
 	
 end Behavioral;
 
