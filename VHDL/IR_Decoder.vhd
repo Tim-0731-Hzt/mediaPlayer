@@ -34,7 +34,8 @@ use IEEE.NUMERIC_STD.ALL;
 entity IR_Decoder is
     port(   clk     : IN    STD_LOGIC;
             reset   : IN    STD_LOGIC;
-			ir		: IN	STD_LOGIC;
+				ir		: IN	STD_LOGIC;
+				curstate : out std_logic_vector(6 downto 0);
             data    : OUT   STD_LOGIC_VECTOR(11 DOWNTO 0);
             done    : OUT   STD_LOGIC);
 end IR_Decoder;
@@ -50,17 +51,18 @@ architecture Behavioral of IR_Decoder is
 	end component;
 	
 	component lshift12 is
-		PORT (w, Clock		: IN	STD_LOGIC;
+		PORT (w, Clock, resetn		: IN	STD_LOGIC;
 				En 			: IN	STD_LOGIC;
 				Q			: OUT	STD_LOGIC_VECTOR(1 TO 12));
 	end component;
 	
-    type state is (S1, S2, S3, S4, S5, S6);
+    type state is (S1, S2, S3, S4, S5, S6, S7);
     signal y    : state;
 
     -- Datapath signals
-    signal LA, EA, w    : STD_LOGIC; -- Load, enable and write for L-Shift Register A
+    signal LA, EA, w, resetn    : STD_LOGIC; -- Load, enable, write and reset for L-Shift Register A
     signal ET, RT       : STD_LOGIC; -- Enable and reset for timer
+	 signal nBits : integer := 0;
     
 	-- Timer signals
 	signal usec_out		: integer;
@@ -87,45 +89,61 @@ begin
                 when S2 =>
                 -- Check the timer
 					-- if timer < 2.4ms
-                    if msec_out < 2 or usec_out < 400 then
-                        if ir = '1' then    -- If a 1 is read then start again
-                            y <= S1;
-                        else                -- continue in state 2 to count the 0 signal time
-                            y <= S2;
-                        end if; 
+						if ir = '1' then
+                    if msec_out = 2 and (usec_out < 410 and usec_out > 390) then
+								y <= S3;
                     else                    -- the ir signal has been 0 for 2.6ms, begin reading a command
-                        y <= S3;
+								y <= S1;
                     end if;
+					   else
+							y <= S2;
+						end if;
                 
                 -- State 3
                 -- Ready to receive a bit
                 when S3 =>
+--							y <= S4;
+--						if nBits = 11 then
+--							y <= S7;
+--						else
                     if ir = '1' then
-                        y <= S3;
+                        y <= S1;
                     elsif ir = '0' then
                         y <= S4;            -- switch to state 4 to start timing the 0 signal
                     end if;
+----					   end if;
 
                 -- State 4 
                 -- time the 0 ir signal
                 when S4 =>
-                    if ir = '1' then                    -- switch to state 5/6 to stop timer
-						if usec_out = 600 then
-							y <= S5;                    -- if 0 for 0.6ms then go to state 5
-						elsif msec_out = 1 and usec_out = 200 then
-							y <= S6;                    -- if 0 for 1.2ms then go to state 6
-						end if;
-                    elsif ir = '0' then                 -- otherwise remain in state 4 to keep timing
-                        y <= S4;
-                    end if;
+					  if ir = '1' then                    -- switch to state 5/6 to stop timer
+--							if usec_out = 600 then
+							if usec_out < 610 and usec_out > 590 then
+								y <= S5;                    -- if 0 for 0.6ms then go to state 5
+							elsif msec_out = 1 and usec_out > 190 and usec_out < 210 then
+--							elsif msec_out = 1 and usec_out = 200 then
+								y <= S6;                    -- if 0 for 1.2ms then go to state 6
+							else 
+								y <= S1;
+							end if;
+					  elsif ir = '0' then                 -- otherwise remain in state 4 to keep timing
+							y <= S4;
+					  end if;
                     
 				-- Load the bit 0 into the shift register
 				when S5 =>
-					y <= S3;
+					y <= S5;
 					
 				-- Load the bit 1 into the shift register
 				when S6 =>
-					y <= S3;
+					y <= S6;
+					
+				when S7 =>
+					if msec_out = 45 then
+						y <= S1;
+					else
+						y <= S7;
+					end if;
 					
                 -- Add ending state
             end case;
@@ -134,7 +152,7 @@ begin
 
     fsm_outputs: process(y)
     begin
-        LA <= '0'; EA <= '0'; ET <= '0'; RT <= '0';
+        LA <= '0'; EA <= '0'; ET <= '0'; RT <= '0'; resetn <= '1'; curstate <= (others => '0');
         
         case y is
             -- State 1
@@ -142,34 +160,50 @@ begin
             when S1 =>
                 LA <= '1';      -- load 0 into left shift register
                 RT <= '1';      -- reset timer
+					 curstate(0) <= '1';
+					 nBits <= 0;
+					 resetn <= '0';
             -- State 2
             -- Time 2.6ms to initialise reading command
             when S2 =>
                 RT <= '0';       -- Stop reset timer
                 ET <= '1';       -- Enable timer
+					 resetn <= '0';
+					 nBits <= 0;
+					 curstate(1) <= '1';
             -- State 3
             -- Ready to receive bit
             when S3 =>
                 LA <= '0';       -- Stop loading 0 into left shift register
                 ET <= '0';       -- Stop timer
                 RT <= '1';       -- reset timer
+					 curstate(2) <= '1';
             when S4 =>
-                RT <= '0';
                 ET <= '1';       -- Start timer
+					 curstate(3) <= '1';
             when S5 =>
-				w <= '0';
+					 w <= '0';
                 ET <= '0';       -- Stop timer but don't reset it
                 EA <= '1';       -- Enable left shift register to load the received bit
-			when S6 =>
-				w <= '1';
-				ET <= '0';       -- Stop timer but don't reset it
-                EA <= '1';       -- Enable left shift register to load the received bit
+					 curstate(4) <= '1';
+					 nBits <= nBits + 1;
+				when S6 =>
+					 w <= '1';
+					 ET <= '0';       -- Stop timer but don't reset it
+					 EA <= '1';       -- Enable left shift register to load the received bit
+					 curstate(5) <= '1';
+					 nBits <= nBits + 1;
+				 when S7 =>
+					 ET <= '1';
+					 curstate(6) <= '1';
         end case;
     end process;
 
     Counter: Timer
             port map (clk, ET, RT, usec_out, msec_out);
-    
+				
+	 ShiftReg: lshift12
+				port map ( w, clk, resetn, EA, data );
 
 end Behavioral;
 
