@@ -87,6 +87,7 @@ architecture Behavioral of media_control_box is
 		EppASTB : IN std_logic;
 		EppDSTB : IN std_logic;
 		EppWrite : IN std_logic;
+		vol_en	: IN std_logic;
 		data_to_send : IN std_logic_vector(11 downto 0);    
 		DB : INOUT std_logic_vector(7 downto 0);      
 		EppWait : OUT std_logic
@@ -102,12 +103,23 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT volume_control
+	PORT(
+		volume_data : IN std_logic_vector(9 downto 0);
+		clk : IN std_logic;          
+		vol_en_out : OUT std_logic;
+		vol_out : OUT std_logic_vector(11 downto 0)
+		);
+	END COMPONENT;
+	
 	signal sig_btn_en				: std_logic;
 	signal sig_ir_en				: std_logic;
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
 	signal ir_mapped 				: std_logic_vector (11 downto 0);
 	signal buttons_mapped 		: std_logic_vector (11 downto 0);	
 	signal mux_out_epp_in 		: std_logic_vector (11 downto 0);
+	signal vol_data_out			: std_logic_vector (11 downto 0);
+	signal vol_en_out				: std_logic;
 begin
 	Inst_speaker: speaker PORT MAP(
 		clk => clk,
@@ -142,15 +154,25 @@ begin
 		EppASTB => EppASTB,
 		EppDSTB => EppDSTB,
 		EppWrite => EppWrite,
+		vol_en	=> vol_en_out,
 		EppWait => EppWait,
 		data_to_send => mux_out_epp_in
 	);
 
 	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(
-		data0 => ir_mapped,
+		--data0 => ir_mapped,
 		data1 => buttons_mapped,
+		data0 => vol_data_out,
 		mux_select => sig_btn_en,
 		data_out => mux_out_epp_in
+	);
+	
+	Inst_volume_control: volume_control PORT MAP(
+		volume_data(9 downto 8) => "00",
+		volume_data(7 downto 0) => sw,
+		clk => clk,
+		vol_en_out => vol_en_out,
+		vol_out => vol_data_out
 	);
 	
 	led <= "11111111";

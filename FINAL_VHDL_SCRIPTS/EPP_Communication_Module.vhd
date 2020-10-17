@@ -35,6 +35,7 @@ entity EPP_Communication_Module is
            EppASTB : in  STD_LOGIC;
            EppDSTB : in  STD_LOGIC;
            EppWrite : in  STD_LOGIC;
+			  vol_en		: in STD_LOGIC;
            EppWait : out  STD_LOGIC;
            data_to_send : in  STD_LOGIC_VECTOR (11 downto 0));
 end EPP_Communication_Module;
@@ -262,7 +263,7 @@ begin
 	-- we are in a 'write data register' state. This is combined with the
 	-- address in the address register to determine which register to write.
 
-	process(clk)
+	sending_button_remote_data: process(clk)
 		begin
 			if clk = '1' and clk'event then
 			regData0 <= "00000000";
@@ -279,10 +280,13 @@ begin
 				elsif data_to_send(11 downto 8) = "0011" then
 					regData3 <= data_to_send(7 downto 0);
 				elsif data_to_send(11 downto 8) = "0100" then
-					regData4 <= data_to_send(7 downto 0);
+					if (vol_en = '1') then 
+						regData4 <= data_to_send(7 downto 0);
+					end if;
 				end if;
 			end if;
 	end process;
+
 
 --	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
 --		begin
@@ -402,32 +406,32 @@ begin
 --			end if;
 --		end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
-		begin
-			if clkMain = '1' and clkMain'Event then
-				if ctlEppDwr = '1' and regEppAdr = "0101" then
-					regData5 <= busEppIn;
-				end if;
-			end if;
-		end process;
+--	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+--		begin
+--			if clkMain = '1' and clkMain'Event then
+--				if ctlEppDwr = '1' and regEppAdr = "0101" then
+--					regData5 <= busEppIn;
+--				end if;
+--			end if;
+--		end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
-		begin
-			if clkMain = '1' and clkMain'Event then
-				if ctlEppDwr = '1' and regEppAdr = "0110" then
-					regData6 <= busEppIn;
-				end if;
-			end if;
-		end process;
+--	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+--		begin
+--			if clkMain = '1' and clkMain'Event then
+--				if ctlEppDwr = '1' and regEppAdr = "0110" then
+--					regData6 <= busEppIn;
+--				end if;
+--			end if;
+--		end process;
 
-	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
-		begin
-			if clkMain = '1' and clkMain'Event then
-				if ctlEppDwr = '1' and regEppAdr = "0111" then
-					regData7 <= busEppIn;
-				end if;
-			end if;
-		end process;
+--	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
+--		begin
+--			if clkMain = '1' and clkMain'Event then
+--				if ctlEppDwr = '1' and regEppAdr = "0111" then
+--					regData7 <= busEppIn;
+--				end if;
+--			end if;
+--		end process;
 
 ----------------------------------------------------------------------------
 

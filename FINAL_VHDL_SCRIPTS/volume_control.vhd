@@ -49,8 +49,7 @@ architecture Behavioral of volume_control is
 	COMPONENT comparator
 		PORT(
 			ADC_input : IN std_logic_vector(11 downto 0);
-			old_input : IN std_logic_vector(11 downto 0);
-			clk : IN std_logic;          
+			old_input : IN std_logic_vector(11 downto 0);        
 			update_reg_en : OUT std_logic;
 			output : OUT std_logic_vector(11 downto 0)
 			);
@@ -63,7 +62,7 @@ architecture Behavioral of volume_control is
 			reg_out : OUT std_logic_vector(11 downto 0)
 			);
 		END COMPONENT;
-	
+		
 	signal protocol_module_out : std_logic_vector(11 downto 0);
 	signal sig_reg_out			: std_logic_vector(11 downto 0);
 	signal sig_update_reg		: std_logic;
@@ -81,7 +80,6 @@ begin
 	Inst_comparator: comparator PORT MAP(
 		ADC_input => protocol_module_out,
 		old_input => sig_reg_out,
-		clk => clk,
 		update_reg_en => sig_update_reg,
 		output => comparator_out
 	);

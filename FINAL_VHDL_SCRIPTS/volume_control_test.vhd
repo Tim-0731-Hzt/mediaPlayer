@@ -91,7 +91,7 @@ BEGIN
 		
 		wait for clk_period*10;
 		
-		volume_data <= "1111111111";
+		volume_data <= "0011111111";
 
       wait;
    end process;
