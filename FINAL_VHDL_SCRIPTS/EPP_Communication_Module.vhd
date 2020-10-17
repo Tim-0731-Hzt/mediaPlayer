@@ -95,8 +95,8 @@ architecture Behavioral of EPP_Communication_Module is
 	-- Registers
 	signal	regEppAdr	: std_logic_vector(3 downto 0);
 	signal	regData0	: std_logic_vector(7 downto 0);
-	signal	regData1	: std_logic_vector(7 downto 0) := "00000000";
-    signal  regData2	: std_logic_vector(7 downto 0) := "00000000";
+	signal	regData1	: std_logic_vector(7 downto 0);
+    signal  regData2	: std_logic_vector(7 downto 0); 
     signal  regData3	: std_logic_vector(7 downto 0);
     signal  regData4	: std_logic_vector(7 downto 0);
 	signal	regData5	: std_logic_vector(7 downto 0);
@@ -262,9 +262,14 @@ begin
 	-- we are in a 'write data register' state. This is combined with the
 	-- address in the address register to determine which register to write.
 
-	process(clkMain)
+	process(clk)
 		begin
-			if clkMain = '1' and clkMain'Event then
+			if clk = '1' and clk'event then
+			regData0 <= "00000000";
+			regData1 <= "00000000";
+			regData2 <= "00000000";
+			regData3 <= "00000000";
+			regData4 <= "00000000";
 				if data_to_send(11 downto 8) = "0000" then
 					regData0 <= data_to_send(7 downto 0);
 				elsif data_to_send(11 downto 8) = "0001" then

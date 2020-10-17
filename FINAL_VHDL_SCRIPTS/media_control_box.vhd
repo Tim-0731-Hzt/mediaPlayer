@@ -51,7 +51,7 @@ architecture Behavioral of media_control_box is
 	COMPONENT speaker
 	PORT(
 		clk : IN std_logic;
-		speaker_en : IN std_logic;          
+		speaker_en : IN std_logic_vector(1 downto 0);          
 		speaker_out : OUT std_logic
 		);
 	END COMPONENT;
@@ -61,7 +61,7 @@ architecture Behavioral of media_control_box is
 		clk : IN std_logic;
 		btn : IN std_logic_vector(3 downto 0);          
 		button_en : OUT std_logic;
-		button_mapping : OUT std_logic_vector(7 downto 0)
+		button_mapping : OUT std_logic_vector(11 downto 0)
 		);
 	END COMPONENT;
 
@@ -93,20 +93,34 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT mux_2_to_1_12b
+	PORT(
+		data0 : IN std_logic_vector(11 downto 0);
+		data1 : IN std_logic_vector(11 downto 0);
+		mux_select : IN std_logic;          
+		data_out : OUT std_logic_vector(11 downto 0)
+		);
+	END COMPONENT;
 	
-	signal sig_sseg : std_logic_vector (3 downto 0);
+	signal sig_btn_en				: std_logic;
+	signal sig_ir_en				: std_logic;
+	signal sig_sseg 				: std_logic_vector (3 downto 0);
+	signal ir_mapped 				: std_logic_vector (11 downto 0);
+	signal buttons_mapped 		: std_logic_vector (11 downto 0);	
+	signal mux_out_epp_in 		: std_logic_vector (11 downto 0);
 begin
 	Inst_speaker: speaker PORT MAP(
 		clk => clk,
-		speaker_en => btn(0),
+		speaker_en(1) => sig_btn_en,
+		speaker_en(0) => sig_ir_en,
 		speaker_out => speaker_audio
 	);
 	
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
 		btn => btn,
-		button_en => open,
-		button_mapping => led(7 downto 0)
+		button_en => sig_btn_en,
+		button_mapping => buttons_mapped
 	);
 	
 	Inst_single_sseg: single_sseg PORT MAP(
@@ -129,9 +143,16 @@ begin
 		EppDSTB => EppDSTB,
 		EppWrite => EppWrite,
 		EppWait => EppWait,
-		data_to_send => "000100000001"
+		data_to_send => mux_out_epp_in
 	);
 
+	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(
+		data0 => ir_mapped,
+		data1 => buttons_mapped,
+		mux_select => sig_btn_en,
+		data_out => mux_out_epp_in
+	);
 	
+	led <= "11111111";
 end Behavioral;
 
