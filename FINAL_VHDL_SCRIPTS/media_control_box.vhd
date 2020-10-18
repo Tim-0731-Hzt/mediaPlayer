@@ -119,6 +119,16 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT mux_2_to_1_16b
+	PORT(
+		data0 : IN std_logic_vector(15 downto 0);
+		data1 : IN std_logic_vector(15 downto 0);
+		mux_select : IN std_logic;          
+		data_out : OUT std_logic_vector(15 downto 0)
+		);
+	END COMPONENT;
+	
+	
 	signal sig_btn_en				: std_logic;
 	signal sig_ir_en				: std_logic;
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
@@ -128,6 +138,7 @@ architecture Behavioral of media_control_box is
 	signal vol_data_out			: std_logic_vector (11 downto 0);
 	signal vol_en_out				: std_logic;
 	signal buttons_msg_sig		: std_logic_vector (15 downto 0);
+	signal mux_out_segments_in	: std_logic_vector (15 downto 0);
 	
 begin
 	ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
@@ -147,14 +158,14 @@ begin
 	);
 	
 	Inst_single_sseg: single_sseg PORT MAP(
-		input(4) => '1',
+		input(4) => sig_btn_en,
 		input(3 downto 0) => sig_sseg(3 downto 0),
 		segments => ssg
 		
 	);
 	
 	Inst_seven_seg_display: seven_seg_display PORT MAP(
-		input => "0001000000100101",
+		input => mux_out_segments_in,
 		clk => clk,
 		segment_output => sig_sseg,
 		anode_out => an
@@ -191,6 +202,13 @@ begin
 		clk => clk,
 		vol_en_out => vol_en_out,
 		vol_out => vol_data_out
+	);
+	
+	Inst_mux_2_to_1_16b: mux_2_to_1_16b PORT MAP(
+		data0 => ir_mapped,
+		data1 => buttons_msg_sig,
+		mux_select => sig_btn_en,
+		data_out => mux_out_segments_in
 	);
 	
 	led <= "11111111";
