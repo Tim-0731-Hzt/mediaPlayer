@@ -76,7 +76,7 @@ architecture Behavioral of media_control_box is
 	
 	COMPONENT single_sseg
 	PORT(
-		input : IN std_logic_vector(3 downto 0);          
+		input : IN std_logic_vector(4 downto 0);          
 		segments : OUT std_logic_vector(6 downto 0)
 		);
 	END COMPONENT;
@@ -112,15 +112,26 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT button_msg
+	PORT(
+		button_addr : IN std_logic_vector(1 downto 0);          
+		button_msg : OUT std_logic_vector(15 downto 0)
+		);
+	END COMPONENT;
+	
 	signal sig_btn_en				: std_logic;
 	signal sig_ir_en				: std_logic;
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
-	signal ir_mapped 				: std_logic_vector (11 downto 0);
+	signal ir_mapped 				: std_logic_vector (15 downto 0);
 	signal buttons_mapped 		: std_logic_vector (11 downto 0);	
 	signal mux_out_epp_in 		: std_logic_vector (11 downto 0);
 	signal vol_data_out			: std_logic_vector (11 downto 0);
 	signal vol_en_out				: std_logic;
+	signal buttons_msg_sig		: std_logic_vector (15 downto 0);
+	
 begin
+	ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
+
 	Inst_speaker: speaker PORT MAP(
 		clk => clk,
 		speaker_en(1) => sig_btn_en,
@@ -136,17 +147,24 @@ begin
 	);
 	
 	Inst_single_sseg: single_sseg PORT MAP(
-		input => sig_sseg,
+		input(4) => '1',
+		input(3 downto 0) => sig_sseg(3 downto 0),
 		segments => ssg
 		
 	);
 	
 	Inst_seven_seg_display: seven_seg_display PORT MAP(
-		input => "0000101110101001",
+		input => "0001000000100101",
 		clk => clk,
 		segment_output => sig_sseg,
 		anode_out => an
 	);
+	
+		Inst_button_msg: button_msg PORT MAP(
+		button_addr => buttons_mapped(9 downto 8),
+		button_msg => buttons_msg_sig
+	);
+
 
 	Inst_EPP_Communication_Module: EPP_Communication_Module PORT MAP(
 		clk => clk,

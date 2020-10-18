@@ -30,7 +30,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity single_sseg is
-    Port ( input : in  STD_LOGIC_VECTOR (3 downto 0);
+    Port ( input : in  STD_LOGIC_VECTOR (4 downto 0);
            segments : out  STD_LOGIC_VECTOR (6 downto 0));
 end single_sseg;
 
@@ -38,7 +38,7 @@ architecture Behavioral of single_sseg is
 
 COMPONENT single_sseg
 	PORT(
-		input : IN std_logic_vector(3 downto 0);          
+		input : IN std_logic_vector(4 downto 0);          
 		segments : OUT std_logic_vector(6 downto 0)
 		);
 	END COMPONENT;
@@ -48,22 +48,35 @@ COMPONENT single_sseg
 begin
     with input select
         segments <=
-            "1000000" when X"0",
-            "1111001" when X"1",
-            "0100100" when X"2",
-            "0110000" when X"3",
-            "0011001" when X"4",
-            "0010010" when X"5",
-            "0000010" when X"6",
-            "1111000" when X"7",
-            "0000000" when X"8",
-            "0010000" when X"9",
-            "0001000" when X"a",
-            "0000011" when X"b",
-            "1000110" when X"c",
-            "0100001" when X"d",
-            "0000110" when X"e",
-            "0001110" when X"f",
+            "1000000" when "00000",
+            "1111001" when "00001",
+            "0100100" when "00010",
+            "0110000" when "00011",
+            "0011001" when "00100",
+            "0010010" when "00101",
+            "0000010" when "00110",
+            "1111000" when "00111",
+            "0000000" when "01000",
+            "0010000" when "01001",
+            "0001000" when "01010",
+            "0000011" when "01011",
+            "1000110" when "01100",
+            "0100001" when "01101",
+            "0000110" when "01110",
+            "0001110" when "01111",
+				
+				"0001000" when "10000", -- A
+				"0000011" when "10001", -- b
+				"1000110" when "10010", -- C
+				"0100001" when "10011", -- d
+				"0001110" when "10100", -- F
+				"0001001" when "10101", -- K
+				"1000111" when "10110", -- L
+				"1000000" when "10111", -- O
+				"0001100" when "11000", -- P
+				"0010010" when "11001",	 -- S
+				"0000111" when "11010",	 -- T
+				"0010001" when "11011",  -- y
 				"1111111" when others;
 
 
