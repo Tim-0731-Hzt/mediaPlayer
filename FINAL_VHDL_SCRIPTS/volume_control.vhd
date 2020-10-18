@@ -90,7 +90,7 @@ begin
 		reg_out => sig_reg_out
 	);
 	
-	vol_out <= comparator_out;
+	vol_out <= protocol_module_out;
 	
 	vol_en_out_process: process(clk)
 	begin

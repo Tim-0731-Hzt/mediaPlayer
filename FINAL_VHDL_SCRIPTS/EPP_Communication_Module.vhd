@@ -104,6 +104,7 @@ architecture Behavioral of EPP_Communication_Module is
 	signal	regData6	: std_logic_vector(7 downto 0);
 	signal	regData7	: std_logic_vector(7 downto 0);
 
+	signal hold_en		: std_logic;
 ------------------------------------------------------------------------
 -- Module Implementation
 ------------------------------------------------------------------------
@@ -270,7 +271,6 @@ begin
 			regData1 <= "00000000";
 			regData2 <= "00000000";
 			regData3 <= "00000000";
-			regData4 <= "00000000";
 				if data_to_send(11 downto 8) = "0000" then
 					regData0 <= data_to_send(7 downto 0);
 				elsif data_to_send(11 downto 8) = "0001" then
@@ -287,7 +287,26 @@ begin
 			end if;
 	end process;
 
-
+--	signal_en_latch : process(clk)
+--	variable cnt : integer range 0 to 500000 := 0;
+--	begin	
+--		if (clk'event and clk = '1') then
+--			if (vol_en = '1') then
+--				hold_en <= '1';
+--			end if;
+---			
+--			if (hold_en = '1') then
+--			cnt := cnt + 1;
+--			end if;
+			
+--			if (cnt = 500000) then
+--				hold_en <= '0';
+--				cnt := 0;
+			
+--			end if;
+--		end if;
+--	end process;
+	
 --	process (clkMain, regEppAdr, ctlEppDwr, busEppIn)
 --		begin
 --			if clkMain = '1' and clkMain'Event then

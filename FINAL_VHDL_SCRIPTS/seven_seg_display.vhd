@@ -30,7 +30,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity seven_seg_display is
-    Port ( input 		: in  STD_LOGIC_VECTOR (11 downto 0);
+    Port ( input 		: in  STD_LOGIC_VECTOR (15 downto 0);
 			  clk 		: in STD_LOGIC ;
 			  segment_output 	: out std_logic_vector (3 downto 0);
 			  anode_out		: out std_logic_vector (3 downto 0));
@@ -64,7 +64,7 @@ begin
 		data0 => input(3 downto 0),
 		data1 => input(7 downto 4),
 		data2 => input(11 downto 8),
-		data3 => "0000",
+		data3 => input(15 downto 12),
 		mux_select => sig_mux_select,
 		data_out => segment_output
 	);

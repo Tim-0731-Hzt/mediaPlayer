@@ -67,7 +67,7 @@ architecture Behavioral of media_control_box is
 
 	COMPONENT seven_seg_display
 	PORT(
-		input : IN std_logic_vector(11 downto 0);   
+		input : IN std_logic_vector(15 downto 0);   
 		clk		: IN std_logic;
 		segment_output : OUT std_logic_vector(3 downto 0);
 		anode_out : out std_logic_vector(3 downto 0)
@@ -142,7 +142,7 @@ begin
 	);
 	
 	Inst_seven_seg_display: seven_seg_display PORT MAP(
-		input => "101110101001",
+		input => "0000101110101001",
 		clk => clk,
 		segment_output => sig_sseg,
 		anode_out => an
