@@ -2,15 +2,15 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   17:49:11 10/05/2020
+-- Create Date:   17:46:36 10/19/2020
 -- Design Name:   
--- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/media_control_box/speaker_test.vhd
+-- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/FINAL_VHDL_SCRIPTS/startup_noise_test.vhd
 -- Project Name:  media_control_box
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: speaker
+-- VHDL Test Bench Created by ISE for module: startup_state_machine
 -- 
 -- Dependencies:
 -- 
@@ -32,17 +32,16 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY speaker_test IS
-END speaker_test;
+ENTITY startup_noise_test IS
+END startup_noise_test;
  
-ARCHITECTURE behavior OF speaker_test IS 
+ARCHITECTURE behavior OF startup_noise_test IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT speaker
+    COMPONENT startup_state_machine
     PORT(
          clk : IN  std_logic;
-         speaker_en : IN  std_logic_vector(1 downto 0);
          speaker_out : OUT  std_logic
         );
     END COMPONENT;
@@ -50,20 +49,18 @@ ARCHITECTURE behavior OF speaker_test IS
 
    --Inputs
    signal clk : std_logic := '0';
-   signal speaker_en : std_logic := "00";
 
  	--Outputs
    signal speaker_out : std_logic;
 
    -- Clock period definitions
-   constant clk_period : time := 20 ns;
+   constant clk_period : time := 10 ns;
  
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: speaker PORT MAP (
+   uut: startup_state_machine PORT MAP (
           clk => clk,
-          speaker_en => speaker_en,
           speaker_out => speaker_out
         );
 
@@ -85,15 +82,7 @@ BEGIN
 
       wait for clk_period*10;
 
-      speaker_en <= '1';
-		wait for clk_period;
-		speaker_en <= '0';
-		
-		wait for 1000000000 ns;
-		
-		speaker_en <= '1';
-		wait for clk_period;
-		speaker_en <= '0';
+      -- insert stimulus here 
 
       wait;
    end process;

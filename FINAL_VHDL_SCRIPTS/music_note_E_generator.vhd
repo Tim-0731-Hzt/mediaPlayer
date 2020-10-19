@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    12:06:07 10/18/2020 
+-- Create Date:    16:53:24 10/19/2020 
 -- Design Name: 
--- Module Name:    button_msg - Behavioral 
+-- Module Name:    music_note_E_generator - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -29,25 +29,39 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity button_msg is
-    Port ( button_addr : in  STD_LOGIC_VECTOR (1 downto 0);
-           button_msg : out  STD_LOGIC_VECTOR (15 downto 0));
-end button_msg;
+entity music_note_E_generator is
+    Port ( clk : in  STD_LOGIC;
+           signal_en : in  STD_LOGIC;
+           gen_E : out  STD_LOGIC);
+end music_note_E_generator;
 
-architecture Behavioral of button_msg is
+architecture Behavioral of music_note_E_generator is
+
+signal output_sig: std_logic := '0';
 
 begin
-	button_msg_mapping : process(button_addr)
+
+	gen_sig : process(clk)
+	variable cnt : integer := 0;
 	begin
-		if button_addr = "00" then
-			button_msg <= "1111010001000011"; -- FFD
-		elsif button_addr = "01" then
-			button_msg <= "1000011000001011"; -- PLAY
-		elsif button_addr = "10" then
-			button_msg <= "1001101001111000"; -- STOP
-		elsif button_addr = "11" then
-			button_msg <= "0001000000100101"; -- BACK
+	
+		if (clk'event and clk = '1') then
+			if (signal_en = '1') then
+				if(cnt = 151685) then 
+					cnt := 0;
+					if (output_sig = '0') then
+						output_sig <= '1';
+					else 
+						output_sig <= '0';
+					end if;
+				else 
+					cnt := cnt + 1;
+				end if;
+			end if;
 		end if;
 	end process;
+
+	gen_E <= output_sig;
+
 end Behavioral;
 
