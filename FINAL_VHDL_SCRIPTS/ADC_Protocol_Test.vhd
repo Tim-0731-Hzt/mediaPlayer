@@ -2,15 +2,15 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   17:49:11 10/05/2020
+-- Create Date:   14:06:08 10/17/2020
 -- Design Name:   
--- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/media_control_box/speaker_test.vhd
+-- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/FINAL_VHDL_SCRIPTS/ADC_Protocol_Test.vhd
 -- Project Name:  media_control_box
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: speaker
+-- VHDL Test Bench Created by ISE for module: ADC_Protocol_Module
 -- 
 -- Dependencies:
 -- 
@@ -32,39 +32,43 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY speaker_test IS
-END speaker_test;
+ENTITY ADC_Protocol_Test IS
+END ADC_Protocol_Test;
  
-ARCHITECTURE behavior OF speaker_test IS 
+ARCHITECTURE behavior OF ADC_Protocol_Test IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT speaker
+    COMPONENT ADC_Protocol_Module
     PORT(
-         clk : IN  std_logic;
-         speaker_en : IN  std_logic_vector(1 downto 0);
-         speaker_out : OUT  std_logic
+         ADC_in : IN  std_logic_vector(9 downto 0);
+			clk	 : IN  std_logic;
+         enable : IN  std_logic;
+         output : OUT  std_logic_vector(11 downto 0)
         );
     END COMPONENT;
     
 
    --Inputs
-   signal clk : std_logic := '0';
-   signal speaker_en : std_logic := "00";
+   signal ADC_in : std_logic_vector(9 downto 0) := (others => '0');
+	signal clk 	  : std_logic := '0';
+   signal enable : std_logic := '0';
 
  	--Outputs
-   signal speaker_out : std_logic;
-
-   -- Clock period definitions
-   constant clk_period : time := 20 ns;
+   signal output : std_logic_vector(11 downto 0);
+   -- No clocks detected in port list. Replace <clock> below with 
+   -- appropriate port name 
+ 
+   constant clk_period : time := 10 ns;
  
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: speaker PORT MAP (
-          clk => clk,
-          speaker_en => speaker_en,
-          speaker_out => speaker_out
+   uut: ADC_Protocol_Module PORT MAP (
+          ADC_in => ADC_in,
+			 clk => clk,
+          enable => enable,
+          output => output
         );
 
    -- Clock process definitions
@@ -84,16 +88,8 @@ BEGIN
       wait for 100 ns;	
 
       wait for clk_period*10;
-
-      speaker_en <= '1';
-		wait for clk_period;
-		speaker_en <= '0';
-		
-		wait for 1000000000 ns;
-		
-		speaker_en <= '1';
-		wait for clk_period;
-		speaker_en <= '0';
+		ADC_in <= "1111111111";
+      -- insert stimulus here 
 
       wait;
    end process;

@@ -2,15 +2,15 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   17:49:11 10/05/2020
+-- Create Date:   17:08:47 10/17/2020
 -- Design Name:   
--- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/media_control_box/speaker_test.vhd
+-- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/FINAL_VHDL_SCRIPTS/comparator_test.vhd
 -- Project Name:  media_control_box
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: speaker
+-- VHDL Test Bench Created by ISE for module: comparator
 -- 
 -- Dependencies:
 -- 
@@ -32,39 +32,45 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY speaker_test IS
-END speaker_test;
+ENTITY comparator_test IS
+END comparator_test;
  
-ARCHITECTURE behavior OF speaker_test IS 
+ARCHITECTURE behavior OF comparator_test IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT speaker
+    COMPONENT comparator
     PORT(
+         ADC_input : IN  std_logic_vector(11 downto 0);
+         old_input : IN  std_logic_vector(11 downto 0);
          clk : IN  std_logic;
-         speaker_en : IN  std_logic_vector(1 downto 0);
-         speaker_out : OUT  std_logic
+         update_reg_en : OUT  std_logic;
+         output : OUT  std_logic_vector(11 downto 0)
         );
     END COMPONENT;
     
 
    --Inputs
+   signal ADC_input : std_logic_vector(11 downto 0) := (others => '0');
+   signal old_input : std_logic_vector(11 downto 0) := (others => '0');
    signal clk : std_logic := '0';
-   signal speaker_en : std_logic := "00";
 
  	--Outputs
-   signal speaker_out : std_logic;
+   signal update_reg_en : std_logic;
+   signal output : std_logic_vector(11 downto 0);
 
    -- Clock period definitions
-   constant clk_period : time := 20 ns;
+   constant clk_period : time := 10 ns;
  
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: speaker PORT MAP (
+   uut: comparator PORT MAP (
+          ADC_input => ADC_input,
+          old_input => old_input,
           clk => clk,
-          speaker_en => speaker_en,
-          speaker_out => speaker_out
+          update_reg_en => update_reg_en,
+          output => output
         );
 
    -- Clock process definitions
@@ -85,15 +91,9 @@ BEGIN
 
       wait for clk_period*10;
 
-      speaker_en <= '1';
-		wait for clk_period;
-		speaker_en <= '0';
+      ADC_input <= "000000000011";
+		old_input <= "000000000010";
 		
-		wait for 1000000000 ns;
-		
-		speaker_en <= '1';
-		wait for clk_period;
-		speaker_en <= '0';
 
       wait;
    end process;

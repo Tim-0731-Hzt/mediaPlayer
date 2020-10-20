@@ -47,3 +47,5 @@ NET "ssg<3>" LOC = "H13";
 NET "ssg<4>" LOC = "J14";
 NET "ssg<5>" LOC = "E14";
 NET "ssg<6>" LOC = "G16";
+
+NET "speaker_audio" LOC = "T14";

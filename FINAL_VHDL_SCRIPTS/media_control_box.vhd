@@ -41,32 +41,33 @@ entity media_control_box is
 		  sw	: in std_logic_vector(7 downto 0);
 		  btn	: in std_logic_vector(3 downto 0);
 		  an: out std_logic_vector(3 downto 0);
-		  ssg : out std_logic_vector (6 downto 0)
+		  ssg : out std_logic_vector (6 downto 0);
+		  speaker_audio : out std_logic
 	);
 end media_control_box;
 
 architecture Behavioral of media_control_box is
 
-	COMPONENT speaker
-	PORT(
-		clk : IN std_logic;
-		speaker_en : IN std_logic;          
-		speaker_out : OUT std_logic
-		);
-	END COMPONENT;
+--	COMPONENT speaker
+--	PORT(
+--		clk : IN std_logic;
+--		speaker_en : IN std_logic_vector(1 downto 0);          
+--		speaker_out : OUT std_logic
+--		);
+--	END COMPONENT;
 	
 	COMPONENT button_mapping
 	PORT(
 		clk : IN std_logic;
 		btn : IN std_logic_vector(3 downto 0);          
 		button_en : OUT std_logic;
-		button_mapping : OUT std_logic_vector(7 downto 0)
+		button_mapping : OUT std_logic_vector(11 downto 0)
 		);
 	END COMPONENT;
 
 	COMPONENT seven_seg_display
 	PORT(
-		input : IN std_logic_vector(11 downto 0);   
+		input : IN std_logic_vector(15 downto 0);   
 		clk		: IN std_logic;
 		segment_output : OUT std_logic_vector(3 downto 0);
 		anode_out : out std_logic_vector(3 downto 0)
@@ -75,42 +76,155 @@ architecture Behavioral of media_control_box is
 	
 	COMPONENT single_sseg
 	PORT(
-		input : IN std_logic_vector(3 downto 0);          
+		input : IN std_logic_vector(4 downto 0);          
 		segments : OUT std_logic_vector(6 downto 0)
 		);
 	END COMPONENT;
 	
-	signal sig_sseg : std_logic_vector (3 downto 0);
+	COMPONENT EPP_Communication_Module
+	PORT(
+		clk : IN std_logic;
+		EppASTB : IN std_logic;
+		EppDSTB : IN std_logic;
+		EppWrite : IN std_logic;
+		vol_en	: IN std_logic;
+		data_to_send : IN std_logic_vector(11 downto 0);    
+		DB : INOUT std_logic_vector(7 downto 0);      
+		EppWait : OUT std_logic
+		);
+	END COMPONENT;
+	
+	COMPONENT mux_2_to_1_12b
+	PORT(
+		data0 : IN std_logic_vector(11 downto 0);
+		data1 : IN std_logic_vector(11 downto 0);
+		mux_select : IN std_logic;          
+		data_out : OUT std_logic_vector(11 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT volume_control
+	PORT(
+		volume_data : IN std_logic_vector(9 downto 0);
+		clk : IN std_logic;          
+		vol_en_out : OUT std_logic;
+		vol_out : OUT std_logic_vector(11 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT button_msg
+	PORT(
+		button_addr : IN std_logic_vector(1 downto 0);          
+		button_msg : OUT std_logic_vector(15 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT mux_2_to_1_16b
+	PORT(
+		data0 : IN std_logic_vector(15 downto 0);
+		data1 : IN std_logic_vector(15 downto 0);
+		mux_select : IN std_logic;          
+		data_out : OUT std_logic_vector(15 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT startup_state_machine
+	PORT(
+		clk : IN std_logic;          
+		speaker_out : OUT std_logic
+		);
+	END COMPONENT;
+
+	
+	signal sig_btn_en				: std_logic; 
+	signal sig_ir_en				: std_logic;
+	signal sig_sseg 				: std_logic_vector (3 downto 0);
+	signal ir_mapped 				: std_logic_vector (15 downto 0);
+	signal buttons_mapped 		: std_logic_vector (11 downto 0);	
+	signal mux_out_epp_in 		: std_logic_vector (11 downto 0);
+	signal vol_data_out			: std_logic_vector (11 downto 0);
+	signal vol_en_out				: std_logic;
+	signal buttons_msg_sig		: std_logic_vector (15 downto 0);
+	signal mux_out_segments_in	: std_logic_vector (15 downto 0);
+	
 begin
-	Inst_speaker: speaker PORT MAP(
-		clk => clk,
-		speaker_en => '0',
-		speaker_out => open
-	);
+	ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
+	ir_mapped(11 downto 0)  <= "000110011010";
+	
+--	Inst_speaker: speaker PORT MAP(
+--		clk => clk,
+--		speaker_en(1) => sig_btn_en,
+--		speaker_en(0) => sig_ir_en,
+--		speaker_out => speaker_audio
+--	);
 	
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
 		btn => btn,
-		button_en => open,
-		button_mapping => led(7 downto 0)
+		button_en => sig_btn_en,
+		button_mapping => buttons_mapped
 	);
 	
 	Inst_single_sseg: single_sseg PORT MAP(
-		input => sig_sseg,
+		input(4) => sig_btn_en,
+		input(3 downto 0) => sig_sseg(3 downto 0),
 		segments => ssg
 		
 	);
 	
 	Inst_seven_seg_display: seven_seg_display PORT MAP(
-		input => "101110101001",
+		input => mux_out_segments_in,
 		clk => clk,
 		segment_output => sig_sseg,
 		anode_out => an
 	);
+	
+		Inst_button_msg: button_msg PORT MAP(
+		button_addr => buttons_mapped(9 downto 8),
+		button_msg => buttons_msg_sig
+	);
 
-	EppWAIT <= '0';
+
+	Inst_EPP_Communication_Module: EPP_Communication_Module PORT MAP(
+		clk => clk,
+		DB => DB,
+		EppASTB => EppASTB,
+		EppDSTB => EppDSTB,
+		EppWrite => EppWrite,
+		vol_en	=> vol_en_out,
+		EppWait => EppWait,
+		data_to_send => mux_out_epp_in
+	);
+
+	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(
+		--data0 => ir_mapped,
+		data1 => buttons_mapped,
+		data0 => vol_data_out,
+		mux_select => sig_btn_en,
+		data_out => mux_out_epp_in
+	);
 	
-	--when an goes to 0, the display is active
+	Inst_volume_control: volume_control PORT MAP(
+		volume_data(9 downto 8) => "00",
+		volume_data(7 downto 0) => sw,
+		clk => clk,
+		vol_en_out => vol_en_out,
+		vol_out => vol_data_out
+	);
 	
+	Inst_mux_2_to_1_16b: mux_2_to_1_16b PORT MAP(
+		data0 => ir_mapped,
+		data1 => buttons_msg_sig,
+		mux_select => sig_btn_en,
+		data_out => mux_out_segments_in
+	);
+	
+	Inst_startup_state_machine: startup_state_machine PORT MAP(
+		clk => clk,
+		speaker_out => speaker_audio
+	);
+
+
+	led <= "11111111";
 end Behavioral;
 

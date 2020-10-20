@@ -30,14 +30,13 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 
---For a 50MHz clock
+--For a 100MHz clock
 --When speaker_en is active, a square wave will be the output for 0.5s
---For simplicity reasons, output frequency is 500Hz
 
 
 entity speaker is
     Port ( clk : in  STD_LOGIC;
-           speaker_en : in  STD_LOGIC;
+           speaker_en : in  STD_LOGIC_VECTOR(1 downto 0);
            speaker_out : out  STD_LOGIC);
 end speaker;
 
@@ -48,12 +47,12 @@ architecture Behavioral of speaker is
 begin
 	
 	square_wave_gen : process(clk)
-	variable cnt : integer range 0 to 50000 := 0;
+	variable cnt : integer := 0;
 	begin
 	
 		if (clk'event and clk = '1') then
 			if (hold_en = '1') then
-				if(cnt = 50000) then 
+				if(cnt = 100000) then 
 					cnt := 0;
 					if (output_sig = '0') then
 						output_sig <= '1';
@@ -74,17 +73,17 @@ begin
 	-- this process will hold an enable for the duration of the 0.5s
 	-- set signal hold_en to '1' when pulse occurs, wait 0.5s, return hold_en to '0'
 	signal_en_latch : process(clk)
-	variable cnt : integer range 0 to 25000000 := 0;
+	variable cnt : integer := 0;
 	begin	
 		if (clk'event and clk = '1') then
-			if (speaker_en = '1') then
+			if (speaker_en(0) = '1' or speaker_en(1) = '1') then
 				hold_en <= '1';
 			end if;
 			if (hold_en = '1') then
 			cnt := cnt + 1;
 			end if;
 			
-			if (cnt = 25000000) then
+			if (cnt = 50000000) then
 				hold_en <= '0';
 				cnt := 0;
 			

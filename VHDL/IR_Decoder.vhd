@@ -90,7 +90,7 @@ begin
                 -- Check the timer
 					-- if timer < 2.4ms
 						if ir = '1' then
-                    if msec_out = 2 and (usec_out < 410 and usec_out > 390) then
+                    if msec_out = 2 and (usec_out < 450 and usec_out > 350) then
 								y <= S3;
                     else                    -- the ir signal has been 0 for 2.6ms, begin reading a command
 								y <= S1;
@@ -103,24 +103,24 @@ begin
                 -- Ready to receive a bit
                 when S3 =>
 --							y <= S4;
---						if nBits = 11 then
---							y <= S7;
---						else
-                    if ir = '1' then
-                        y <= S1;
-                    elsif ir = '0' then
-                        y <= S4;            -- switch to state 4 to start timing the 0 signal
-                    end if;
-----					   end if;
+						if nBits = 11 then
+							y <= S7;
+						else
+							if ir = '1' then
+								y <= S3;
+							else
+								y <= S4;
+							end if;
+						end if;
 
                 -- State 4 
                 -- time the 0 ir signal
                 when S4 =>
 					  if ir = '1' then                    -- switch to state 5/6 to stop timer
 --							if usec_out = 600 then
-							if usec_out < 610 and usec_out > 590 then
+							if usec_out < 650 and usec_out > 550 then
 								y <= S5;                    -- if 0 for 0.6ms then go to state 5
-							elsif msec_out = 1 and usec_out > 190 and usec_out < 210 then
+							elsif msec_out = 1 and usec_out > 150 and usec_out < 250 then
 --							elsif msec_out = 1 and usec_out = 200 then
 								y <= S6;                    -- if 0 for 1.2ms then go to state 6
 							else 
@@ -132,11 +132,11 @@ begin
                     
 				-- Load the bit 0 into the shift register
 				when S5 =>
-					y <= S5;
+					y <= S3;
 					
 				-- Load the bit 1 into the shift register
 				when S6 =>
-					y <= S6;
+					y <= S3;
 					
 				when S7 =>
 					if msec_out = 45 then
@@ -161,8 +161,6 @@ begin
                 LA <= '1';      -- load 0 into left shift register
                 RT <= '1';      -- reset timer
 					 curstate(0) <= '1';
-					 nBits <= 0;
-					 resetn <= '0';
             -- State 2
             -- Time 2.6ms to initialise reading command
             when S2 =>

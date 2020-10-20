@@ -2,15 +2,15 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   17:49:11 10/05/2020
+-- Create Date:   18:20:31 10/17/2020
 -- Design Name:   
--- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/media_control_box/speaker_test.vhd
+-- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/FINAL_VHDL_SCRIPTS/volume_control_test.vhd
 -- Project Name:  media_control_box
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: speaker
+-- VHDL Test Bench Created by ISE for module: volume_control
 -- 
 -- Dependencies:
 -- 
@@ -32,39 +32,41 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY speaker_test IS
-END speaker_test;
+ENTITY volume_control_test IS
+END volume_control_test;
  
-ARCHITECTURE behavior OF speaker_test IS 
+ARCHITECTURE behavior OF volume_control_test IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT speaker
+    COMPONENT volume_control
     PORT(
+         volume_data : IN  std_logic_vector(9 downto 0);
          clk : IN  std_logic;
-         speaker_en : IN  std_logic_vector(1 downto 0);
-         speaker_out : OUT  std_logic
+			vol_en_out : out std_logic;
+         vol_out : OUT  std_logic_vector(11 downto 0)
         );
     END COMPONENT;
     
 
    --Inputs
+   signal volume_data : std_logic_vector(9 downto 0) := (others => '0');
    signal clk : std_logic := '0';
-   signal speaker_en : std_logic := "00";
 
  	--Outputs
-   signal speaker_out : std_logic;
-
+   signal vol_out : std_logic_vector(11 downto 0);
+	signal vol_en_out : std_logic;
    -- Clock period definitions
-   constant clk_period : time := 20 ns;
+   constant clk_period : time := 10 ns;
  
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: speaker PORT MAP (
+   uut: volume_control PORT MAP (
+          volume_data => volume_data,
           clk => clk,
-          speaker_en => speaker_en,
-          speaker_out => speaker_out
+			 vol_en_out => vol_en_out,
+          vol_out => vol_out
         );
 
    -- Clock process definitions
@@ -85,15 +87,11 @@ BEGIN
 
       wait for clk_period*10;
 
-      speaker_en <= '1';
-		wait for clk_period;
-		speaker_en <= '0';
+      volume_data <= "0000000001";
 		
-		wait for 1000000000 ns;
+		wait for clk_period*10;
 		
-		speaker_en <= '1';
-		wait for clk_period;
-		speaker_en <= '0';
+		volume_data <= "0011111111";
 
       wait;
    end process;
