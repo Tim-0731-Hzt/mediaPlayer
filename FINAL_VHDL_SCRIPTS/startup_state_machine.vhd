@@ -44,14 +44,6 @@ COMPONENT music_note_middle_C_generator
 		);
 	END COMPONENT;
 	
-COMPONENT music_note_D_generator
-	PORT(
-		clk : IN std_logic;
-		signal_en : IN std_logic;          
-		gen_D : OUT std_logic
-		);
-	END COMPONENT;
-	
 COMPONENT music_note_E_generator
 	PORT(
 		clk : IN std_logic;
@@ -59,29 +51,37 @@ COMPONENT music_note_E_generator
 		gen_E : OUT std_logic
 		);
 	END COMPONENT;
+	
+COMPONENT music_note_G_generator
+	PORT(
+		clk : IN std_logic;
+		signal_en : IN std_logic;          
+		gen_g : OUT std_logic
+		);
+	END COMPONENT;
 
 	type state is (S1, S2, S3, S4 ,S5, S6);
 	signal y 	: state;
 	
 	signal start				: std_logic := '1';
-	signal d_start				: std_logic;
 	signal e_start				: std_logic;
-	signal d_start_again		: std_logic;
+	signal g_start				: std_logic;
+	signal e_start_again		: std_logic;
 	signal c_start_again		: std_logic;
 	
 	signal c_finish			: std_logic := '0';
-	signal d_finish			: std_logic := '0';
 	signal e_finish			: std_logic := '0';
-	signal d_finish_again	: std_logic := '0';
+	signal g_finish			: std_logic := '0';
+	signal e_finish_again	: std_logic := '0';
 	signal c_finish_again	: std_logic := '0';
 	
 	signal c_enable			: std_logic := '0';
-	signal d_enable			: std_logic := '0';
 	signal e_enable			: std_logic := '0';
+	signal g_enable			: std_logic := '0';
 	
 	signal sig_c_gen			: std_logic := '0';
-	signal sig_d_gen			: std_logic := '0';
 	signal sig_e_gen			: std_logic := '0';
+	signal sig_g_gen			: std_logic := '0';
 begin
 
 
@@ -96,19 +96,19 @@ begin
 						y <= S1;
 					end if;
 				when S2 => 
-					if d_finish = '1' then			--Finished Playing D, Move onto playing E
+					if e_finish = '1' then			--Finished Playing D, Move onto playing E
 						y <= S3;
 					else 
 						y <= S2;
 					end if;
 				when S3 =>
-					if e_finish = '1' then			--Finished Playing E, Move onto playing D again
+					if g_finish = '1' then			--Finished Playing E, Move onto playing D again
 						y <= S4;
 					else 
 						y <= S3;
 					end if;
 				when S4 =>
-					if d_finish_again = '1' then	--Finished Playing D, Move onto playing C again
+					if e_finish_again = '1' then	--Finished Playing D, Move onto playing C again
 						y <= S5;
 					else
 						y <= S4;
@@ -126,17 +126,17 @@ begin
 
 	fsm_outputs: process(y)
 	begin
-		start <= '0'; d_start <= '0'; e_start <= '0'; d_start_again <= '0'; c_start_again <= '0';
+		start <= '0'; e_start <= '0'; g_start <= '0'; e_start_again <= '0'; c_start_again <= '0';
 		
 		case y is
 			when S1 =>
 				start <= '1';
 			when S2 =>
-				d_start <= '1';
-			when S3 =>
 				e_start <= '1';
+			when S3 =>
+				g_start <= '1';
 			when S4 =>
-				d_start_again <= '1';
+				e_start_again <= '1';
 			when S5 => 
 				c_start_again <= '1';
 			when S6 =>
@@ -157,44 +157,44 @@ begin
 			end if;
 		end process;
 	
-	d_playing: process(clk)
-		variable cnt : integer := 0;
-		begin	
-			if (clk'event and clk = '1') then
-				if (d_start  = '1') then
-					cnt := cnt + 1;				
-					
-					if (cnt = 25000000) then
-						cnt := 0;
-						d_finish <= '1';
-					end if;
-				end if;
-			end if;
-	end process;
-	
 	e_playing: process(clk)
 		variable cnt : integer := 0;
 		begin	
 			if (clk'event and clk = '1') then
-				if (e_start = '1') then
+				if (e_start  = '1') then
 					cnt := cnt + 1;				
+					
 					if (cnt = 25000000) then
+						cnt := 0;
 						e_finish <= '1';
 					end if;
 				end if;
 			end if;
 	end process;
 	
-	d_playing_again: process(clk)
+	g_playing: process(clk)
 		variable cnt : integer := 0;
 		begin	
 			if (clk'event and clk = '1') then
-				if (d_start_again  = '1') then
+				if (g_start = '1') then
+					cnt := cnt + 1;				
+					if (cnt = 25000000) then
+						g_finish <= '1';
+					end if;
+				end if;
+			end if;
+	end process;
+	
+	e_playing_again: process(clk)
+		variable cnt : integer := 0;
+		begin	
+			if (clk'event and clk = '1') then
+				if (e_start_again  = '1') then
 					cnt := cnt + 1;				
 					
 					if (cnt = 25000000) then
 						cnt := 0;
-						d_finish_again <= '1';
+						e_finish_again <= '1';
 					end if;
 				end if;
 			end if;
@@ -220,24 +220,24 @@ Inst_music_note_middle_C_generator: music_note_middle_C_generator PORT MAP(
 		gen_middle_C => sig_c_gen
 	);
 	
-	Inst_music_note_D_generator: music_note_D_generator PORT MAP(
-		clk => clk,
-		signal_en => d_enable,
-		gen_D => sig_d_gen
-	);
-	
-Inst_music_note_E_generator: music_note_E_generator PORT MAP(
+	Inst_music_note_E_generator: music_note_E_generator PORT MAP(
 		clk => clk,
 		signal_en => e_enable,
 		gen_E => sig_e_gen
 	);
 	
+Inst_music_note_G_generator: music_note_G_generator PORT MAP(
+		clk => clk,
+		signal_en => g_enable,
+		gen_G => sig_g_gen
+	);
+	
 
 
 
-speaker_out <= (sig_c_gen and c_enable) or (sig_d_gen and d_enable) or (sig_e_gen and e_enable);
+speaker_out <= (sig_c_gen and c_enable) or (sig_e_gen and e_enable) or (sig_g_gen and g_enable);
 c_enable <= start or c_start_again;
-d_enable <= d_start or d_start_again;
-e_enable <= e_start;
+e_enable <= e_start or e_start_again;
+g_enable <= g_start;
 end Behavioral;
 

@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    16:50:12 10/19/2020 
+-- Create Date:    16:53:24 10/19/2020 
 -- Design Name: 
--- Module Name:    music_note_D_generator - Behavioral 
+-- Module Name:    music_note_E_generator - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -29,14 +29,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity music_note_D_generator is
+entity music_note_G_generator is
     Port ( clk : in  STD_LOGIC;
            signal_en : in  STD_LOGIC;
-           gen_D : out  STD_LOGIC);
-end music_note_D_generator;
+           gen_G : out  STD_LOGIC);
+end music_note_G_generator;
 
-architecture Behavioral of music_note_D_generator is
-signal output_sig : std_logic := '0';
+architecture Behavioral of music_note_G_generator is
+
+signal output_sig: std_logic := '0';
 
 begin
 
@@ -46,7 +47,7 @@ begin
 	
 		if (clk'event and clk = '1') then
 			if (signal_en = '1') then
-				if(cnt = 151685) then 
+				if(cnt = 127551) then 
 					cnt := 0;
 					if (output_sig = '0') then
 						output_sig <= '1';
@@ -60,7 +61,7 @@ begin
 		end if;
 	end process;
 
-	gen_D <= output_sig;
+	gen_G <= output_sig;
 
 end Behavioral;
 

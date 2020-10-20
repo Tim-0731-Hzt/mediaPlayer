@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer: 
 -- 
--- Create Date:    16:53:24 10/19/2020 
+-- Create Date:    16:50:12 10/19/2020 
 -- Design Name: 
--- Module Name:    music_note_E_generator - Behavioral 
+-- Module Name:    music_note_D_generator - Behavioral 
 -- Project Name: 
 -- Target Devices: 
 -- Tool versions: 
@@ -36,8 +36,7 @@ entity music_note_E_generator is
 end music_note_E_generator;
 
 architecture Behavioral of music_note_E_generator is
-
-signal output_sig: std_logic := '0';
+signal output_sig : std_logic := '0';
 
 begin
 
@@ -47,7 +46,7 @@ begin
 	
 		if (clk'event and clk = '1') then
 			if (signal_en = '1') then
-				if(cnt = 127551) then 
+				if(cnt = 151685) then 
 					cnt := 0;
 					if (output_sig = '0') then
 						output_sig <= '1';
