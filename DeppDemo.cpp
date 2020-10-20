@@ -123,7 +123,6 @@ int main(int cszArg, char* rgszArg[]) {
     while (1) {
         DoGetReg(s);
         printf("\n");
-        Sleep(500);
     }
     // close socket and depp
     closesocket(s);
@@ -154,9 +153,13 @@ void DoGetReg(SOCKET s) {
 
     // DEPP API Call: DeppGetReg
     // get the single byte value from 4 registers which is mapped to 4 buttons
+    Sleep(100);
     DeppGetReg(hif, idReg0, &idData0, fFalse);
+    Sleep(100);
     DeppGetReg(hif, idReg1, &idData1, fFalse);
+    Sleep(100);
     DeppGetReg(hif, idReg2, &idData2, fFalse);
+    Sleep(100);
     DeppGetReg(hif, idReg3, &idData3, fFalse);
 
     printf("%d\n", idData0);
@@ -170,66 +173,29 @@ void DoGetReg(SOCKET s) {
     const char* r2;
     const char* r3;
 
-    if (idData0 == (BYTE)0) {
-        r0 = "b0 not press";
-    }
-    else {
+    if (idData0 == (BYTE)1) {
         r0 = "next";
+        puts(r0);
+        send(s, r0, strlen(r0), 0);
     }
 
-    if (idData1 == (BYTE)0) {
-        r1 = "b1 not press";
-    }
-    else {
+    if (idData1 == (BYTE)1) {
         r1 = "play";
+        puts(r1);
+        send(s, r1, strlen(r1), 0);
     }
 
-    if (idData2 == (BYTE)0) {
-        r2 = "b2 not press";
-    }
-    else {
+    if (idData2 == (BYTE)1) {
         r2 = "stop";
+        puts(r2);
+        send(s, r2, strlen(r2), 0);
     }
 
-    if (idData3 == (BYTE)0) {
-        r3 = "b3 not press";
-    }
-    else {
+    if (idData3 == (BYTE)1) {
         r3 = "back";
+        puts(r3);
+        send(s, r3, strlen(r3), 0);
     }
-
-    if (send(s, r0, strlen(r0), 0) < 0)
-    {
-        puts("r0 Send failed");
-        disableDepp(hif);
-        return;
-    }
-    puts("r0 Send\n");
-
-    if (send(s, r1, strlen(r1), 0) < 0)
-    {
-        puts("r1 Send failed");
-        disableDepp(hif);
-        return;
-    }
-    puts("r1 Send\n");
-
-    if (send(s, r2, strlen(r2), 0) < 0)
-    {
-        puts("r2 Send failed");
-        disableDepp(hif);
-        return;
-    }
-    puts("r2 Send\n");
-
-    if (send(s, r3, strlen(r3), 0) < 0)
-    {
-        puts("r3 Send failed");
-        disableDepp(hif);
-        return;
-    }
-    puts("r3 Send\n");
-    return;
 }
 
 /* ------------------------------------------------------------ */
