@@ -12,6 +12,9 @@ ENTITY spi_master is
 
             busy    : OUT   std_logic;
             mosi    : OUT   std_logic;
+			sclk_out	: OUT	std_logic;
+			nCS_out		: OUT	std_logic;
+			state_out	: OUT	std_logic_vector(5 downto 0);
             rx_data : OUT   std_logic_vector(d-1 DOWNTO 0));
 END spi_master;
 
@@ -58,8 +61,11 @@ BEGIN
 
     fsm_outputs: process(state, sclk)
     begin
+		state_out <= (others => '0');
         case state is
             when reset =>
+                state_out(0) <= '1';
+
                 rx_data <= (others => '0');
                 --rx_buffer <= (others => '0');
                 --rx_count <= 0;
@@ -68,12 +74,17 @@ BEGIN
 				nCS <= '1';						-- Chip select active low
 				shift_en <= '0';
             when start =>
+                state_out(1) <= '1';
+
                 busy <= '1';
                 nCS <= '0';                     -- Bring nCS low before sclk starts to initialise to mode 0,0
 				shift_reset <= '0';
             when config =>
+                state_out(2) <= '1';
 
             when receive =>                             --  In the execute phase read miso on sclk rising edge
+                state_out(3) <= '1';
+
                 nCS <= '0';
 				shift_en <= '1';
                 -- if (sclk'event and sclk = '1') then
@@ -82,6 +93,8 @@ BEGIN
                 --     rx_count <= rx_count + 1;
                 -- end if;
             when done =>
+                state_out(4) <= '1';
+
                 rx_data <= rx_buffer;
                 busy <= '0';
 				shift_en <= '0';
@@ -111,6 +124,10 @@ BEGIN
 			rx_count <= rx_count + 1;
 		end if;
 	end process;
+	
+	
+	nCS_out <= nCS;
+	sclk_out <= sclk;
 end behaviour;
 
 
