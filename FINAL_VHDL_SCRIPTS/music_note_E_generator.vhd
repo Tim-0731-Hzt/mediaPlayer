@@ -47,7 +47,7 @@ begin
 	
 		if (clk'event and clk = '1') then
 			if (signal_en = '1') then
-				if(cnt = 151685) then 
+				if(cnt = 127551) then 
 					cnt := 0;
 					if (output_sig = '0') then
 						output_sig <= '1';
