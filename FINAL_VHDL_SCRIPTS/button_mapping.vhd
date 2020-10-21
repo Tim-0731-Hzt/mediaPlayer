@@ -60,7 +60,7 @@ begin
 					button_en_sig <= '1';
 				elsif (btn(1) = '1') then
 					button_sig(11 downto 8) <= addr_1;
-					button_sig(7 downto 0) <= "00000001";
+					button_sig(7 downto 0) <= "00000010";
 					button_en_sig <= '1';
 				elsif (btn(2) = '1') then
 					button_sig(11 downto 8) <= addr_2;
