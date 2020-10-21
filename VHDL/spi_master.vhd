@@ -7,14 +7,13 @@ ENTITY spi_master is
     GENERIC( d  : INTEGER := 8);
     PORT (  clk    : IN    std_logic;
             reset_n : IN    std_logic;
-            en      : IN    std_logic;
             miso    : IN    std_logic;
 
             busy    : OUT   std_logic;
             mosi    : OUT   std_logic;
 			sclk_out	: OUT	std_logic;
 			nCS_out		: OUT	std_logic;
-			state_out	: OUT	std_logic_vector(5 downto 0);
+			state_out	: OUT	std_logic_vector(4 downto 0);
             rx_data : OUT   std_logic_vector(d-1 DOWNTO 0));
 END spi_master;
 
@@ -48,7 +47,7 @@ BEGIN
                         state <= receive;
                     end if;
                 when receive =>
-                    if (rx_count = d-1) then      -- if the number of received bits is equal to the register size stop
+                    if (rx_count = 18) then      -- if the number of received bits is equal to the register size stop
                         state <= done;
                     else
                         state <= receive;
@@ -81,9 +80,11 @@ BEGIN
 				shift_reset <= '0';
             when config =>
                 state_out(2) <= '1';
-
+				mosi <= '1';
             when receive =>                             --  In the execute phase read miso on sclk rising edge
                 state_out(3) <= '1';
+
+				rx_data <= rx_buffer;
 
                 nCS <= '0';
 				shift_en <= '1';
@@ -94,12 +95,13 @@ BEGIN
                 -- end if;
             when done =>
                 state_out(4) <= '1';
+				rx_data <= rx_buffer;
 
-                rx_data <= rx_buffer;
                 busy <= '0';
 				shift_en <= '0';
         end case;
     end process;
+	
 	
 	-- Data Path
 
@@ -107,8 +109,14 @@ BEGIN
     begin
         if state = reset or state = start then
             sclk <= '0';
+			counter <= 0;
         elsif(clk'event and clk = '1') then
-            sclk <= not sclk;
+			if counter = 10000000 then
+				sclk <= not sclk;
+				counter <= 0;
+			else
+				counter <= counter + 1;
+			end if;
         end if;
     end process;
 	
