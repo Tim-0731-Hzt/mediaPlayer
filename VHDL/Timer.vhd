@@ -51,7 +51,7 @@ begin
                 usec <= 0;
                 msec <= 0;
             elsif en = '1' then
-                if ticks = 49 then
+                if ticks = 99 then
                     ticks <= 0;
                     
                     if usec = 999 then

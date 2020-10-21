@@ -35,8 +35,9 @@ entity IR_Decoder is
     port(   clk     : IN    STD_LOGIC;
             reset   : IN    STD_LOGIC;
 				ir		: IN	STD_LOGIC;
+				nBits_out	: out std_logic_vector(7 downto 0);
 				curstate : out std_logic_vector(6 downto 0);
-            data    : OUT   STD_LOGIC_VECTOR(11 DOWNTO 0);
+            data    : OUT   STD_LOGIC_VECTOR(15 DOWNTO 0);
             done    : OUT   STD_LOGIC);
 end IR_Decoder;
 
@@ -56,17 +57,27 @@ architecture Behavioral of IR_Decoder is
 				Q			: OUT	STD_LOGIC_VECTOR(1 TO 12));
 	end component;
 	
+	component up_counter IS
+		PORT (  clk     : in    std_logic;
+				en      : in    std_logic;
+				reset   : in    std_logic;
+				cout    : out   std_logic_vector(7 downto 0));
+	END component;
+	
     type state is (S1, S2, S3, S4, S5, S6, S7);
     signal y    : state;
 
     -- Datapath signals
-    signal LA, EA, w, resetn    : STD_LOGIC; -- Load, enable, write and reset for L-Shift Register A
+    signal EC, RC, EA, w, resetn    : STD_LOGIC; -- Load, enable, write and reset for L-Shift Register A
     signal ET, RT       : STD_LOGIC; -- Enable and reset for timer
-	 signal nBits : integer := 0;
+	 signal nBits : integer;
+	 signal data_buffer		: std_logic_vector(11 downto 0);
     
 	-- Timer signals
 	signal usec_out		: integer;
 	signal msec_out		: integer;
+	
+	signal nBit_counter		: std_logic_vector(7 downto 0);
 		
 begin
     fsm_transitions: process(reset, clk, ir)
@@ -103,7 +114,7 @@ begin
                 -- Ready to receive a bit
                 when S3 =>
 --							y <= S4;
-						if nBits = 11 then
+						if nBit_counter = "00001100" then
 							y <= S7;
 						else
 							if ir = '1' then
@@ -118,9 +129,9 @@ begin
                 when S4 =>
 					  if ir = '1' then                    -- switch to state 5/6 to stop timer
 --							if usec_out = 600 then
-							if usec_out < 650 and usec_out > 550 then
+							if msec_out = 0 and usec_out < 750 and usec_out > 450 then
 								y <= S5;                    -- if 0 for 0.6ms then go to state 5
-							elsif msec_out = 1 and usec_out > 150 and usec_out < 250 then
+							elsif msec_out = 1 and usec_out > 50 and usec_out < 350 then
 --							elsif msec_out = 1 and usec_out = 200 then
 								y <= S6;                    -- if 0 for 1.2ms then go to state 6
 							else 
@@ -139,26 +150,26 @@ begin
 					y <= S3;
 					
 				when S7 =>
-					if msec_out = 45 then
+					if msec_out = 30 then
 						y <= S1;
 					else
 						y <= S7;
 					end if;
+--					y <= S7; 
 					
                 -- Add ending state
             end case;
         end if;
     end process;
 
-    fsm_outputs: process(y)
+    fsm_outputs: process(y, data_buffer)
     begin
-        LA <= '0'; EA <= '0'; ET <= '0'; RT <= '0'; resetn <= '1'; curstate <= (others => '0');
+        EA <= '0'; ET <= '0'; RT <= '0'; resetn <= '1'; curstate <= (others => '0'); EC <= '0'; RC <= '0';
         
         case y is
             -- State 1
             -- Reset state
             when S1 =>
-                LA <= '1';      -- load 0 into left shift register
                 RT <= '1';      -- reset timer
 					 curstate(0) <= '1';
             -- State 2
@@ -169,10 +180,11 @@ begin
 					 resetn <= '0';
 					 nBits <= 0;
 					 curstate(1) <= '1';
+					 
+					 RC <= '1';
             -- State 3
             -- Ready to receive bit
             when S3 =>
-                LA <= '0';       -- Stop loading 0 into left shift register
                 ET <= '0';       -- Stop timer
                 RT <= '1';       -- reset timer
 					 curstate(2) <= '1';
@@ -185,15 +197,20 @@ begin
                 EA <= '1';       -- Enable left shift register to load the received bit
 					 curstate(4) <= '1';
 					 nBits <= nBits + 1;
+					 
+					 EC <= '1';
 				when S6 =>
 					 w <= '1';
 					 ET <= '0';       -- Stop timer but don't reset it
 					 EA <= '1';       -- Enable left shift register to load the received bit
 					 curstate(5) <= '1';
 					 nBits <= nBits + 1;
+					 
+					 EC <= '1';
 				 when S7 =>
 					 ET <= '1';
 					 curstate(6) <= '1';
+					 data(11 downto 0) <= data_buffer;
         end case;
     end process;
 
@@ -201,7 +218,15 @@ begin
             port map (clk, ET, RT, usec_out, msec_out);
 				
 	 ShiftReg: lshift12
-				port map ( w, clk, resetn, EA, data );
-
+				port map ( w, clk, resetn, EA, data_buffer(11 downto 0));
+				
+	Inst_Up_Counter: up_counter
+			port map (clk, EC, RC, nBit_counter);
+				
+	data(15 downto 12) <= "0000";
+	
+--	nBits_out <= std_logic_vector(to_unsigned(nBits, nBits_out'length));
+	nBits_out <= nBit_counter;
+	
 end Behavioral;
 

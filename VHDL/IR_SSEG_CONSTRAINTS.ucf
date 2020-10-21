@@ -4,7 +4,7 @@ NET "btn<0>" LOC = "J13";
 #NET "btn<1>" LOC = "K14";
 #NET "btn<2>" LOC = "K13";
 #NET "btn<3>" LOC = "K12";
-#NET "swt<0>" LOC = "N15";
+NET "swt<0>" LOC = "N15";
 #NET "swt<1>" LOC = "J16";
 #NET "swt<2>" LOC = "K16";
 #NET "swt<3>" LOC = "K15";
@@ -36,3 +36,12 @@ NET "led<6>" LOC = "P14";
 NET "led<7>" LOC = "R16";
 
 NET "ir"     LOC = "B4";
+
+NET "led_reg_out<0>" LOC = "D15";
+NET "led_reg_out<1>" LOC = "D16";
+NET "led_reg_out<2>" LOC = "E15";
+NET "led_reg_out<3>" LOC = "E16";
+NET "led_reg_out<4>" LOC = "F14";
+NET "led_reg_out<5>" LOC = "F15";
+NET "led_reg_out<6>" LOC = "H15";
+NET "led_reg_out<7>" LOC = "H16";

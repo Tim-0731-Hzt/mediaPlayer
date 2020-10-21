@@ -10,7 +10,7 @@ ARCHITECTURE Behaviour OF lshift12 IS
 	SIGNAL Sreg	:	STD_LOGIC_VECTOR(1 TO 12);
 	
 BEGIN 
-	PROCESS (Clock)
+	PROCESS (Clock, resetn, en)
 	BEGIN
 		IF resetn = '0' THEN
 			Sreg <= (others => '0');
