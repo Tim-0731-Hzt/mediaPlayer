@@ -179,7 +179,7 @@ void DoGetReg(SOCKET s) {
         send(s, r0, strlen(r0), 0);
     }
 
-    if (idData1 == (BYTE)1) {
+    if (idData1 == (BYTE)2) {
         r1 = "play";
         puts(r1);
         send(s, r1, strlen(r1), 0);
