@@ -18,6 +18,7 @@ for song in playlist:
     media_list.add_media(media) 
     media_player.set_media_list(media_list)
 
+# change song by direction
 def changeSong(direction):
     global num
     if (direction == 'next'):
@@ -56,6 +57,7 @@ def mediaPlayer():
                     if (other_operation == 'next' or other_operation == 'back'):
                         is_playing = False
                         is_pause = False
+                        # if 'next' is pressed, the song will be stopped
                         print ("stop playing " + playlist[num])
                         changeSong(other_operation)
                         other_operation = None
