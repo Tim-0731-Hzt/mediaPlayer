@@ -51,7 +51,7 @@ architecture Behavioral of IR_SSEG is
         ir : IN  std_logic;
 		  curstate : out std_logic_vector(6 downto 0);
 		  nBits_out	: out std_logic_vector(7 downto 0);
-        data : OUT  std_logic_vector(15 downto 0);
+        data : INOUT  std_logic_vector(15 downto 0);
         done : OUT  std_logic
        );
    END COMPONENT;
