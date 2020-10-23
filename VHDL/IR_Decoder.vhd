@@ -5,6 +5,14 @@
 -- Project Name:	Media Controller Box
 -- Course:			COMP3601
 -- Team:			Violet
+-- Description:		State Machine to control the decoding of Sony IR signals
+
+-- Inputs:			clk - must be 100MHz from FPGA
+--					reset - active high, fsm resets when reset is set to 0
+-- 					ir - data signal line from the ir receiver
+
+-- Outputs:			data - 16 bit register with bits 12 downto 0 containing decoded ir command
+--					done - done signal to indicate when the output data is updated
 -------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -18,8 +26,8 @@ entity IR_Decoder is
 			done    	: out   STD_LOGIC;
 			
 			-- Debugging Singals
-			nBits_out	: out std_logic_vector(7 downto 0);
-			curstate 	: out std_logic_vector(6 downto 0)
+			-- nBits_out	: out std_logic_vector(7 downto 0);
+			-- curstate 	: out std_logic_vector(6 downto 0)
 		);
 end IR_Decoder;
 
@@ -84,9 +92,9 @@ begin
 					-- if timer < 2.4ms
 					if ir = '1' then
 						if sig_msec = 2 and (sig_usec < 450 and sig_usec > 350) then
-									y <= S3;
+							y <= S3;
 						else                    -- the ir signal has been 0 for 2.6ms, begin reading a command
-									y <= S1;
+							y <= S1;
 						end if;
 					else
 						y <= S2;
@@ -108,19 +116,17 @@ begin
                 -- State 4 
                 -- time the 0 ir signal
                 when S4 =>
-					  if ir = '1' then                    -- switch to state 5/6 to stop timer
---							if sig_usec = 600 then
-							if sig_msec = 0 and sig_usec < 750 and sig_usec > 450 then
-								y <= S5;                    -- if 0 for 0.6ms then go to state 5
-							elsif sig_msec = 1 and sig_usec > 50 and sig_usec < 350 then
---							elsif sig_msec = 1 and sig_usec = 200 then
-								y <= S6;                    -- if 0 for 1.2ms then go to state 6
-							else 
-								y <= S1;
-							end if;
-					  elsif ir = '0' then                 -- otherwise remain in state 4 to keep timing
-							y <= S4;
-					  end if;
+					if ir = '1' then                    -- switch to state 5/6 to stop timer
+					if sig_msec = 0 and sig_usec < 750 and sig_usec > 450 then
+						y <= S5;                    -- if 0 for 0.6ms then go to state 5
+					elsif sig_msec = 1 and sig_usec > 50 and sig_usec < 350 then
+						y <= S6;                    -- if 0 for 1.2ms then go to state 6
+					else 
+						y <= S1;
+					end if;
+					elsif ir = '0' then                 -- otherwise remain in state 4 to keep timing
+						y <= S4;
+					end if;
                     
 				-- Load the bit 0 into the shift register
 				when S5 =>
@@ -130,84 +136,84 @@ begin
 				when S6 =>
 					y <= S3;
 					
+				-- Wait at least 30ms before attempting to read a new signal
 				when S7 =>
 					if sig_msec = 30 then
 						y <= S1;
 					else
 						y <= S7;
 					end if;
---					y <= S7; 
-					
-                -- Add ending state
             end case;
         end if;
     end process;
 
     fsm_outputs: process(y, data_buffer)
-    begin
-        EA <= '0'; ET <= '0'; RT <= '0'; resetn <= '1'; curstate <= (others => '0'); EC <= '0'; RC <= '0';
-        
+	begin
+        EA <= '0'; ET <= '0'; RT <= '0'; resetn <= '1'; EC <= '0'; RC <= '0'; done <= '0';
+		
+		-- Debugging signals
+		-- curstate <= (others => '0');
         case y is
             -- State 1
             -- Reset state
             when S1 =>
                 RT <= '1';      -- reset timer
-					 curstate(0) <= '1';
+				-- curstate(0) <= '1';
             -- State 2
             -- Time 2.6ms to initialise reading command
             when S2 =>
                 RT <= '0';       -- Stop reset timer
                 ET <= '1';       -- Enable timer
-					 resetn <= '0';
-					 nBits <= 0;
-					 curstate(1) <= '1';
-					 
-					 RC <= '1';
+				resetn <= '0';		-- Reset shift reg
+				nBits <= 0;			-- Reset counter for shift reg
+				-- curstate(1) <= '1';
+				
+				RC <= '1';			-- Reset counter for shift reg
             -- State 3
             -- Ready to receive bit
             when S3 =>
                 ET <= '0';       -- Stop timer
                 RT <= '1';       -- reset timer
-					 curstate(2) <= '1';
+				-- curstate(2) <= '1';
             when S4 =>
                 ET <= '1';       -- Start timer
-					 curstate(3) <= '1';
+				-- curstate(3) <= '1';
             when S5 =>
-					 w <= '0';
+				w <= '0';		-- Bit to be shifter into buffer
                 ET <= '0';       -- Stop timer but don't reset it
                 EA <= '1';       -- Enable left shift register to load the received bit
-					 curstate(4) <= '1';
-					 nBits <= nBits + 1;
-					 
-					 EC <= '1';
-				when S6 =>
-					 w <= '1';
-					 ET <= '0';       -- Stop timer but don't reset it
-					 EA <= '1';       -- Enable left shift register to load the received bit
-					 curstate(5) <= '1';
-					 nBits <= nBits + 1;
-					 
-					 EC <= '1';
-				 when S7 =>
-					 ET <= '1';
-					 curstate(6) <= '1';
-					 data(11 downto 0) <= data_buffer;
+				-- curstate(4) <= '1';
+				nBits <= nBits + 1;	 
+				EC <= '1';
+			when S6 =>
+				w <= '1';
+				ET <= '0';       -- Stop timer but don't reset it
+				EA <= '1';       -- Enable left shift register to load the received bit
+				-- curstate(5) <= '1';
+				nBits <= nBits + 1;
+				EC <= '1';
+			when S7 =>
+				ET <= '1';
+				-- curstate(6) <= '1';
+				data(11 downto 0) <= data_buffer;	-- Update data output when the buffer reg is successfully fillled
+				done <= '1';
         end case;
     end process;
 
-    Counter: Timer
-            port map (clk, ET, RT, sig_usec, sig_msec);
+    IR_Timer: Timer
+		port map (clk, ET, RT, sig_usec, sig_msec);
 				
-	 ShiftReg: lshift12
-				port map ( w, clk, resetn, EA, data_buffer(11 downto 0));
+	ShiftRegBuffer: lshift12
+		port map ( w, clk, resetn, EA, data_buffer(11 downto 0));
 				
-	Inst_Up_Counter: up_counter
-			port map (clk, EC, RC, nBit_counter);
+	nBit_Up_Counter: up_counter
+		port map (clk, EC, RC, nBit_counter);
 				
+	-- Data is output as 16 bits but only bottom 12 bits matter
 	data(15 downto 12) <= "0000";
-	
---	nBits_out <= std_logic_vector(to_unsigned(nBits, nBits_out'length));
-	nBits_out <= nBit_counter;
+
+	-- Debugging signals
+	-- nBits_out <= nBit_counter;
 	
 end Behavioral;
 
