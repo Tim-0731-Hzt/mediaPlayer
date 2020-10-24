@@ -10,7 +10,7 @@
 -- Tool versions: 
 -- Description: 
 --
--- Dependencies: 
+-- DepENDencies: 
 --
 -- Revision: 
 -- Revision 0.01 - File Created
@@ -20,11 +20,11 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Uncomment the following library declaration if using
+-- Uncomment the following library declaration IF using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
+-- Uncomment the following library declaration IF instantiating
 -- any Xilinx primitives in this code.
 --library UNISIM;
 --use UNISIM.VComponents.all;
@@ -38,57 +38,58 @@ entity speaker is
     Port ( clk : in  STD_LOGIC;
            speaker_en : in  STD_LOGIC_VECTOR(1 downto 0);
            speaker_out : out  STD_LOGIC);
-end speaker;
+END speaker;
 
 architecture Behavioral of speaker is
-	--square_wave_count : std_logic_vector(16 downto 0) := "00000000000000000";
 	signal output_sig : std_logic := '0';
 	signal hold_en : std_logic := '0';
 begin
 	
-	square_wave_gen : process(clk)
-	variable cnt : integer := 0;
-	begin
+	square_wave_gen : PROCESS(clk)
 	
-		if (clk'event and clk = '1') then
-			if (hold_en = '1') then
-				if(cnt = 100000) then 
+	variable cnt : integer := 0;
+	
+	BEGIN
+	
+		IF (clk'event AND clk = '1') THEN
+			IF (hold_en = '1') THEN
+				IF(cnt = 100000) THEN 
 					cnt := 0;
-					if (output_sig = '0') then
+					IF (output_sig = '0') THEN
 						output_sig <= '1';
-					else 
+					ELSE 
 						output_sig <= '0';
-					end if;
-				else 
+					END IF;
+				ELSE 
 					cnt := cnt + 1;
-				end if;
-			end if;
-		end if;
-	end process;
+				END IF;
+			END IF;
+		END IF;
+	END PROCESS;
 	
 	speaker_out <= output_sig;
 	
 	
 	-- speaker_en should only be a pulse
-	-- this process will hold an enable for the duration of the 0.5s
+	-- this PROCESS will hold an enable for the duration of the 0.5s
 	-- set signal hold_en to '1' when pulse occurs, wait 0.5s, return hold_en to '0'
-	signal_en_latch : process(clk)
+	signal_en_latch : PROCESS(clk)
 	variable cnt : integer := 0;
 	begin	
-		if (clk'event and clk = '1') then
-			if (speaker_en(0) = '1' or speaker_en(1) = '1') then
+		IF (clk'event and clk = '1') THEN
+			IF (speaker_en(0) = '1' or speaker_en(1) = '1') THEN
 				hold_en <= '1';
-			end if;
-			if (hold_en = '1') then
+			END IF;
+			IF (hold_en = '1') THEN
 			cnt := cnt + 1;
-			end if;
+			END IF;
 			
-			if (cnt = 50000000) then
+			IF (cnt = 50000000) THEN
 				hold_en <= '0';
 				cnt := 0;
 			
-			end if;
-		end if;
-	end process;
-end Behavioral;
+			END IF;
+		END IF;
+	END PROCESS;
+END Behavioral;
 

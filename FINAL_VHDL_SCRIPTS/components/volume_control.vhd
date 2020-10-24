@@ -63,6 +63,8 @@ architecture Behavioral of volume_control is
 			);
 		END COMPONENT;
 		
+	
+	
 	signal protocol_module_out : std_logic_vector(11 downto 0);
 	signal sig_reg_out			: std_logic_vector(11 downto 0);
 	signal sig_update_reg		: std_logic;

@@ -37,6 +37,7 @@ entity button_mapping is
 end button_mapping;
 
 architecture Behavioral of button_mapping is
+
 signal button_en_sig	: std_logic;
 signal button_sig : std_logic_vector(11 downto 0);
 signal addr_0 : 	std_logic_vector (3 downto 0) := "0000";
@@ -45,7 +46,7 @@ signal addr_2 :	std_logic_vector (3 downto 0) := "0010";
 signal addr_3 : 	std_logic_vector (3 downto 0) := "0011";
 
 
--- Simple process, each top 4 bits is for address, botton 4 bits is for output pulse to indicate what is to be done
+-- Simple process, each top 4 bits is for address, botton 8 bits is for output pulse to indicate what is to be done
 begin
 
 	button_mapping_process: process(clk)

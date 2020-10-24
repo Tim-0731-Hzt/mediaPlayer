@@ -29,6 +29,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
+-- Top Module for Project
 entity media_control_box is
     Port (
 		clk 	: in std_logic;
@@ -48,43 +49,43 @@ end media_control_box;
 
 architecture Behavioral of media_control_box is
 
-	COMPONENT speaker
-	PORT(
-		clk : IN std_logic;
-		speaker_en : IN std_logic_vector(1 downto 0);          
+	COMPONENT speaker														--Original speaker module
+	PORT(																		--Makes beep noise for duration of speaker_en at 500Hz
+		clk : IN std_logic;												--Will be used to indicate that the remote control signal has been decoded
+		speaker_en : IN std_logic_vector(1 downto 0);   		--NOTE: Different for startup sound and unique button noises       
 		speaker_out : OUT std_logic
 		);
 	END COMPONENT;
 	
-	COMPONENT button_mapping
-	PORT(
-		clk : IN std_logic;
-		btn : IN std_logic_vector(3 downto 0);          
+	COMPONENT button_mapping											--Button mapping to indicate what signal needs to be
+	PORT(																		--Sent for each button
+		clk : IN std_logic;												--OUTPUT: 4 bit addr (11 downto 8) and 8 bit data (7 downto 0)
+		btn : IN std_logic_vector(3 downto 0);          	
 		button_en : OUT std_logic;
 		button_mapping : OUT std_logic_vector(11 downto 0)
 		);
 	END COMPONENT;
 
-	COMPONENT seven_seg_display
-	PORT(
-		input : IN std_logic_vector(15 downto 0);   
+	COMPONENT seven_seg_display										--Controller for the seven-segment display
+	PORT(																		--Use this if you need to display something on the board
+		input : IN std_logic_vector(15 downto 0);   				--OUTPUT: which segment to display and which anode should be connected
 		clk		: IN std_logic;
 		segment_output : OUT std_logic_vector(3 downto 0);
 		anode_out : out std_logic_vector(3 downto 0)
 		);
 	END COMPONENT;
 	
-	COMPONENT single_sseg
-	PORT(
+	COMPONENT single_sseg												--Display component for seven-segment display
+	PORT(																		--No need to touch this for anything else, it's already connected
 		input : IN std_logic_vector(4 downto 0);          
 		segments : OUT std_logic_vector(6 downto 0)
 		);
 	END COMPONENT;
 	
-	COMPONENT EPP_Communication_Module
-	PORT(
-		clk : IN std_logic;
-		EppASTB : IN std_logic;
+	COMPONENT EPP_Communication_Module								--The brains of the operation. Used for communication to PC
+	PORT(																		--Only thing that needs to be altered in data_to_send
+		clk : IN std_logic;												--This will contain the address at top 4 bits and data in bottom 8 bits
+		EppASTB : IN std_logic;											--No need to change anything else
 		EppDSTB : IN std_logic;
 		EppWrite : IN std_logic;
 		vol_en	: IN std_logic;
@@ -103,18 +104,18 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
-	COMPONENT volume_control
-	PORT(
-		volume_data : IN std_logic_vector(9 downto 0);
-		clk : IN std_logic;          
-		vol_en_out : OUT std_logic;
-		vol_out : OUT std_logic_vector(11 downto 0)
-		);
-	END COMPONENT;
+	--COMPONENT volume_control												NOT CURRENTLY IN USE
+	--PORT(																		JUST COMMENTED OUT IN CASE I NEED IT LATER
+	--	volume_data : IN std_logic_vector(9 downto 0);				MOST LIKELY BE DELETED BUT JUST NEED TO MAKE SURE
+	--	clk : IN std_logic;          										EVERYTHING ELSE WORKS CORRECTLY
+	--	vol_en_out : OUT std_logic;
+	--	vol_out : OUT std_logic_vector(11 downto 0)
+	--	);
+	--END COMPONENT;
 	
-	COMPONENT button_msg
-	PORT(
-		button_addr : IN std_logic_vector(1 downto 0);          
+	COMPONENT button_msg														--Stored values for what should be displayed when a button is pressed
+	PORT(																			--The address is basically the 9th and 8th bit from button mapping
+		button_addr : IN std_logic_vector(1 downto 0);           --Used to display "PLAY", "STOP", "FFD" AND "BACK"
 		button_msg : OUT std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
@@ -128,13 +129,34 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
-	COMPONENT startup_state_machine
-	PORT(
+	COMPONENT startup_state_machine										--Start up music when the board is first turned on
+	PORT(																			--Only needs to clk, everything else is taken care of
 		clk : IN std_logic;          
 		speaker_out : OUT std_logic
 		);
 	END COMPONENT;
 
+	COMPONENT spi_master														--Module used for the SPI with the ADC
+	PORT(																			--Gets the value based on the rotational angle of
+		clk : IN std_logic;													--the potentiometer. Returns value between 0 and 1023
+		reset_n : IN std_logic;
+		miso : IN std_logic;          
+		busy : OUT std_logic;
+		mosi : OUT std_logic;
+		sclk_out : OUT std_logic;
+		nCS_out : OUT std_logic;
+		state_out : OUT std_logic_vector(4 downto 0);
+		rx_data : OUT std_logic_vector(9 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT ADC_Protocol_Module											--Protocols for the SPI			
+	PORT(																			--Acts as the middle man between EPP and SPI
+		ADC_in : IN std_logic_vector(9 downto 0);						--Used for volume control, output is an increment of 5
+		clk : IN std_logic;          										--To indiciate what volume percentage is required
+		output : OUT std_logic_vector(11 downto 0)
+		);
+	END COMPONENT;
 	
 	signal sig_btn_en				: std_logic; 
 	signal sig_ir_en				: std_logic;
@@ -204,13 +226,13 @@ begin
 		data_out => mux_out_epp_in
 	);
 	
-	Inst_volume_control: volume_control PORT MAP(
-		volume_data(9 downto 8) => "00",
-		volume_data(7 downto 0) => sw,
-		clk => clk,
-		vol_en_out => vol_en_out,
-		vol_out => vol_data_out
-	);
+	--Inst_volume_control: volume_control PORT MAP(
+	--	volume_data(9 downto 8) => "00",
+	--	volume_data(7 downto 0) => sw,
+	--	clk => clk,
+	--	vol_en_out => vol_en_out,
+	--	vol_out => vol_data_out
+	-- );
 	
 	Inst_mux_2_to_1_16b: mux_2_to_1_16b PORT MAP(
 		data0 => ir_mapped,
@@ -219,11 +241,29 @@ begin
 		data_out => mux_out_segments_in
 	);
 	
+	--Inst_spi_master: spi_master PORT MAP(
+	--	clk => ,
+	--	reset_n => ,
+	--	miso => ,
+	--	busy => ,
+	--	mosi => ,
+	--	sclk_out => ,
+	--	nCS_out => ,
+	--	state_out => ,
+	--	rx_data => 
+	-- );
+	
+	
 --	Inst_startup_state_machine: startup_state_machine PORT MAP(
 --		clk => clk,
 --		speaker_out => speaker_audio
 --	);
-
+	Inst_ADC_Protocol_Module: ADC_Protocol_Module PORT MAP(
+		ADC_in(9 downto 8) => "00",
+		ADC_in(7 downto 0) => sw,
+		clk => clk,
+		output => vol_data_out
+	);
 
 	led <= "11111111";
 end Behavioral;

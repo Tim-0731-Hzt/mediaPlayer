@@ -30,7 +30,7 @@ use IEEE.NUMERIC_STD.ALL;
 --use UNISIM.VComponents.all;
 
 
---
+
 entity refresh_counter is
 	 Port ( clk : in  STD_LOGIC;
            counter_out : out  STD_LOGIC_VECTOR (1 downto 0));
@@ -47,8 +47,8 @@ begin
 				if (refresh_rate = "111111111111111111") then
 					refresh_rate <= (others => '0');
 				else
-					refresh_rate <= std_logic_vector(unsigned(refresh_rate) + 1);
-				end if;
+					refresh_rate <= std_logic_vector(unsigned(refresh_rate) + 1); 		--USING STD_LOGIC_VECTOR NOT INTEGER HENCE
+				end if;																					--THE UNUSUAL ASSIGNMENTS FOR INCREMENTING BY 1
 			end if;
 		end process;
 	

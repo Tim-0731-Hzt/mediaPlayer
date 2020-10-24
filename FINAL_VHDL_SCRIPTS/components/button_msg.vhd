@@ -37,17 +37,17 @@ end button_msg;
 architecture Behavioral of button_msg is
 
 begin
-	button_msg_mapping : process(button_addr)
-	begin
-		if button_addr = "00" then
-			button_msg <= "1111010001000011"; -- FFD
-		elsif button_addr = "01" then
-			button_msg <= "1000011000001011"; -- PLAY
-		elsif button_addr = "10" then
-			button_msg <= "1001101001111000"; -- STOP
-		elsif button_addr = "11" then
-			button_msg <= "0001000000100101"; -- BACK
-		end if;
-	end process;
+	button_msg_mapping : PROCESS(button_addr)
+	BEGIN
+		IF button_addr = "00" THEN
+			button_msg <= "1111010001000011"; 		-- FFD
+		ELSIF button_addr = "01" THEN
+			button_msg <= "1000011000001011"; 		-- PLAY
+		ELSIF button_addr = "10" THEN
+			button_msg <= "1001101001111000"; 		-- STOP
+		ELSIF button_addr = "11" THEN
+			button_msg <= "0001000000100101"; 		-- BACK
+		END IF;
+	END PROCESS;
 end Behavioral;
 
