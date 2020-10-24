@@ -23,11 +23,11 @@ entity IR_Decoder is
             reset   	: in    STD_LOGIC;
 			ir			: in	STD_LOGIC;
             data    	: inout   STD_LOGIC_VECTOR(15 DOWNTO 0);
-			done    	: out   STD_LOGIC;
+			done    	: out   STD_LOGIC
 			
 			-- Debugging Singals
-			 nBits_out	: out std_logic_vector(7 downto 0);
-			 curstate 	: out std_logic_vector(6 downto 0)
+--			 nBits_out	: out std_logic_vector(7 downto 0);
+--			 curstate 	: out std_logic_vector(6 downto 0)
 		);
 end IR_Decoder;
 
@@ -119,9 +119,9 @@ begin
                 -- time the 0 ir signal
                 when S4 =>
 					if ir = '1' then                    -- switch to state 5/6 to stop timer
-						if sig_msec = 0 and sig_usec < 750 and sig_usec > 450 then
+						if sig_msec = 0 and sig_usec < 850 and sig_usec > 350 then
 							y <= S5;                    -- if 0 for 0.6ms then go to state 5
-						elsif sig_msec = 1 and sig_usec > 50 and sig_usec < 350 then
+						elsif sig_msec = 1 and sig_usec > 0 and sig_usec < 500 then
 							y <= S6;                    -- if 0 for 1.2ms then go to state 6
 						else 
 							y <= S1;
@@ -151,23 +151,23 @@ begin
 
     fsm_outputs: process(y, data_buffer)
 	begin
-        EA <= '0'; ET <= '0'; RT <= '0'; resetn <= '1'; EC <= '0'; RC <= '0'; done <= '0'; update_en <= '0';
+        EA <= '0'; ET <= '0'; RT <= '0'; resetn <= '1'; EC <= '0'; RC <= '0'; update_en <= '0';
 		
 		-- Debugging signals
-		curstate <= (others => '0');
+--		curstate <= (others => '0');
         case y is
             -- State 1
             -- Reset state
             when S1 =>
                 RT <= '1';      -- reset timer
-				curstate(0) <= '1';
+--				curstate(0) <= '1';
             -- State 2
             -- Time 2.6ms to initialise reading command
             when S2 =>
                 RT <= '0';       -- Stop reset timer
                 ET <= '1';       -- Enable timer
 				resetn <= '0';		-- Reset shift reg
-				curstate(1) <= '1';
+--				curstate(1) <= '1';
 				
 				RC <= '1';			-- Reset counter for shift reg
             -- State 3
@@ -175,28 +175,27 @@ begin
             when S3 =>
                 ET <= '0';       -- Stop timer
                 RT <= '1';       -- reset timer
-				curstate(2) <= '1';
+--				curstate(2) <= '1';
             when S4 =>
                 ET <= '1';       -- Start timer
-				curstate(3) <= '1';
+--				curstate(3) <= '1';
             when S5 =>
 				w <= '0';		-- Bit to be shifter into buffer
                 ET <= '0';       -- Stop timer but don't reset it
                 EA <= '1';       -- Enable left shift register to load the received bit
-				curstate(4) <= '1';
+--				curstate(4) <= '1';
 				EC <= '1';
 			when S6 =>
 				w <= '1';
 				ET <= '0';       -- Stop timer but don't reset it
 				EA <= '1';       -- Enable left shift register to load the received bit
-				curstate(5) <= '1';
+--				curstate(5) <= '1';
 				EC <= '1';
 			when S7 =>
 				ET <= '1';
-				curstate(6) <= '1';
+--				curstate(6) <= '1';
 				
 				update_en <= '1';
-				done <= '1';
         end case;
     end process;
 
@@ -211,6 +210,7 @@ begin
 		
 	Update: process(update_en)
 	begin
+		done <= '0';
 		--	Only update the output register if it's a known command
 		if update_en = '1' then
 			if data_buffer = X"A70" or		--Enter
@@ -226,6 +226,7 @@ begin
 				data_buffer = X"D9D" or		-- rewind
 				data_buffer = X"A90" then	-- power
 				data(11 downto 0) <= data_buffer;
+				done <= '1';
 			end if;
 --			data(11 downto 0) <= data_buffer;
 
@@ -238,7 +239,7 @@ begin
 	data(15 downto 12) <= "0000";
 
 	-- Debugging signals
-	nBits_out <= nBit_counter;
+--	nBits_out <= nBit_counter;
 	
 end Behavioral;
 
