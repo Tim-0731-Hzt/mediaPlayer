@@ -39,12 +39,13 @@ const char* r0 = "0";
 const char* r1 = "1";
 const char* r2 = "2";
 const char* r3 = "3";
-
+const char* r4 = "4";
 char			szDvc[cchSzLen];
 char            R0[cchSzLen];
 char            R1[cchSzLen];
 char            R2[cchSzLen];
 char            R3[cchSzLen];
+char            R4[cchSzLen];
 
 HIF				hif = hifInvalid;
 
@@ -106,6 +107,7 @@ int main(int cszArg, char* rgszArg[]) {
     StrcpyS(R1, cchSzLen, r1);
     StrcpyS(R2, cchSzLen, r2);
     StrcpyS(R3, cchSzLen, r3);
+    StrcpyS(R4, cchSzLen, r4);
 
     if (!DmgrOpen(&hif, szDvc)) {
         printf("DmgrOpen failed (check the device name you provided)\n");
@@ -137,11 +139,13 @@ void DoGetReg(SOCKET s) {
     BYTE	idReg1;
     BYTE	idReg2;
     BYTE	idReg3;
+    BYTE    idReg4;
 
     BYTE	idData0;
     BYTE	idData1;
     BYTE	idData2;
     BYTE	idData3;
+    BYTE    idData4;
 
     BYTE    array[8];
     char* szStop;
@@ -150,28 +154,32 @@ void DoGetReg(SOCKET s) {
     idReg1 = (BYTE)strtol(R1, &szStop, 10);
     idReg2 = (BYTE)strtol(R2, &szStop, 10);
     idReg3 = (BYTE)strtol(R3, &szStop, 10);
-
+    idReg4 = (BYTE)strtol(R4, &szStop, 10);
     // DEPP API Call: DeppGetReg
     // get the single byte value from 4 registers which is mapped to 4 buttons
-    Sleep(100);
+    Sleep(60);
     DeppGetReg(hif, idReg0, &idData0, fFalse);
-    Sleep(100);
+    Sleep(60);
     DeppGetReg(hif, idReg1, &idData1, fFalse);
-    Sleep(100);
+    Sleep(60);
     DeppGetReg(hif, idReg2, &idData2, fFalse);
-    Sleep(100);
+    Sleep(60);
     DeppGetReg(hif, idReg3, &idData3, fFalse);
+    Sleep(60);
+    DeppGetReg(hif, idReg4, &idData4, fFalse);
 
     printf("%d\n", idData0);
     printf("%d\n", idData1);
     printf("%d\n", idData2);
     printf("%d\n", idData3);
+    printf("%d\n", idData4);
 
     // message send to python server
     const char* r0;
     const char* r1;
     const char* r2;
     const char* r3;
+    const char* r4;
 
     if (idData0 == (BYTE)1) {
         r0 = "next";
@@ -195,6 +203,132 @@ void DoGetReg(SOCKET s) {
         r3 = "back";
         puts(r3);
         send(s, r3, strlen(r3), 0);
+    }
+
+    if (idData4 == (BYTE)1) {
+        r4 = "1";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)5) {
+        r4 = "5";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)10) {
+        r4 = "10";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)15) {
+        r4 = "15";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)20) {
+        r4 = "20";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)25) {
+        r4 = "25";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)30) {
+        r4 = "30";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)35) {
+        r4 = "35";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)40) {
+        r4 = "40";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)45) {
+        r4 = "45";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)50) {
+        r4 = "50";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)55) {
+        r4 = "55";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)60) {
+        r4 = "60";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)65) {
+        r4 = "65";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)70) {
+        r4 = "70";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)75) {
+        r4 = "75";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)80) {
+        r4 = "80";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)85) {
+        r4 = "85";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)90) {
+        r4 = "90";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)95) {
+        r4 = "95";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+    }
+
+    else if (idData4 == (BYTE)100) {
+        r4 = "100";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
     }
 }
 
