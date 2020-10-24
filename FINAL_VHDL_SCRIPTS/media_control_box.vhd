@@ -48,13 +48,13 @@ end media_control_box;
 
 architecture Behavioral of media_control_box is
 
---	COMPONENT speaker
---	PORT(
---		clk : IN std_logic;
---		speaker_en : IN std_logic_vector(1 downto 0);          
---		speaker_out : OUT std_logic
---		);
---	END COMPONENT;
+	COMPONENT speaker
+	PORT(
+		clk : IN std_logic;
+		speaker_en : IN std_logic_vector(1 downto 0);          
+		speaker_out : OUT std_logic
+		);
+	END COMPONENT;
 	
 	COMPONENT button_mapping
 	PORT(
@@ -151,12 +151,12 @@ begin
 	ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
 	ir_mapped(11 downto 0)  <= "000110011010";
 	
---	Inst_speaker: speaker PORT MAP(
---		clk => clk,
---		speaker_en(1) => sig_btn_en,
---		speaker_en(0) => sig_ir_en,
---		speaker_out => speaker_audio
---	);
+	Inst_speaker: speaker PORT MAP(
+		clk => clk,
+		speaker_en(1) => sig_btn_en,
+		speaker_en(0) => sig_ir_en,
+		speaker_out => speaker_audio
+	);
 	
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
@@ -219,10 +219,10 @@ begin
 		data_out => mux_out_segments_in
 	);
 	
-	Inst_startup_state_machine: startup_state_machine PORT MAP(
-		clk => clk,
-		speaker_out => speaker_audio
-	);
+--	Inst_startup_state_machine: startup_state_machine PORT MAP(
+--		clk => clk,
+--		speaker_out => speaker_audio
+--	);
 
 
 	led <= "11111111";
