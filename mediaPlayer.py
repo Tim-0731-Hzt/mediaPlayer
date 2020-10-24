@@ -8,10 +8,12 @@ playlist = ['Die_Very_Rough','Miss_You','Throat_Baby','Cat_Girls_Are_Running_My_
 num = 0
 is_playing = False
 other_operation = None
+volume = 80 # defualt value
 # creating a media player
 media_player = vlc.MediaListPlayer() 
 player = vlc.Instance() 
 media_list = player.media_list_new() 
+media_player.get_media_player().audio_set_volume(volume)
 # add song  
 for song in playlist:
     media = player.media_new("/audio/" + song + ".mp3") 
@@ -39,6 +41,7 @@ def mediaPlayer():
     global is_playing
     global num
     global other_operation 
+    global volume
     is_pause = False
     while True:
         if (is_playing):
@@ -63,6 +66,10 @@ def mediaPlayer():
                         other_operation = None
                         media_player.stop()
                         break
+                    if (other_operation == 'volume'):
+                        other_operation = None
+                        print("volume change to " + str(volume))
+                        media_player.get_media_player().audio_set_volume(volume)
                     sleep(1)
                 else:
                     media_player.set_pause(1) 
@@ -73,13 +80,18 @@ def mediaPlayer():
                 changeSong(other_operation)
                 other_operation = None
                 is_pause = False
-            
+            if (other_operation == 'volume'):
+                other_operation = None
+                print("volume change to " + str(volume))
+                media_player.get_media_player().audio_set_volume(volume)
+    
 
 def udp_server():
     operation = None
     global other_operation
     global is_playing
     global num
+    global volume
     server = socket(AF_INET, SOCK_DGRAM)
     server.bind(("127.0.0.1", 12000))
     while True:
@@ -94,6 +106,69 @@ def udp_server():
             other_operation = 'next'
         elif (operation == 'back'):
             other_operation = 'back'
+        elif (operation == '1'):
+            volume = 1
+            other_operation = 'volume'
+        elif (operation == '5'):
+            volume = 5
+            other_operation = 'volume'
+        elif (operation == '10'):
+            volume = 10
+            other_operation = 'volume'
+        elif (operation == '15'):
+            volume = 15
+            other_operation = 'volume'
+        elif (operation == '20'):
+            volume = 20
+            other_operation = 'volume'
+        elif (operation == '25'):
+            volume = 25
+            other_operation = 'volume'
+        elif (operation == '30'):
+            volume = 30
+            other_operation = 'volume'
+        elif (operation == '35'):
+            volume = 35
+            other_operation = 'volume'
+        elif (operation == '40'):
+            volume = 40
+            other_operation = 'volume'
+        elif (operation == '45'):
+            volume = 45
+            other_operation = 'volume'
+        elif (operation == '50'):
+            volume = 50
+            other_operation = 'volume'
+        elif (operation == '55'):
+            volume = 55
+            other_operation = 'volume'
+        elif (operation == '60'):
+            volume = 60
+            other_operation = 'volume'
+        elif (operation == '65'):
+            volume = 65
+            other_operation = 'volume'
+        elif (operation == '70'):
+            volume = 70
+            other_operation = 'volume'
+        elif (operation == '75'):
+            volume = 75
+            other_operation = 'volume'
+        elif (operation == '80'):
+            volume = 80
+            other_operation = 'volume'
+        elif (operation == '85'):
+            volume = 85
+            other_operation = 'volume'
+        elif (operation == '90'):
+            volume = 90
+            other_operation = 'volume'
+        elif (operation == '95'):
+            volume = 95
+            other_operation = 'volume'
+        elif (operation == '100'):
+            volume = 100
+            other_operation = 'volume'
 
 if __name__ == "__main__":
     # select the first song in playlist as default
