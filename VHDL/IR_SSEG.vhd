@@ -32,7 +32,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity IR_SSEG is
 	 port(   clk     : in    std_logic;
 				ir		: in	std_logic;
-				done    : out   std_logic;
 				led	: out std_logic_vector(7 downto 0); 
 			   swt	: in std_logic_vector(7 downto 0);
 			   btn	: in std_logic_vector(3 downto 0);
@@ -49,9 +48,9 @@ architecture Behavioral of IR_SSEG is
         clk : IN  std_logic;
         reset : IN  std_logic;
         ir : IN  std_logic;
-		  curstate : out std_logic_vector(6 downto 0);
-		  nBits_out	: out std_logic_vector(7 downto 0);
-        data : OUT  std_logic_vector(15 downto 0);
+--		  curstate : out std_logic_vector(6 downto 0);
+--		  nBits_out	: out std_logic_vector(7 downto 0);
+        data : INOUT  std_logic_vector(15 downto 0);
         done : OUT  std_logic
        );
    END COMPONENT;
@@ -76,6 +75,7 @@ architecture Behavioral of IR_SSEG is
 	signal sig_sseg : std_logic_vector (3 downto 0);
 	signal curstate : std_logic_vector (6 downto 0);
 	signal reset : std_logic;
+	signal done : std_logic;
 
 	signal nBits_out : std_logic_vector(7 downto 0);
 begin
@@ -97,8 +97,8 @@ begin
 		 clk => clk,
 		 reset => reset,
 		 ir => ir,
-		 curstate => curstate,
-		 nBits_out => nBits_out,
+--		 curstate => curstate,
+--		 nBits_out => nBits_out,
 		 data => data,
 		 done => done
 	  );
@@ -110,7 +110,8 @@ begin
 --	led_reg_out(0) <= '0';
 	
 	led(0) <= not(ir);
-	led(7 downto 1) <= curstate;
+	led(7 downto 2) <= "000000";
+	led(1) <= done;
 
 --	led <= nBits_out;
 --	led_reg_out(7 downto 1) <= curstate;

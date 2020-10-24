@@ -4,7 +4,7 @@ USE ieee.std_logic_arith.all;
 USE ieee.std_logic_unsigned.all;
 
 ENTITY spi_master is
-    GENERIC( d  : INTEGER := 8);
+    GENERIC( d  : INTEGER := 10);
     PORT (  clk    : IN    std_logic;
             reset_n : IN    std_logic;
             miso    : IN    std_logic;
@@ -21,7 +21,7 @@ ARCHITECTURE behaviour OF spi_master IS
     type machine is (reset, start, config, receive, done);
     signal state		: machine;
     
-    signal rx_buffer    : std_logic_vector(7 DOWNTO 0);
+    signal rx_buffer    : std_logic_vector(d-1 DOWNTO 0);
     signal nCS          : std_logic;
     signal sclk         : std_logic;
     signal rx_count        : integer;           -- count the number of received bits
@@ -45,15 +45,17 @@ BEGIN
                 when config =>
                     if miso = '0' then          -- Detect null bit to start receiving
                         state <= receive;
+					else
+						state <= config;
                     end if;
                 when receive =>
-                    if (rx_count = 18) then      -- if the number of received bits is equal to the register size stop
+                    if (rx_count = 9) then      -- if the number of received bits is equal to the register size stop
                         state <= done;
                     else
                         state <= receive;
                     end if;
                 when done =>                    -- move the rx_buffer to the rx_data
-                    state <= done;                  -- Stay in done, fix this
+                    state <= reset;                  -- Stay in done, fix this
             end case;
         end if;
     end process;
@@ -65,9 +67,9 @@ BEGIN
             when reset =>
                 state_out(0) <= '1';
 
-                rx_data <= (others => '0');
-                --rx_buffer <= (others => '0');
-                --rx_count <= 0;
+--                rx_data <= (others => '0');
+--                rx_buffer <= (others => '0');
+--                rx_count <= 0;
 				shift_reset <= '1';
                 busy <= '0';
 				nCS <= '1';						-- Chip select active low
@@ -84,7 +86,7 @@ BEGIN
             when receive =>                             --  In the execute phase read miso on sclk rising edge
                 state_out(3) <= '1';
 
-				rx_data <= rx_buffer;
+--				rx_data <= rx_buffer;
 
                 nCS <= '0';
 				shift_en <= '1';
@@ -111,7 +113,8 @@ BEGIN
             sclk <= '0';
 			counter <= 0;
         elsif(clk'event and clk = '1') then
-			if counter = 10000000 then
+--			if counter = 10000000 then
+			if counter = 10 then
 				sclk <= not sclk;
 				counter <= 0;
 			else
