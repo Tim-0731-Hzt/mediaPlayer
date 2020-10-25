@@ -31,6 +31,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity startup_state_machine is
     Port ( clk : in  STD_LOGIC;
+			  startup_noise_en : out STD_LOGIC;
            speaker_out : out  STD_LOGIC);
 end startup_state_machine;
 
@@ -64,6 +65,7 @@ COMPONENT music_note_G_generator
 	signal y 	: state;
 	
 	signal start				: std_logic := '1';
+	signal sig_start_en		: std_logic := '1';
 	signal e_start				: std_logic;
 	signal g_start				: std_logic;
 	signal e_start_again		: std_logic;
@@ -120,6 +122,7 @@ begin
 						y <= S5;
 					end if;
 				when S6 =>
+					sig_start_en <= '0';	
 			end case;
 		end if;
 	end process;
@@ -239,5 +242,7 @@ speaker_out <= (sig_c_gen and c_enable) or (sig_e_gen and e_enable) or (sig_g_ge
 c_enable <= start or c_start_again;
 e_enable <= e_start or e_start_again;
 g_enable <= g_start;
+
+startup_noise_en <= sig_start_en;
 end Behavioral;
 

@@ -131,7 +131,8 @@ architecture Behavioral of media_control_box is
 	
 	COMPONENT startup_state_machine										--Start up music when the board is first turned on
 	PORT(																			--Only needs to clk, everything else is taken care of
-		clk : IN std_logic;          
+		clk : IN std_logic;      
+		startup_noise_en : out STD_LOGIC;		
 		speaker_out : OUT std_logic
 		);
 	END COMPONENT;
@@ -150,6 +151,15 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT mux_2_to_1_1b
+	PORT(
+		data0 : IN std_logic;
+		data1 : IN std_logic;
+		mux_select : IN std_logic;          
+		data_out : OUT std_logic
+		);
+	END COMPONENT;
+	
 	signal sig_btn_en				: std_logic; 
 	signal sig_ir_en				: std_logic;
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
@@ -161,20 +171,60 @@ architecture Behavioral of media_control_box is
 	signal buttons_msg_sig		: std_logic_vector (15 downto 0);
 	signal mux_out_segments_in	: std_logic_vector (15 downto 0);
 	
+	signal sig_ir_beep			: std_logic;
+	signal sig_startup_noise	: std_logic;
+	signal sig_startup_en		: std_logic;
+	signal sig_btn_noise			: std_logic;
+	signal sig_btn_noise_en		: std_logic;
+	signal sig_ir_btn_noise		: std_logic;
+	
 begin
 	ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
 	ir_mapped(11 downto 0)  <= "000110011010";
 	
-	Inst_speaker: speaker PORT MAP(
+																		-- REASON FOR HAVING 2 2-1 MUX's instead of 3-1:
+																		-- IR BEEP WAS INTERRUPTING STARTUP NOISE FOR SOME REASON
+																		-- HAVING IR BEEP AS ONE OF THE MUX SELECT WOULD ONLY PLAY BEEP FOR DURATION
+																		-- OF HOLDING DOWN THE BUTTON RATHER THAN THE 0.5s DELAY 
+
+	Inst_Single_Noises_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+			data0 => sig_ir_beep,
+			data1 => sig_btn_noise,
+			mux_select => sig_btn_noise_en,
+			data_out => sig_ir_btn_noise
+		);
+		
+	Inst_Single_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+		data0 => sig_ir_btn_noise,
+		data1 => sig_startup_noise,
+		mux_select => sig_startup_en,
+		data_out => speaker_audio
+	);
+--	Inst_mux_3_to_1_speaker: mux_3_to_1_speaker PORT MAP(
+--		data0 => sig_startup_noise,
+--		data1 => sig_ir_beep,
+--		data2 => sig_btn_noise,
+--		mux_select(0) => sig_btn_en,
+--		mux_select(1) => sig_btn_noise_en,
+--		data_out => speaker_audio
+--	);
+	
+	Inst_speaker: speaker PORT MAP(					--FIX THIS UP WHEN IR IS IMPLEMENTED
 		clk => clk,
 		speaker_en(1) => sig_btn_en,
 		speaker_en(0) => sig_ir_en,
-		speaker_out => speaker_audio
+		speaker_out => sig_ir_beep
 	);
 	
+	Inst_startup_state_machine: startup_state_machine PORT MAP(
+		clk => clk,
+		startup_noise_en => sig_startup_en,
+		speaker_out => sig_startup_noise
+	);
+
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
-		btn => "0000",--btn,
+		btn => btn,
 		button_en => sig_btn_en,
 		button_mapping => buttons_mapped
 	);
@@ -219,16 +269,16 @@ begin
 	);
 	
 	
-	Inst_volume_control: volume_control PORT MAP(
-		clk => clk,
-		pot_data(9 downto 8) => "00",
-		pot_data(7 downto 0) => sw,
-		ir_data(7 downto 2) => "000000",
-		ir_data(1 downto 0) => btn(1 downto 0),
-		ir_en => btn(3),
-		vol_data_out(11 downto 8) => open,
-		vol_data_out(7 downto 0) => led
-	);
+--	Inst_volume_control: volume_control PORT MAP(
+--		clk => clk,
+--		pot_data(9 downto 8) => "00",
+--		pot_data(7 downto 0) => sw,
+--		ir_data(7 downto 2) => "000000",
+	--	ir_data(1 downto 0) => btn(1 downto 0),
+--		ir_en => btn(3),
+--		vol_data_out(11 downto 8) => open,
+--		vol_data_out(7 downto 0) => led
+--	);
 	
 	--Inst_volume_control: volume_control PORT MAP(
 	--	volume_data(9 downto 8) => "00",
@@ -257,13 +307,8 @@ begin
 	--	rx_data => 
 	-- );
 	
-	
---	Inst_startup_state_machine: startup_state_machine PORT MAP(
---		clk => clk,
---		speaker_out => speaker_audio
---	);
 
 
-	--led <= "11111111";
+	led <= "11111111";
 end Behavioral;
 
