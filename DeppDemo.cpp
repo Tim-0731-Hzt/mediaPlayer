@@ -205,8 +205,8 @@ void DoGetReg(SOCKET s) {
         send(s, r3, strlen(r3), 0);
     }
 
-    if (idData4 == (BYTE)1) {
-        r4 = "1";
+    if (idData4 == (BYTE)0) {
+        r4 = "0";
         puts(r4);
         send(s, r4, strlen(r4), 0);
     }
