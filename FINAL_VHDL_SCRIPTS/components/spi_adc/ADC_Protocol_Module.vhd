@@ -42,7 +42,7 @@ begin
 		begin	
 			if (clk'event and clk = '1') then
 				if(ADC_in = std_logic_vector(to_unsigned(0, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(1, 8));
+					output(7 downto 0) <= std_logic_vector(to_unsigned(0, 8));
 					
 				elsif(ADC_in < std_logic_vector(to_unsigned(50, 10))) then
 					output(7 downto 0) <= std_logic_vector(to_unsigned(5, 8));

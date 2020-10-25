@@ -2,9 +2,9 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   18:20:31 10/17/2020
+-- Create Date:   15:48:29 10/25/2020
 -- Design Name:   
--- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/FINAL_VHDL_SCRIPTS/volume_control_test.vhd
+-- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/FINAL_VHDL_SCRIPTS/testbench/volume_testbench.vhd
 -- Project Name:  media_control_box
 -- Target Device:  
 -- Tool versions:  
@@ -32,30 +32,33 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY volume_control_test IS
-END volume_control_test;
+ENTITY volume_testbench IS
+END volume_testbench;
  
-ARCHITECTURE behavior OF volume_control_test IS 
+ARCHITECTURE behavior OF volume_testbench IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
     COMPONENT volume_control
     PORT(
-         volume_data : IN  std_logic_vector(9 downto 0);
          clk : IN  std_logic;
-			vol_en_out : out std_logic;
-         vol_out : OUT  std_logic_vector(11 downto 0)
+         pot_data : IN  std_logic_vector(9 downto 0);
+         ir_data : IN  std_logic_vector(7 downto 0);
+         ir_en : IN  std_logic;
+         vol_data_out : OUT  std_logic_vector(11 downto 0)
         );
     END COMPONENT;
     
 
    --Inputs
-   signal volume_data : std_logic_vector(9 downto 0) := (others => '0');
    signal clk : std_logic := '0';
+   signal pot_data : std_logic_vector(9 downto 0) := (others => '0');
+   signal ir_data : std_logic_vector(7 downto 0) := (others => '0');
+   signal ir_en : std_logic := '0';
 
  	--Outputs
-   signal vol_out : std_logic_vector(11 downto 0);
-	signal vol_en_out : std_logic;
+   signal vol_data_out : std_logic_vector(11 downto 0);
+
    -- Clock period definitions
    constant clk_period : time := 10 ns;
  
@@ -63,10 +66,11 @@ BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
    uut: volume_control PORT MAP (
-          volume_data => volume_data,
           clk => clk,
-			 vol_en_out => vol_en_out,
-          vol_out => vol_out
+          pot_data => pot_data,
+          ir_data => ir_data,
+          ir_en => ir_en,
+          vol_data_out => vol_data_out
         );
 
    -- Clock process definitions
@@ -83,15 +87,21 @@ BEGIN
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
-      wait for 100 ns;	
-
-      wait for clk_period*10;
-
-      volume_data <= "0000000001";
-		
+      pot_data <= "0011111111";
+		ir_data 	<= "00000001";
+      
 		wait for clk_period*10;
+	--	ir_en <= '1';
+	--	wait for clk_period;	
+		ir_en <= '0';
+	--	wait for clk_period;
+	--	ir_en <= '1';
+	--	wait for clk_period;
+	--	ir_en <= '0';
 		
-		volume_data <= "0011111111";
+		
+
+      
 
       wait;
    end process;

@@ -104,6 +104,16 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT volume_control is
+    PORT ( clk : in  STD_LOGIC;
+           pot_data : in  STD_LOGIC_VECTOR (9 downto 0);
+           ir_data : in  STD_LOGIC_VECTOR (7 downto 0);
+           ir_en : in  STD_LOGIC;
+           vol_data_out : out  STD_LOGIC_VECTOR (11 downto 0));
+			  
+	END COMPONENT;
+	
+	
 	--COMPONENT volume_control												NOT CURRENTLY IN USE
 	--PORT(																		JUST COMMENTED OUT IN CASE I NEED IT LATER
 	--	volume_data : IN std_logic_vector(9 downto 0);				MOST LIKELY BE DELETED BUT JUST NEED TO MAKE SURE
@@ -182,7 +192,7 @@ begin
 	
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
-		btn => btn,
+		btn => "0000",--btn,
 		button_en => sig_btn_en,
 		button_mapping => buttons_mapped
 	);
@@ -226,6 +236,18 @@ begin
 		data_out => mux_out_epp_in
 	);
 	
+	
+	Inst_volume_control: volume_control PORT MAP(
+		clk => clk,
+		pot_data(9 downto 8) => "00",
+		pot_data(7 downto 0) => sw,
+		ir_data(7 downto 2) => "000000",
+		ir_data(1 downto 0) => btn(1 downto 0),
+		ir_en => btn(3),
+		vol_data_out(11 downto 8) => open,
+		vol_data_out(7 downto 0) => led
+	);
+	
 	--Inst_volume_control: volume_control PORT MAP(
 	--	volume_data(9 downto 8) => "00",
 	--	volume_data(7 downto 0) => sw,
@@ -258,13 +280,14 @@ begin
 --		clk => clk,
 --		speaker_out => speaker_audio
 --	);
-	Inst_ADC_Protocol_Module: ADC_Protocol_Module PORT MAP(
-		ADC_in(9 downto 8) => "00",
-		ADC_in(7 downto 0) => sw,
-		clk => clk,
-		output => vol_data_out
-	);
 
-	led <= "11111111";
+--	Inst_ADC_Protocol_Module: ADC_Protocol_Module PORT MAP(
+--		ADC_in(9 downto 8) => "00",
+--		ADC_in(7 downto 0) => sw,
+--		clk => clk,
+--		output => vol_data_out
+--	);
+
+	--led <= "11111111";
 end Behavioral;
 
