@@ -113,16 +113,6 @@ architecture Behavioral of media_control_box is
 			  
 	END COMPONENT;
 	
-	
-	--COMPONENT volume_control												NOT CURRENTLY IN USE
-	--PORT(																		JUST COMMENTED OUT IN CASE I NEED IT LATER
-	--	volume_data : IN std_logic_vector(9 downto 0);				MOST LIKELY BE DELETED BUT JUST NEED TO MAKE SURE
-	--	clk : IN std_logic;          										EVERYTHING ELSE WORKS CORRECTLY
-	--	vol_en_out : OUT std_logic;
-	--	vol_out : OUT std_logic_vector(11 downto 0)
-	--	);
-	--END COMPONENT;
-	
 	COMPONENT button_msg														--Stored values for what should be displayed when a button is pressed
 	PORT(																			--The address is basically the 9th and 8th bit from button mapping
 		button_addr : IN std_logic_vector(1 downto 0);           --Used to display "PLAY", "STOP", "FFD" AND "BACK"
@@ -157,14 +147,6 @@ architecture Behavioral of media_control_box is
 		nCS_out : OUT std_logic;
 		state_out : OUT std_logic_vector(4 downto 0);
 		rx_data : OUT std_logic_vector(9 downto 0)
-		);
-	END COMPONENT;
-	
-	COMPONENT ADC_Protocol_Module											--Protocols for the SPI			
-	PORT(																			--Acts as the middle man between EPP and SPI
-		ADC_in : IN std_logic_vector(9 downto 0);						--Used for volume control, output is an increment of 5
-		clk : IN std_logic;          										--To indiciate what volume percentage is required
-		output : OUT std_logic_vector(11 downto 0)
 		);
 	END COMPONENT;
 	
@@ -263,7 +245,7 @@ begin
 		data_out => mux_out_segments_in
 	);
 	
-	--Inst_spi_master: spi_master PORT MAP(
+	--Inst_spi_master: spi_master PORT MAP(				THE OUTPUT OF THIS IS VOLUME_CONTROL POT_DATA
 	--	clk => ,
 	--	reset_n => ,
 	--	miso => ,
@@ -281,12 +263,6 @@ begin
 --		speaker_out => speaker_audio
 --	);
 
---	Inst_ADC_Protocol_Module: ADC_Protocol_Module PORT MAP(
---		ADC_in(9 downto 8) => "00",
---		ADC_in(7 downto 0) => sw,
---		clk => clk,
---		output => vol_data_out
---	);
 
 	--led <= "11111111";
 end Behavioral;
