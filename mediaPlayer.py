@@ -106,8 +106,8 @@ def udp_server():
             other_operation = 'next'
         elif (operation == 'back'):
             other_operation = 'back'
-        elif (operation == '1'):
-            volume = 1
+        elif (operation == '0'):
+            volume = 0
             other_operation = 'volume'
         elif (operation == '5'):
             volume = 5
