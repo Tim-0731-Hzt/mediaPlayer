@@ -160,7 +160,7 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
-	COMPONENT btn_1_noise_state_machine
+	COMPONENT btn_0_noise_state_machine
 	PORT(
 		clk : IN std_logic;
 		signal_en : IN std_logic;          
@@ -202,7 +202,7 @@ begin
 --			data_out => sig_ir_btn_noise
 --		);
 		
-	Inst_btn_1_noise_state_machine: btn_1_noise_state_machine PORT MAP(
+	Inst_btn_0_noise_state_machine: btn_0_noise_state_machine PORT MAP(
 		clk => clk,
 		signal_en => sig_btn_en,
 		sound_out => speaker_audio
