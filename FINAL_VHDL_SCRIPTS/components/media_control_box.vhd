@@ -160,6 +160,14 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT btn_1_noise_state_machine
+	PORT(
+		clk : IN std_logic;
+		signal_en : IN std_logic;          
+		sound_out : OUT std_logic
+		);
+	END COMPONENT;
+	
 	signal sig_btn_en				: std_logic; 
 	signal sig_ir_en				: std_logic;
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
@@ -187,19 +195,24 @@ begin
 																		-- HAVING IR BEEP AS ONE OF THE MUX SELECT WOULD ONLY PLAY BEEP FOR DURATION
 																		-- OF HOLDING DOWN THE BUTTON RATHER THAN THE 0.5s DELAY 
 
-	Inst_Single_Noises_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
-			data0 => sig_ir_beep,
-			data1 => sig_btn_noise,
-			mux_select => sig_btn_noise_en,
-			data_out => sig_ir_btn_noise
-		);
+--	Inst_Single_Noises_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+--			data0 => sig_ir_beep,
+--			data1 => sig_btn_noise,
+--			mux_select => sig_btn_noise_en,
+--			data_out => sig_ir_btn_noise
+--		);
 		
-	Inst_Single_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
-		data0 => sig_ir_btn_noise,
-		data1 => sig_startup_noise,
-		mux_select => sig_startup_en,
-		data_out => speaker_audio
+	Inst_btn_1_noise_state_machine: btn_1_noise_state_machine PORT MAP(
+		clk => clk,
+		signal_en => sig_btn_en,
+		sound_out => speaker_audio
 	);
+--	Inst_Single_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+--		data0 => sig_ir_btn_noise,
+--		data1 => sig_startup_noise,
+--		mux_select => sig_startup_en,
+--		data_out => speaker_audio
+--	);
 --	Inst_mux_3_to_1_speaker: mux_3_to_1_speaker PORT MAP(
 --		data0 => sig_startup_noise,
 --		data1 => sig_ir_beep,
@@ -209,18 +222,18 @@ begin
 --		data_out => speaker_audio
 --	);
 	
-	Inst_speaker: speaker PORT MAP(					--FIX THIS UP WHEN IR IS IMPLEMENTED
-		clk => clk,
-		speaker_en(1) => sig_btn_en,
-		speaker_en(0) => sig_ir_en,
-		speaker_out => sig_ir_beep
-	);
-	
-	Inst_startup_state_machine: startup_state_machine PORT MAP(
-		clk => clk,
-		startup_noise_en => sig_startup_en,
-		speaker_out => sig_startup_noise
-	);
+--	Inst_speaker: speaker PORT MAP(					--FIX THIS UP WHEN IR IS IMPLEMENTED
+--		clk => clk,
+--		speaker_en(1) => sig_btn_en,
+--		speaker_en(0) => sig_ir_en,
+--		speaker_out => sig_ir_beep
+--	);
+--	
+--	Inst_startup_state_machine: startup_state_machine PORT MAP(
+--		clk => clk,
+--		startup_noise_en => sig_startup_en,
+--		speaker_out => sig_startup_noise
+--	);
 
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
