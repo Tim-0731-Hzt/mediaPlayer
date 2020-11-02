@@ -199,7 +199,7 @@ begin
 				if (sig_delay_start  = '1') then
 					cnt := cnt + 1;				
 					
-					if (cnt = 700000) then						-- Trial and error number, this works best
+					if (cnt = 1000000) then						-- Trial and error number, this works best
 						cnt := 0;
 						sig_delay_fin <= '1';
 					end if;

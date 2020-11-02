@@ -160,13 +160,22 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
-	COMPONENT btn_0_noise_state_machine
+	COMPONENT unique_btn_sound_controller
 	PORT(
 		clk : IN std_logic;
-		signal_en : IN std_logic;          
+		btn_addr : IN std_logic_vector(1 downto 0);
+		btn_en : IN std_logic;          
 		sound_out : OUT std_logic
 		);
 	END COMPONENT;
+	
+--	COMPONENT btn_0_noise_state_machine
+--	PORT(
+--		clk : IN std_logic;
+--		signal_en : IN std_logic;          
+--		sound_out : OUT std_logic
+--		);
+--	END COMPONENT;
 	
 	signal sig_btn_en				: std_logic; 
 	signal sig_ir_en				: std_logic;
@@ -186,6 +195,7 @@ architecture Behavioral of media_control_box is
 	signal sig_btn_noise_en		: std_logic;
 	signal sig_ir_btn_noise		: std_logic;
 	
+	signal debug					: std_logic_vector(7 downto 0);
 begin
 	ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
 	ir_mapped(11 downto 0)  <= "000110011010";
@@ -202,11 +212,12 @@ begin
 --			data_out => sig_ir_btn_noise
 --		);
 		
-	Inst_btn_0_noise_state_machine: btn_0_noise_state_machine PORT MAP(
-		clk => clk,
-		signal_en => sig_btn_en,
-		sound_out => speaker_audio
-	);
+--	Inst_btn_0_noise_state_machine: btn_0_noise_state_machine PORT MAP(
+--		clk => clk,
+--		signal_en => sig_btn_en,
+--		sound_out => speaker_audio
+--	);
+
 --	Inst_Single_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
 --		data0 => sig_ir_btn_noise,
 --		data1 => sig_startup_noise,
@@ -234,6 +245,12 @@ begin
 --		startup_noise_en => sig_startup_en,
 --		speaker_out => sig_startup_noise
 --	);
+	Inst_unique_btn_sound_controller: unique_btn_sound_controller PORT MAP(
+		clk => clk,
+		btn_addr => buttons_mapped(9 downto 8),
+		btn_en => sig_btn_en,
+		sound_out => speaker_audio
+	);
 
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
@@ -321,7 +338,7 @@ begin
 	-- );
 	
 
-
+	debug <= sw;
 	led <= "11111111";
 end Behavioral;
 
