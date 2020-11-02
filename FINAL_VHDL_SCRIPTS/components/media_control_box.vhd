@@ -170,14 +170,6 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
---	COMPONENT btn_0_noise_state_machine
---	PORT(
---		clk : IN std_logic;
---		signal_en : IN std_logic;          
---		sound_out : OUT std_logic
---		);
---	END COMPONENT;
-	
 	signal sig_btn_en				: std_logic; 
 	signal sig_ir_en				: std_logic;
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
@@ -212,12 +204,6 @@ begin
 			mux_select => sig_btn_noise_en,
 			data_out => sig_ir_btn_noise
 		);
-		
---	Inst_btn_0_noise_state_machine: btn_0_noise_state_machine PORT MAP(
---		clk => clk,
---		signal_en => sig_btn_en,
---		sound_out => speaker_audio
---	);
 
 	Inst_Single_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
 		data0 => sig_ir_btn_noise,
@@ -225,14 +211,6 @@ begin
 		mux_select => sig_startup_en,
 		data_out => speaker_audio
 	);
---	Inst_mux_3_to_1_speaker: mux_3_to_1_speaker PORT MAP(
---		data0 => sig_startup_noise,
---		data1 => sig_ir_beep,
---		data2 => sig_btn_noise,
---		mux_select(0) => sig_btn_en,
---		mux_select(1) => sig_btn_noise_en,
---		data_out => speaker_audio
---	);
 	
 --	Inst_speaker: speaker PORT MAP(					--FIX THIS UP WHEN IR IS IMPLEMENTED
 --		clk => clk,
