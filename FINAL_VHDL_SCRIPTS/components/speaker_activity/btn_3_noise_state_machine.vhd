@@ -32,6 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity btn_3_noise_state_machine is
     Port ( clk : in  STD_LOGIC;
            signal_en : in  STD_LOGIC;
+			  sound_en_out	: out STD_LOGIC;
            sound_out : out  STD_LOGIC);
 end btn_3_noise_state_machine;
 
@@ -86,12 +87,14 @@ begin
 		if (clk'event and clk = '1') then
 			case y is
 				when S1 =>
+					sound_en_out <= '0';
 					if signal_en = '1' then			--Waiting to receive an enable for the state machine
 						y <= S2;
 					else 
 						y <= S1;
 					end if;
 				when S2 => 
+					sound_en_out <= '1';
 					if c_finish = '1' then			--Finished Playing C, Move on to Playing E
 						y <= S3;
 					else 
@@ -110,6 +113,7 @@ begin
 						y <= S4;
 					end if;
 				when S5 =>								-- Add delay to avoid 2nd triggering when releasing
+					sound_en_out <= '0';
 					if signal_en = '1' then
 						y <= S5;
 					else 

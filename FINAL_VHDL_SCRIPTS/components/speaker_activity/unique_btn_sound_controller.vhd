@@ -33,6 +33,7 @@ entity unique_btn_sound_controller is
     Port ( clk : in  STD_LOGIC;
            btn_addr : in  STD_LOGIC_VECTOR (1 downto 0);
            btn_en : in  STD_LOGIC;
+			  sound_en_out	: out STD_LOGIC;
            sound_out : out  STD_LOGIC);
 end unique_btn_sound_controller;
 
@@ -41,7 +42,8 @@ architecture Behavioral of unique_btn_sound_controller is
 COMPONENT btn_0_noise_state_machine
 	PORT(
 		clk : IN std_logic;
-		signal_en : IN std_logic;          
+		signal_en : IN std_logic;    
+		sound_en_out : OUT std_logic;
 		sound_out : OUT std_logic
 		);
 	END COMPONENT;
@@ -49,7 +51,8 @@ COMPONENT btn_0_noise_state_machine
 COMPONENT btn_1_noise_state_machine
 	PORT(
 		clk : IN std_logic;
-		signal_en : IN std_logic;          
+		signal_en : IN std_logic; 
+		sound_en_out : OUT std_logic;
 		sound_out : OUT std_logic
 		);
 	END COMPONENT;
@@ -57,7 +60,8 @@ COMPONENT btn_1_noise_state_machine
 COMPONENT btn_2_noise_state_machine
 	PORT(
 		clk : IN std_logic;
-		signal_en : IN std_logic;          
+		signal_en : IN std_logic;
+		sound_en_out : OUT std_logic;
 		sound_out : OUT std_logic
 		);
 	END COMPONENT;
@@ -65,7 +69,8 @@ COMPONENT btn_2_noise_state_machine
 COMPONENT btn_3_noise_state_machine
 	PORT(
 		clk : IN std_logic;
-		signal_en : IN std_logic;          
+		signal_en : IN std_logic;  
+		sound_en_out : OUT std_logic;
 		sound_out : OUT std_logic
 		);
 	END COMPONENT;
@@ -103,29 +108,38 @@ COMPONENT btn_addr_mapper
 	
 	signal sig_btn_addr_mapped	: std_logic_vector(3 downto 0);
 	
+	signal sig_sound_en_0	: std_logic;
+	signal sig_sound_en_1	: std_logic;
+	signal sig_sound_en_2	: std_logic;
+	signal sig_sound_en_3	: std_logic;
+	
 begin
 
 Inst_btn_0_noise_state_machine: btn_0_noise_state_machine PORT MAP(
 		clk => clk,
 		signal_en => sig_btn_0,
+		sound_en_out => sig_sound_en_0,
 		sound_out => sig_btn_0_out
 	);
 	
 Inst_btn_1_noise_state_machine: btn_1_noise_state_machine PORT MAP(
 		clk => clk,
 		signal_en => sig_btn_1,
+		sound_en_out => sig_sound_en_1,
 		sound_out => sig_btn_1_out
 	);
 
 Inst_btn_2_noise_state_machine: btn_2_noise_state_machine PORT MAP(
 		clk => clk,
 		signal_en => sig_btn_2,
+		sound_en_out => sig_sound_en_2,
 		sound_out => sig_btn_2_out
 	);
 
 Inst_btn_3_noise_state_machine: btn_3_noise_state_machine PORT MAP(
 		clk => clk,
 		signal_en => sig_btn_3,
+		sound_en_out => sig_sound_en_3,
 		sound_out => sig_btn_3_out
 	);
 	
@@ -147,5 +161,9 @@ Inst_btn_addr_mapper: btn_addr_mapper PORT MAP(
 	);
 	
 	sound_out <= sig_btn_0_out or sig_btn_1_out or sig_btn_2_out or sig_btn_3_out;
+	sound_en_out <= sig_sound_en_0 or sig_sound_en_1 or sig_sound_en_2 or sig_sound_en_3; 
+
+
+
 end Behavioral;
 

@@ -164,7 +164,8 @@ architecture Behavioral of media_control_box is
 	PORT(
 		clk : IN std_logic;
 		btn_addr : IN std_logic_vector(1 downto 0);
-		btn_en : IN std_logic;          
+		btn_en : IN std_logic;   
+		sound_en_out : OUT std_logic;
 		sound_out : OUT std_logic
 		);
 	END COMPONENT;
@@ -205,12 +206,12 @@ begin
 																		-- HAVING IR BEEP AS ONE OF THE MUX SELECT WOULD ONLY PLAY BEEP FOR DURATION
 																		-- OF HOLDING DOWN THE BUTTON RATHER THAN THE 0.5s DELAY 
 
---	Inst_Single_Noises_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
---			data0 => sig_ir_beep,
---			data1 => sig_btn_noise,
---			mux_select => sig_btn_noise_en,
---			data_out => sig_ir_btn_noise
---		);
+	Inst_Single_Noises_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+			data0 => sig_ir_beep,
+			data1 => sig_btn_noise,
+			mux_select => sig_btn_noise_en,
+			data_out => sig_ir_btn_noise
+		);
 		
 --	Inst_btn_0_noise_state_machine: btn_0_noise_state_machine PORT MAP(
 --		clk => clk,
@@ -218,12 +219,12 @@ begin
 --		sound_out => speaker_audio
 --	);
 
---	Inst_Single_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
---		data0 => sig_ir_btn_noise,
---		data1 => sig_startup_noise,
---		mux_select => sig_startup_en,
---		data_out => speaker_audio
---	);
+	Inst_Single_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+		data0 => sig_ir_btn_noise,
+		data1 => sig_startup_noise,
+		mux_select => sig_startup_en,
+		data_out => speaker_audio
+	);
 --	Inst_mux_3_to_1_speaker: mux_3_to_1_speaker PORT MAP(
 --		data0 => sig_startup_noise,
 --		data1 => sig_ir_beep,
@@ -240,16 +241,18 @@ begin
 --		speaker_out => sig_ir_beep
 --	);
 --	
---	Inst_startup_state_machine: startup_state_machine PORT MAP(
---		clk => clk,
---		startup_noise_en => sig_startup_en,
---		speaker_out => sig_startup_noise
---	);
+	Inst_startup_state_machine: startup_state_machine PORT MAP(
+		clk => clk,
+		startup_noise_en => sig_startup_en,
+		speaker_out => sig_startup_noise
+	);
+	
 	Inst_unique_btn_sound_controller: unique_btn_sound_controller PORT MAP(
 		clk => clk,
 		btn_addr => buttons_mapped(9 downto 8),
 		btn_en => sig_btn_en,
-		sound_out => speaker_audio
+		sound_en_out => sig_btn_noise_en,
+		sound_out => sig_btn_noise
 	);
 
 	Inst_button_mapping: button_mapping PORT MAP(
