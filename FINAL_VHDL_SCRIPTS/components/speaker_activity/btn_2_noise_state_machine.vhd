@@ -32,6 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity btn_2_noise_state_machine is
     Port ( clk : in  STD_LOGIC;
            signal_en : in  STD_LOGIC;
+			  sound_en_out	: out STD_LOGIC;
            sound_out : out  STD_LOGIC);
 end btn_2_noise_state_machine;
 
@@ -85,30 +86,33 @@ begin
 		if (clk'event and clk = '1') then
 			case y is
 				when S1 =>
+					sound_en_out <= '0';
 					if signal_en = '1' then			--Waiting to receive an enable for the state machine
 						y <= S2;
 					else 
 						y <= S1;
 					end if;
 				when S2 => 
-					if e5_finish = '1' then			--Finished Playing A, Move on to Playing B
+					sound_en_out <= '1';
+					if e5_finish = '1' then			--Finished Playing E5, Move on to Playing D5
 						y <= S3;
 					else 
 						y <= S2;
 					end if;
 				when S3 =>
-					if d5_finish = '1' then			--Finished Playing B, We are done, go back to S1
+					if d5_finish = '1' then			--Finished Playing D5, Move on to Playing C5
 						y <= S4;
 					else 
 						y <= S3;
 					end if;
 				when S4 =>
-					if c5_finish = '1' then
+					if c5_finish = '1' then			--Finished Playing C5, We are done, check if signal is still enabled
 						y <= S5;
 					else 
 						y <= S4;
 					end if;
 				when S5 =>								-- Add delay to avoid 2nd triggering when releasing
+					sound_en_out <= '0';
 					if signal_en = '1' then
 						y <= S5;
 					else 
@@ -198,7 +202,7 @@ begin
 				if (sig_delay_start  = '1') then
 					cnt := cnt + 1;				
 					
-					if (cnt = 700000) then						-- Trial and error number, this works best
+					if (cnt = 1000000) then						-- Trial and error number, this works best
 						cnt := 0;
 						sig_delay_fin <= '1';
 					end if;
