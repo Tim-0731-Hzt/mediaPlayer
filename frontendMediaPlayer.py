@@ -16,7 +16,7 @@ num = 0
 is_pause = False
 is_playing = False
 other_operation = None
-volume = 80 # defualt value
+volume = 50 # defualt value
 # creating a media player
 media_player = vlc.MediaListPlayer() 
 player = vlc.Instance() 
@@ -96,10 +96,6 @@ def mediaPlayer():
                         media_player.stop()
                         is_playing = True
                         break
-                    if (other_operation == 'volume'):
-                        other_operation = None
-                        print("volume change to " + str(volume))
-                        media_player.get_media_player().audio_set_volume(volume)
                     # sleep(1)
                 else:
                     media_player.set_pause(1) 
@@ -110,10 +106,6 @@ def mediaPlayer():
                 changeSong(other_operation)
                 other_operation = None
                 is_pause = False
-            if (other_operation == 'volume'):
-                other_operation = None
-                print("volume change to " + str(volume))
-                media_player.get_media_player().audio_set_volume(volume)
     
 
 def udp_server():
@@ -136,12 +128,10 @@ def udp_server():
             other_operation = 'next'
         elif (operation == 'back'):
             other_operation = 'back'
-        elif (operation.isnumeric()):
-            volume = operation
-            other_operation = 'volume'
-            volumeVariable = volume
-        else:
-            continue
+        elif operation == 'volumeup':
+            increaseVolume()
+        elif operation == 'volumedown':
+            decreaseVolume()
         
 def close_window():
     os._exit(0)
