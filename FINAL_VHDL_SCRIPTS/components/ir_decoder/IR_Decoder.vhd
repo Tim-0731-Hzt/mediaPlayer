@@ -216,33 +216,35 @@ begin
 	nBit_Up_Counter: up_counter
 		port map (clk, EC, RC, nBit_counter);
 		
-	Update: process(update_en)
+	Update: process(clk, update_en)
 	begin
-		done <= '0';
 --		data(11 downto 0) <= data(11 downto 0);
 		--	Only update the output register if it's a known command
-		if update_en = '1' then
-			if data_buffer = X"A70" or		--Enter
-				data_buffer = X"C90" or		-- Volume down
-				data_buffer = X"490" or		-- Volume Up
-				data_buffer = X"CD0" or		-- Right arrow
-				data_buffer = X"2F0" or		-- Up arrow
-				data_buffer = X"AF0" or		-- Down arrow
-				data_buffer = X"2D0" or		-- Left arrow
-				data_buffer = X"290" or		-- mute
-				data_buffer = X"5BA" or		-- Play arrow
-				data_buffer = X"39D" or		-- fast forward
-				data_buffer = X"D9D" or		-- rewind
-				data_buffer = X"A90" then	-- power
-				data(11 downto 0) <= data_buffer;
-				done <= '1';
+		if (clk'event and clk = '1') then
+			done <= '0';
+			if update_en = '1' then
+				if data_buffer = X"A70" or		--Enter
+					data_buffer = X"C90" or		-- Volume down
+					data_buffer = X"490" or		-- Volume Up
+					data_buffer = X"CD0" or		-- Right arrow
+					data_buffer = X"2F0" or		-- Up arrow
+					data_buffer = X"AF0" or		-- Down arrow
+					data_buffer = X"2D0" or		-- Left arrow
+					data_buffer = X"290" or		-- mute
+					data_buffer = X"5BA" or		-- Play arrow
+					data_buffer = X"39D" or		-- fast forward
+					data_buffer = X"D9D" or		-- rewind
+					data_buffer = X"A90" then	-- power
+					data(11 downto 0) <= data_buffer;
+					done <= '1';
+				else
+					data(11 downto 0) <= data(11 downto 0);
+				end if;
+	--			data(11 downto 0) <= data_buffer;
+
 			else
 				data(11 downto 0) <= data(11 downto 0);
 			end if;
---			data(11 downto 0) <= data_buffer;
-
-		else
-			data(11 downto 0) <= data(11 downto 0);
 		end if;
 	end process;
 				
