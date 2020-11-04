@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+import tkinter.filedialog as fd
 import threading
 import os
 from socket import *
@@ -8,6 +9,7 @@ from time import sleep
 import math
 
 # playlist = ['Die_Very_Rough','Miss_You','Throat_Baby','Cat_Girls_Are_Running_My_Life']
+global playlist
 playlist = []
 # global variable
 num = 0
@@ -54,6 +56,10 @@ def changeSong(direction):
 
     song_name.set(playlist[num])
 
+    playlistDisplay.select_clear(0, "end")
+    playlistDisplay.selection_set(num)
+    playlistDisplay.activate(num)
+
     print ("select " + playlist[num] + " from " + str(playlist))
 
 
@@ -94,7 +100,7 @@ def mediaPlayer():
                         other_operation = None
                         print("volume change to " + str(volume))
                         media_player.get_media_player().audio_set_volume(volume)
-                    sleep(1)
+                    # sleep(1)
                 else:
                     media_player.set_pause(1) 
                     is_pause = True
@@ -130,68 +136,8 @@ def udp_server():
             other_operation = 'next'
         elif (operation == 'back'):
             other_operation = 'back'
-        elif (operation == '0'):
-            volume = 0
-            other_operation = 'volume'
-        elif (operation == '5'):
-            volume = 5
-            other_operation = 'volume'
-        elif (operation == '10'):
-            volume = 10
-            other_operation = 'volume'
-        elif (operation == '15'):
-            volume = 15
-            other_operation = 'volume'
-        elif (operation == '20'):
-            volume = 20
-            other_operation = 'volume'
-        elif (operation == '25'):
-            volume = 25
-            other_operation = 'volume'
-        elif (operation == '30'):
-            volume = 30
-            other_operation = 'volume'
-        elif (operation == '35'):
-            volume = 35
-            other_operation = 'volume'
-        elif (operation == '40'):
-            volume = 40
-            other_operation = 'volume'
-        elif (operation == '45'):
-            volume = 45
-            other_operation = 'volume'
-        elif (operation == '50'):
-            volume = 50
-            other_operation = 'volume'
-        elif (operation == '55'):
-            volume = 55
-            other_operation = 'volume'
-        elif (operation == '60'):
-            volume = 60
-            other_operation = 'volume'
-        elif (operation == '65'):
-            volume = 65
-            other_operation = 'volume'
-        elif (operation == '70'):
-            volume = 70
-            other_operation = 'volume'
-        elif (operation == '75'):
-            volume = 75
-            other_operation = 'volume'
-        elif (operation == '80'):
-            volume = 80
-            other_operation = 'volume'
-        elif (operation == '85'):
-            volume = 85
-            other_operation = 'volume'
-        elif (operation == '90'):
-            volume = 90
-            other_operation = 'volume'
-        elif (operation == '95'):
-            volume = 95
-            other_operation = 'volume'
-        elif (operation == '100'):
-            volume = 100
+        elif (operation.isnumeric()):
+            volume = operation
             other_operation = 'volume'
 
 def previousSong():
@@ -214,6 +160,38 @@ def pauseSong():
 def nextSong():
     global other_operation
     other_operation = 'next'
+
+def openSong():
+    new_song = fd.askopenfile(initialdir = os.getcwd, filetypes=(("mp3 files", "*.mp3"),("all files","*.*")))
+    new_name = os.path.basename(new_song.name)
+    playlist.append(new_name)
+    media = player.media_new(new_song.name) 
+    media_list.add_media(media) 
+    global num
+    num = playlist.index(new_name)
+    is_playing = True
+
+def openFolder():
+    new_medialist = player.media_list_new() 
+    new_playlist = []
+    directory = fd.askdirectory(initialdir = os.getcwd)
+    print(directory)
+    for entry in os.listdir(directory):
+        print(entry)
+        if (".mp3" in entry):
+            new_playlist.append(entry.split(".mp3")[0])
+            media = player.media_new(directory +  "/" + entry) 
+            new_medialist.add_media(media) 
+
+    print(new_medialist.count())
+
+    if new_medialist.count() > 0:
+        media_player.set_media_list(new_medialist)
+        global playlist
+        playlist = new_playlist
+        global num
+        num = 0
+
 
 def updateProgress():
     song_progress.set(media_player.get_media_player().get_position() * 100)
@@ -238,6 +216,9 @@ if __name__ == "__main__":
     song_progress = StringVar()
 
 
+    openSongButton = ttk.Button(mainframe, text="Choose song", command=openSong).grid(column=0, row=0, sticky="W")
+    openFolderButton = ttk.Button(mainframe, text="Open songs from folder", command=openFolder).grid(column=2, columnspan=2, row=0, sticky="E")
+
     nameLabel = ttk.Label(mainframe, text="Song Name:").grid(column=0, row=1)
     songNameLabel = ttk.Label(mainframe, textvariable=song_name)
     songNameLabel.grid(columnspan=4, row=1, sticky="E")
@@ -251,6 +232,17 @@ if __name__ == "__main__":
     playButton = ttk.Button(mainframe, textvariable=play_button_text, command=playSong).grid(column=1, row=4)
     pauseButton = ttk.Button(mainframe, text="Pause", command=pauseSong).grid(column=2, row=4)
     nextButton = ttk.Button(mainframe, text=">>", command=nextSong).grid(column=3, row=4)
+
+    nextSongVar = StringVar(value=playlist)
+
+    playlistDisplay = Listbox(mainframe, selectmode="single", listvariable=nextSongVar)
+    playlistDisplay.grid(row=6, columnspan=4, sticky="W E")
+    # playlistDisplay.set
+    playlistDisplay.selection_set(0)
+    playlistDisplay.selection_anchor(0)
+    playlistDisplay.activate(num)
+    playlistDisplay.bindtags((playlistDisplay, mainframe, "all"))
+
 
     mainframe.pack(expand=True)
     # select the first song in playlist as default
