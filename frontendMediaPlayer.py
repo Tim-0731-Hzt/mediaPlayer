@@ -140,6 +140,11 @@ def udp_server():
             volume = operation
             other_operation = 'volume'
             volumeVariable = volume
+        else:
+            continue
+        
+def close_window():
+    os._exit(0)
 
 def previousSong():
     global other_operation
@@ -292,5 +297,8 @@ if __name__ == "__main__":
     mediaPlayer.start()
     server = threading.Thread(target = udp_server)
     server.start()
+
+    root.protocol("WM_DELETE_WINDOW", close_window)
+    cv = Canvas(root, width=200, height=200); cv.pack()
     # is_playing = True
     root.mainloop()
