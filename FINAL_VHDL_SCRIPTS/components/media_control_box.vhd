@@ -38,12 +38,19 @@ entity media_control_box is
         EppDSTB 	: in std_logic;
         EppWRITE 	: in std_logic;
         EppWAIT 	: out std_logic;
- 		  Led	: out std_logic_vector(7 downto 0); 
-		  sw	: in std_logic_vector(7 downto 0);
-		  btn	: in std_logic_vector(3 downto 0);
-		  an: out std_logic_vector(3 downto 0);
-		  ssg : out std_logic_vector (6 downto 0);
-		  speaker_audio : out std_logic
+		Led	: out std_logic_vector(7 downto 0); 
+		sw	: in std_logic_vector(7 downto 0);
+		btn	: in std_logic_vector(3 downto 0);
+		an: out std_logic_vector(3 downto 0);
+		ssg : out std_logic_vector (6 downto 0);
+		speaker_audio : out std_logic;
+		--IR inputs/outputs
+		ir		: in std_logic;
+		-- SPI inputs/outputs
+		miso    	: IN    std_logic;
+		mosi    	: OUT   std_logic;
+		sclk		: OUT	std_logic;
+		nCS			: OUT	std_logic
 	);
 end media_control_box;
 
@@ -139,15 +146,15 @@ architecture Behavioral of media_control_box is
 
 	COMPONENT spi_master														--Module used for the SPI with the ADC
 	PORT(																			--Gets the value based on the rotational angle of
-		clk : IN std_logic;													--the potentiometer. Returns value between 0 and 1023
-		reset_n : IN std_logic;
-		miso : IN std_logic;          
-		busy : OUT std_logic;
-		mosi : OUT std_logic;
-		sclk_out : OUT std_logic;
-		nCS_out : OUT std_logic;
-		state_out : OUT std_logic_vector(4 downto 0);
-		rx_data : OUT std_logic_vector(9 downto 0)
+		clk 		: IN std_logic;													--the potentiometer. Returns value between 0 and 1023
+		reset_n 	: IN std_logic;
+		miso 		: IN std_logic;          
+		busy 		: OUT std_logic;
+		mosi 		: OUT std_logic;
+		sclk_out 	: OUT std_logic;
+		nCS_out 	: OUT std_logic;
+		state_out 	: OUT std_logic_vector(4 downto 0);
+		rx_data 	: OUT std_logic_vector(9 downto 0)
 		);
 	END COMPONENT;
 	
@@ -157,6 +164,28 @@ architecture Behavioral of media_control_box is
 		data1 : IN std_logic;
 		mux_select : IN std_logic;          
 		data_out : OUT std_logic
+		);
+	END COMPONENT;
+	
+	COMPONENT unique_btn_sound_controller
+	PORT(
+		clk : IN std_logic;
+		btn_addr : IN std_logic_vector(1 downto 0);
+		btn_en : IN std_logic;   
+		sound_en_out : OUT std_logic;
+		sound_out : OUT std_logic
+		);
+	END COMPONENT;
+
+	COMPONENT IR_decoder
+	PORT(
+		clk     	: in    STD_LOGIC;
+		reset   	: in    STD_LOGIC;
+		ir			: in	STD_LOGIC;
+		data    	: inout   STD_LOGIC_VECTOR(15 DOWNTO 0);
+		busy		: out	STD_LOGIC;
+		done    	: out   STD_LOGIC;
+		curstate	: out	STD_LOGIC_VECTOR(6 DOWNTO 0)
 		);
 	END COMPONENT;
 	
@@ -177,15 +206,28 @@ architecture Behavioral of media_control_box is
 	signal sig_btn_noise			: std_logic;
 	signal sig_btn_noise_en		: std_logic;
 	signal sig_ir_btn_noise		: std_logic;
+	signal sig_noise_toggle		: std_logic;
 	
+	-- Internal IR Signals
+	signal sig_ir_done			: std_logic;
+	signal sig_ir_busy			: std_logic;
+	signal sig_ir_state			: std_logic_vector(6 downto 0);
+
+	-- Internal SPI Signals
+	signal sig_pot_data			: std_logic_vector(9 downto 0);
+	signal sig_spi_state		: std_logic_vector(4 downto 0);
+	signal sig_spi_busy			: std_logic;
+
+	
+	signal debug					: std_logic_vector(7 downto 0);
 begin
-	ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
-	ir_mapped(11 downto 0)  <= "000110011010";
+	-- ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
+	-- ir_mapped(11 downto 0)  <= "000110011010";
 	
-																		-- REASON FOR HAVING 2 2-1 MUX's instead of 3-1:
-																		-- IR BEEP WAS INTERRUPTING STARTUP NOISE FOR SOME REASON
-																		-- HAVING IR BEEP AS ONE OF THE MUX SELECT WOULD ONLY PLAY BEEP FOR DURATION
-																		-- OF HOLDING DOWN THE BUTTON RATHER THAN THE 0.5s DELAY 
+	-- REASON FOR HAVING 2 2-1 MUX's instead of 3-1:
+	-- IR BEEP WAS INTERRUPTING STARTUP NOISE FOR SOME REASON
+	-- HAVING IR BEEP AS ONE OF THE MUX SELECT WOULD ONLY PLAY BEEP FOR DURATION
+	-- OF HOLDING DOWN THE BUTTON RATHER THAN THE 0.5s DELAY 
 
 	Inst_Single_Noises_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
 			data0 => sig_ir_beep,
@@ -193,34 +235,34 @@ begin
 			mux_select => sig_btn_noise_en,
 			data_out => sig_ir_btn_noise
 		);
-		
-	Inst_Single_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+
+	Inst_Single_Noise_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
 		data0 => sig_ir_btn_noise,
 		data1 => sig_startup_noise,
 		mux_select => sig_startup_en,
-		data_out => speaker_audio
+		data_out => sig_noise_toggle
 	);
---	Inst_mux_3_to_1_speaker: mux_3_to_1_speaker PORT MAP(
---		data0 => sig_startup_noise,
---		data1 => sig_ir_beep,
---		data2 => sig_btn_noise,
---		mux_select(0) => sig_btn_en,
---		mux_select(1) => sig_btn_noise_en,
---		data_out => speaker_audio
+	
+--	Inst_speaker: speaker PORT MAP(					--FIX THIS UP WHEN IR IS IMPLEMENTED
+--		clk => clk,
+--		speaker_en(1) => sig_btn_en,
+--		speaker_en(0) => sig_ir_en,
+--		speaker_out => sig_ir_beep
 --	);
-	
-	Inst_speaker: speaker PORT MAP(					--FIX THIS UP WHEN IR IS IMPLEMENTED
-		clk => clk,
-		speaker_en(1) => sig_btn_en,
-		speaker_en(0) => sig_ir_en,
-		speaker_out => sig_ir_beep
-	);
-	
+--	
 	Inst_startup_state_machine: startup_state_machine PORT MAP(
 		clk => clk,
 		startup_noise_en => sig_startup_en,
 		speaker_out => sig_startup_noise
 	);
+	
+--	Inst_unique_btn_sound_controller: unique_btn_sound_controller PORT MAP(
+--		clk => clk,
+--		btn_addr => buttons_mapped(9 downto 8),
+--		btn_en => sig_btn_en,
+--		sound_en_out => sig_btn_noise_en,
+--		sound_out => sig_btn_noise
+--	);
 
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
@@ -237,7 +279,7 @@ begin
 	);
 	
 	Inst_seven_seg_display: seven_seg_display PORT MAP(
-		input => mux_out_segments_in,
+		input => ir_mapped,
 		clk => clk,
 		segment_output => sig_sseg,
 		anode_out => an
@@ -269,16 +311,16 @@ begin
 	);
 	
 	
---	Inst_volume_control: volume_control PORT MAP(
---		clk => clk,
---		pot_data(9 downto 8) => "00",
---		pot_data(7 downto 0) => sw,
---		ir_data(7 downto 2) => "000000",
-	--	ir_data(1 downto 0) => btn(1 downto 0),
---		ir_en => btn(3),
---		vol_data_out(11 downto 8) => open,
---		vol_data_out(7 downto 0) => led
---	);
+	-- Inst_volume_control: volume_control PORT MAP(
+	-- 	clk => clk,
+	-- 	pot_data(9 downto 8) => "00",
+	-- 	pot_data(7 downto 0) => sw,
+	-- 	ir_data(7 downto 2) => "000000",
+	-- 	ir_data(1 downto 0) => btn(1 downto 0),
+	-- 	ir_en => btn(3),
+	-- 	vol_data_out(11 downto 8) => open,
+	-- 	vol_data_out(7 downto 0) => led
+	-- );
 	
 	--Inst_volume_control: volume_control PORT MAP(
 	--	volume_data(9 downto 8) => "00",
@@ -295,20 +337,40 @@ begin
 		data_out => mux_out_segments_in
 	);
 	
-	--Inst_spi_master: spi_master PORT MAP(				THE OUTPUT OF THIS IS VOLUME_CONTROL POT_DATA
-	--	clk => ,
-	--	reset_n => ,
-	--	miso => ,
-	--	busy => ,
-	--	mosi => ,
-	--	sclk_out => ,
-	--	nCS_out => ,
-	--	state_out => ,
-	--	rx_data => 
-	-- );
+	Inst_spi_master: spi_master PORT MAP(				--THE OUTPUT OF THIS IS VOLUME_CONTROL POT_DATA
+		clk 		=> clk,
+		reset_n 	=> not(sig_ir_busy),
+		miso 		=> miso,
+		busy 		=> sig_spi_busy,
+		mosi 		=> mosi,
+		sclk_out 	=> sclk,
+		nCS_out 	=> nCS,
+		state_out 	=> sig_spi_state,
+		rx_data 	=> sig_pot_data
+	);
 	
+<<<<<<< HEAD
+	Inst_Noise_Off_Mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+			data0 => sig_noise_toggle,
+			data1 => '0',
+			mux_select => sw(7),
+			data_out => speaker_audio
+		);
 
+	Inst_IR_decoder: ir_decoder PORT MAP(
+		clk		=>	clk,
+		reset	=>	sw(0),
+		ir		=>	ir,
+		data	=>	ir_mapped,
+		busy	=>	sig_ir_busy,
+		done	=>	sig_ir_done,
+		curstate => sig_ir_state
+	);
 
-	led <= "11111111";
+	debug <= sw;
+--	led <= "11111111";
+--	led (7) <= '0';
+--	led(6 downto 0) <= sig_ir_state;
+	led <= sig_pot_data(7 downto 0);
 end Behavioral;
 
