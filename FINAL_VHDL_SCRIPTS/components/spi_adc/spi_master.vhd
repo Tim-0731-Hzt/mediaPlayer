@@ -60,7 +60,7 @@ BEGIN
         end if;
     end process;
 
-    fsm_outputs: process(state, sclk)
+    fsm_outputs: process(state, sclk,rx_buffer)
     begin
 		state_out <= (others => '0');
         case state is
