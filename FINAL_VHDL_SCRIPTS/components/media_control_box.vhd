@@ -256,13 +256,13 @@ begin
 		speaker_out => sig_startup_noise
 	);
 	
---	Inst_unique_btn_sound_controller: unique_btn_sound_controller PORT MAP(
---		clk => clk,
---		btn_addr => buttons_mapped(9 downto 8),
---		btn_en => sig_btn_en,
---		sound_en_out => sig_btn_noise_en,
---		sound_out => sig_btn_noise
---	);
+	Inst_unique_btn_sound_controller: unique_btn_sound_controller PORT MAP(
+		clk => clk,
+		btn_addr => buttons_mapped(9 downto 8),
+		btn_en => sig_btn_en,
+		sound_en_out => sig_btn_noise_en,
+		sound_out => sig_btn_noise
+	);
 
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
@@ -279,7 +279,7 @@ begin
 	);
 	
 	Inst_seven_seg_display: seven_seg_display PORT MAP(
-		input => ir_mapped,
+		input => mux_out_segments_in,
 		clk => clk,
 		segment_output => sig_sseg,
 		anode_out => an
@@ -302,7 +302,7 @@ begin
 		data_to_send => mux_out_epp_in
 	);
 
-	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(
+	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(			--FIX THIS FOR DATA TRANSFER!!!!!!
 		--data0 => ir_mapped,
 		data1 => buttons_mapped,
 		data0 => vol_data_out,
@@ -311,25 +311,14 @@ begin
 	);
 	
 	
-	-- Inst_volume_control: volume_control PORT MAP(
-	-- 	clk => clk,
-	-- 	pot_data(9 downto 8) => "00",
-	-- 	pot_data(7 downto 0) => sw,
-	-- 	ir_data(7 downto 2) => "000000",
-	-- 	ir_data(1 downto 0) => btn(1 downto 0),
-	-- 	ir_en => btn(3),
-	-- 	vol_data_out(11 downto 8) => open,
-	-- 	vol_data_out(7 downto 0) => led
-	-- );
-	
-	--Inst_volume_control: volume_control PORT MAP(
-	--	volume_data(9 downto 8) => "00",
-	--	volume_data(7 downto 0) => sw,
-	--	clk => clk,
-	--	vol_en_out => vol_en_out,
-	--	vol_out => vol_data_out
-	-- );
-	
+--	 Inst_volume_control: volume_control PORT MAP(
+--	 	clk => clk,
+--	 	pot_data => "00",
+--	 	ir_data => "000000",
+--	 	ir_en => btn(3),
+--	 	vol_data_out => led
+--	 );
+
 	Inst_mux_2_to_1_16b: mux_2_to_1_16b PORT MAP(
 		data0 => ir_mapped,
 		data1 => buttons_msg_sig,
@@ -349,7 +338,6 @@ begin
 		rx_data 	=> sig_pot_data
 	);
 	
-<<<<<<< HEAD
 	Inst_Noise_Off_Mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
 			data0 => sig_noise_toggle,
 			data1 => '0',
@@ -367,10 +355,12 @@ begin
 		curstate => sig_ir_state
 	);
 
-	debug <= sw;
 --	led <= "11111111";
 --	led (7) <= '0';
 --	led(6 downto 0) <= sig_ir_state;
 	led <= sig_pot_data(7 downto 0);
+	
+--	ir_mapped(15 downto 7) <= "000000000";
+--	ir_mapped(6 downto 0) <= sw(6 downto 0);
 end Behavioral;
 

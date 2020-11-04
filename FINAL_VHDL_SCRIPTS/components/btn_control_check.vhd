@@ -35,6 +35,7 @@ entity btn_control_check is
 end btn_control_check;
 
 architecture Behavioral of btn_control_check is
+signal sig_output : std_logic_vector (15 downto 0);
 
 begin
 
