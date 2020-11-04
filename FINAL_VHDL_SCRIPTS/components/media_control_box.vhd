@@ -187,6 +187,7 @@ architecture Behavioral of media_control_box is
 	signal sig_btn_noise			: std_logic;
 	signal sig_btn_noise_en		: std_logic;
 	signal sig_ir_btn_noise		: std_logic;
+	signal sig_noise_toggle		: std_logic;
 	
 	signal debug					: std_logic_vector(7 downto 0);
 begin
@@ -205,11 +206,11 @@ begin
 			data_out => sig_ir_btn_noise
 		);
 
-	Inst_Single_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+	Inst_Single_Noise_Startup_mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
 		data0 => sig_ir_btn_noise,
 		data1 => sig_startup_noise,
 		mux_select => sig_startup_en,
-		data_out => speaker_audio
+		data_out => sig_noise_toggle
 	);
 	
 --	Inst_speaker: speaker PORT MAP(					--FIX THIS UP WHEN IR IS IMPLEMENTED
@@ -318,8 +319,13 @@ begin
 	--	rx_data => 
 	-- );
 	
+	Inst_Noise_Off_Mux_2_to_1_1b: mux_2_to_1_1b PORT MAP(
+			data0 => sig_noise_toggle,
+			data1 => '0',
+			mux_select => sw(7),
+			data_out => speaker_audio
+		);
 
-	debug <= sw;
 	led <= "11111111";
 end Behavioral;
 
