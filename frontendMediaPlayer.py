@@ -139,6 +139,7 @@ def udp_server():
         elif (operation.isnumeric()):
             volume = operation
             other_operation = 'volume'
+            volumeVariable = volume
 
 def previousSong():
     global other_operation
@@ -160,6 +161,30 @@ def pauseSong():
 def nextSong():
     global other_operation
     other_operation = 'next'
+
+def barVolume(newVal):
+    if int(newVal) > volumeVariable.get():
+        increaseVolume()
+    else:
+        decreaseVolume()
+
+
+def increaseVolume():
+    global volume
+    if volume == 100:
+        return
+    else:
+        volume += 5
+    volumeVariable.set(volume)
+    media_player.get_media_player().audio_set_volume(volume)
+def decreaseVolume():
+    global volume
+    if volume == 0:
+        return
+    else:
+        volume -= 5
+    volumeVariable.set(volume)
+    media_player.get_media_player().audio_set_volume(volume)
 
 def openSong():
     new_song = fd.askopenfile(initialdir = os.getcwd, filetypes=(("mp3 files", "*.mp3"),("all files","*.*")))
@@ -233,10 +258,25 @@ if __name__ == "__main__":
     pauseButton = ttk.Button(mainframe, text="Pause", command=pauseSong).grid(column=2, row=4)
     nextButton = ttk.Button(mainframe, text=">>", command=nextSong).grid(column=3, row=4)
 
+    volumeVariable = IntVar()
+    volumeVariable.set(volume)
+
+    volumeControl = Scale(mainframe, variable=volumeVariable, from_=0, to=100, resolution=5, showvalue=0, orient=HORIZONTAL, command=barVolume)
+    volumeControl.grid(column=0, row=5, columnspan=4, sticky="E W")
+
+    decreaseVolumeButton = ttk.Button(mainframe, text="-", command=decreaseVolume)
+    decreaseVolumeButton.grid(column=0, row=6, sticky="W")
+
+    volumeDisplay = ttk.Label(mainframe, textvariable=volumeVariable)
+    volumeDisplay.grid(column=1, columnspan=2, row=6)
+
+    increaseVolumeButton = ttk.Button(mainframe, text="+", command=increaseVolume)
+    increaseVolumeButton.grid(column=3, row=6, sticky="E")
+
     nextSongVar = StringVar(value=playlist)
 
     playlistDisplay = Listbox(mainframe, selectmode="single", listvariable=nextSongVar)
-    playlistDisplay.grid(row=6, columnspan=4, sticky="W E")
+    playlistDisplay.grid(row=7, columnspan=4, sticky="W E")
     # playlistDisplay.set
     playlistDisplay.selection_set(0)
     playlistDisplay.selection_anchor(0)
