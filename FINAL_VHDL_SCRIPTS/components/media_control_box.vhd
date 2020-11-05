@@ -59,7 +59,7 @@ architecture Behavioral of media_control_box is
 	COMPONENT speaker														--Original speaker module
 	PORT(																		--Makes beep noise for duration of speaker_en at 500Hz
 		clk : IN std_logic;												--Will be used to indicate that the remote control signal has been decoded
-		speaker_en : IN std_logic_vector(1 downto 0);   		--NOTE: Different for startup sound and unique button noises       
+		speaker_en : IN std_logic;   									--NOTE: Different for startup sound and unique button noises       
 		speaker_out : OUT std_logic
 		);
 	END COMPONENT;
@@ -182,17 +182,28 @@ architecture Behavioral of media_control_box is
 		clk     	: in    STD_LOGIC;
 		reset   	: in    STD_LOGIC;
 		ir			: in	STD_LOGIC;
-		data    	: inout   STD_LOGIC_VECTOR(15 DOWNTO 0);
+		data    	: inout   STD_LOGIC_VECTOR(11 DOWNTO 0);
 		busy		: out	STD_LOGIC;
 		done    	: out   STD_LOGIC;
 		curstate	: out	STD_LOGIC_VECTOR(6 DOWNTO 0)
 		);
 	END COMPONENT;
 	
+	COMPONENT ir_mapping_module
+	PORT(
+		ir_signal : IN std_logic_vector(11 downto 0);
+		ir_en : IN std_logic;          
+		ir_mapped_en : OUT std_logic;
+		ir_mapped_out : OUT std_logic_vector(11 downto 0)
+		);
+	END COMPONENT;
+	
 	signal sig_btn_en				: std_logic; 
 	signal sig_ir_en				: std_logic;
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
-	signal ir_mapped 				: std_logic_vector (15 downto 0);
+	signal ir_mapped 				: std_logic_vector (11 downto 0);
+	signal ir_mapped_test		: std_logic_vector (7 downto 0);
+	signal ir_decoded				: std_logic_vector (11 downto 0);
 	signal buttons_mapped 		: std_logic_vector (11 downto 0);	
 	signal mux_out_epp_in 		: std_logic_vector (11 downto 0);
 	signal vol_data_out			: std_logic_vector (11 downto 0);
@@ -207,7 +218,7 @@ architecture Behavioral of media_control_box is
 	signal sig_btn_noise_en		: std_logic;
 	signal sig_ir_btn_noise		: std_logic;
 	signal sig_noise_toggle		: std_logic;
-	
+	signal ir_mapped_en			: std_logic;
 	-- Internal IR Signals
 	signal sig_ir_done			: std_logic;
 	signal sig_ir_busy			: std_logic;
@@ -220,6 +231,7 @@ architecture Behavioral of media_control_box is
 
 	
 	signal debug					: std_logic_vector(7 downto 0);
+	signal sig_test				: std_logic_vector(11 downto 0);
 begin
 	-- ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
 	-- ir_mapped(11 downto 0)  <= "000110011010";
@@ -243,13 +255,12 @@ begin
 		data_out => sig_noise_toggle
 	);
 	
---	Inst_speaker: speaker PORT MAP(					--FIX THIS UP WHEN IR IS IMPLEMENTED
---		clk => clk,
---		speaker_en(1) => sig_btn_en,
---		speaker_en(0) => sig_ir_en,
---		speaker_out => sig_ir_beep
---	);
---	
+	Inst_speaker: speaker PORT MAP(	
+		clk => clk,
+		speaker_en => sig_ir_done,
+		speaker_out => sig_ir_beep
+	);
+	
 	Inst_startup_state_machine: startup_state_machine PORT MAP(
 		clk => clk,
 		startup_noise_en => sig_startup_en,
@@ -302,25 +313,27 @@ begin
 		data_to_send => mux_out_epp_in
 	);
 
-	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(			--FIX THIS FOR DATA TRANSFER!!!!!!
-		--data0 => ir_mapped,
+	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(			
+		data0 => ir_mapped,
 		data1 => buttons_mapped,
-		data0 => vol_data_out,
+--		data0 => vol_data_out,
 		mux_select => sig_btn_en,
 		data_out => mux_out_epp_in
 	);
 	
+-- Add another mux for vol_data to intersect with mux above
 	
---	 Inst_volume_control: volume_control PORT MAP(
---	 	clk => clk,
---	 	pot_data => "00",
---	 	ir_data => "000000",
---	 	ir_en => btn(3),
---	 	vol_data_out => led
---	 );
+	 Inst_volume_control: volume_control PORT MAP(
+	 	clk => clk,
+	 	pot_data => sig_pot_data,
+	 	ir_data => ir_mapped_test,
+	 	ir_en => btn(3),
+	 	vol_data_out => vol_data_out
+	 );
 
 	Inst_mux_2_to_1_16b: mux_2_to_1_16b PORT MAP(
-		data0 => ir_mapped,
+		data0(15 downto 12) => "0000",
+		data0(11 downto 0)  => ir_mapped,
 		data1 => buttons_msg_sig,
 		mux_select => sig_btn_en,
 		data_out => mux_out_segments_in
@@ -349,18 +362,21 @@ begin
 		clk		=>	clk,
 		reset	=>	sw(0),
 		ir		=>	ir,
-		data	=>	ir_mapped,
+		data	=>	ir_decoded,
 		busy	=>	sig_ir_busy,
 		done	=>	sig_ir_done,
 		curstate => sig_ir_state
 	);
-
---	led <= "11111111";
---	led (7) <= '0';
---	led(6 downto 0) <= sig_ir_state;
-	led <= sig_pot_data(7 downto 0);
 	
---	ir_mapped(15 downto 7) <= "000000000";
---	ir_mapped(6 downto 0) <= sw(6 downto 0);
+	Inst_ir_mapping_module: ir_mapping_module PORT MAP(
+		ir_signal => ir_decoded,
+		ir_en => sig_ir_done,
+		ir_mapped_en => ir_mapped_en,
+		ir_mapped_out => ir_mapped
+	);
+
+	led <= sig_pot_data(7 downto 0);
+
+	
 end Behavioral;
 
