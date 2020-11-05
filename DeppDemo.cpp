@@ -125,6 +125,10 @@ int main(int cszArg, char* rgszArg[]) {
     while (1) {
         DoGetReg(s);
         printf("\n");
+        
+        if (GetKeyState('Q') & 0x8000){
+            break;
+        }
     }
     // close socket and depp
     closesocket(s);
