@@ -158,10 +158,11 @@ def nextSong():
     other_operation = 'next'
 
 def barVolume(newVal):
-    if int(newVal) > volumeVariable.get():
-        increaseVolume()
-    else:
-        decreaseVolume()
+    global volume
+    volume = int(newVal)
+    volumeVariable.set(newVal)
+    media_player.get_media_player().audio_set_volume(volume)
+
 
 
 def increaseVolume():
@@ -224,9 +225,8 @@ def updateProgress():
 if __name__ == "__main__":
     root = Tk()
     root.title("Violet Player")
-
     mainframe = ttk.Frame(root, padding="12 12 12 12")
-    mainframe.grid(sticky="S")
+    mainframe.grid(sticky=N+S+E+W)
 
     song_name = StringVar()
     song_time = DoubleVar()
@@ -278,8 +278,11 @@ if __name__ == "__main__":
     playlistDisplay.activate(num)
     playlistDisplay.bindtags((playlistDisplay, mainframe, "all"))
 
+    for i in range(0,7):
+        Grid.columnconfigure(mainframe, i, weight=1)
+        Grid.rowconfigure(mainframe, i, weight=1)
 
-    mainframe.pack(expand=True)
+
     # select the first song in playlist as default
     print ("select " + playlist[num] + " from " + str(playlist))
     # create threads
@@ -289,6 +292,5 @@ if __name__ == "__main__":
     server.start()
 
     root.protocol("WM_DELETE_WINDOW", close_window)
-    cv = Canvas(root, width=200, height=200); cv.pack()
     # is_playing = True
     root.mainloop()
