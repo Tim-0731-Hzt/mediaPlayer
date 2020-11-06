@@ -22,7 +22,7 @@ entity IR_Decoder is
     port(   clk     	: in    STD_LOGIC;
             reset   	: in    STD_LOGIC;
 			ir			: in	STD_LOGIC;
-            data    	: inout   STD_LOGIC_VECTOR(15 DOWNTO 0);
+            data    	: inout   STD_LOGIC_VECTOR(11 DOWNTO 0);			--Changed from 15 downto 0 to 11 downto 0
 			busy		: out	STD_LOGIC;
 			done    	: out   STD_LOGIC;
 			
@@ -249,7 +249,7 @@ begin
 	end process;
 				
 	-- Data is output as 16 bits but only bottom 12 bits matter
-	data(15 downto 12) <= "0000";
+	--data(15 downto 12) <= "0000";
 
 	-- Debugging signals
 --	nBits_out <= nBit_counter;

@@ -36,7 +36,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity speaker is
     Port ( clk : in  STD_LOGIC;
-           speaker_en : in  STD_LOGIC_VECTOR(1 downto 0);
+           speaker_en : in  STD_LOGIC;
            speaker_out : out  STD_LOGIC);
 END speaker;
 
@@ -77,7 +77,7 @@ begin
 	variable cnt : integer := 0;
 	begin	
 		IF (clk'event and clk = '1') THEN
-			IF (speaker_en(0) = '1' or speaker_en(1) = '1') THEN
+			IF (speaker_en = '1') THEN
 				hold_en <= '1';
 			END IF;
 			IF (hold_en = '1') THEN
