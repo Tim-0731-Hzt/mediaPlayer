@@ -40,6 +40,7 @@ end ir_mapping_module;
 architecture Behavioral of ir_mapping_module is
 
 signal sig_ir_mapped_out : std_logic_vector(15 downto 0);
+signal hold_ir_en			 : std_logic;
 
 constant next_sig_ir		 : std_logic_vector(11 downto 0) := X"39D";
 constant play_sig_ir		 : std_logic_vector(11 downto 0) := X"5BA";
@@ -55,7 +56,7 @@ begin
 	begin
 	if (clk'event and clk = '1') then
 		ir_mapped_en <= '0';
-		if (ir_en = '1') then
+		if (hold_ir_en = '1') then
 			if (ir_signal = next_sig_ir) then 
 				ir_mapped_en <= '1';
 				ir_mapped_out <= next_button;
@@ -74,6 +75,24 @@ begin
 	
 	end process;
 
-
+	signal_en_latch : PROCESS(clk)
+	variable cnt : integer := 0;
+	begin	
+		IF (clk'event and clk = '1') THEN
+			IF (ir_en = '1') THEN
+				hold_ir_en <= '1';
+			END IF;
+			IF (hold_ir_en = '1') THEN
+			cnt := cnt + 1;
+			END IF;
+			
+			IF (cnt = 1000000000) THEN
+				hold_ir_en <= '0';
+				cnt := 0;
+			
+			END IF;
+		END IF;
+	end process;
+	
 end Behavioral;
 

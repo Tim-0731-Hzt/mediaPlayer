@@ -42,22 +42,22 @@ ARCHITECTURE behavior OF ir_mapping_testbench IS
     COMPONENT ir_mapping_module
     PORT(
          clk : IN  std_logic;
-         ir_signal : IN  std_logic_vector(15 downto 0);
+         ir_signal : IN  std_logic_vector(11 downto 0);
          ir_en : IN  std_logic;
          ir_mapped_en : OUT  std_logic;
-         ir_mapped_out : OUT  std_logic_vector(15 downto 0)
+         ir_mapped_out : OUT  std_logic_vector(11 downto 0)
         );
     END COMPONENT;
     
 
    --Inputs
    signal clk : std_logic := '0';
-   signal ir_signal : std_logic_vector(15 downto 0) := (others => '0');
+   signal ir_signal : std_logic_vector(11 downto 0) := (others => '0');
    signal ir_en : std_logic := '0';
 
  	--Outputs
    signal ir_mapped_en : std_logic;
-   signal ir_mapped_out : std_logic_vector(15 downto 0);
+   signal ir_mapped_out : std_logic_vector(11 downto 0);
 
    -- Clock period definitions
    constant clk_period : time := 10 ns;
@@ -91,15 +91,10 @@ BEGIN
 
       wait for clk_period*10;
 		ir_en <= '1';
-		ir_signal <= X"039D";
+		ir_signal <= X"39D";
 		
 		wait for clk_period;
-		ir_en <= '0';
-		
-		wait for clk_period*10;
-		ir_en <= '1';
-		ir_signal <= X"05BA";
-      -- insert stimulus here 
+		ir_en <= '0';      -- insert stimulus here 
 
       wait;
    end process;

@@ -233,8 +233,6 @@ architecture Behavioral of media_control_box is
 	signal debug					: std_logic_vector(7 downto 0);
 	signal sig_test				: std_logic_vector(11 downto 0);
 begin
-	-- ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
-	-- ir_mapped(11 downto 0)  <= "000110011010";
 	
 	-- REASON FOR HAVING 2 2-1 MUX's instead of 3-1:
 	-- IR BEEP WAS INTERRUPTING STARTUP NOISE FOR SOME REASON
