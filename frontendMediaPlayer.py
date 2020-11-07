@@ -106,6 +106,8 @@ def mediaPlayer():
                 changeSong(other_operation)
                 other_operation = None
                 is_pause = False
+
+        sleep(0.1)
     
 
 def udp_server():
@@ -132,6 +134,9 @@ def udp_server():
             increaseVolume()
         elif operation == 'volumedown':
             decreaseVolume()
+
+        sleep(0.1)
+        
         
 def close_window():
     os._exit(0)
