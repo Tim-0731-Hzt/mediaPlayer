@@ -24,13 +24,13 @@ media_list = player.media_list_new()
 media_player.get_media_player().audio_set_volume(volume)
 # media_player.set_playback_mode(1)
 # add song   
-# for entry in os.listdir(path='./audio/'):
-#     if (".mp3" in entry or ".wav" in etry):
-#         playlist.append(entry.split(".")[0])
-#         media = player.media_new("audio/" + entry) 
-#         media_list.add_media(media) 
+for entry in os.listdir(path='./audio/'):
+    if (".mp3" in entry or ".wav" in etry):
+        playlist.append(entry.split(".")[0])
+        media = player.media_new("audio/" + entry) 
+        media_list.add_media(media) 
 
-# media_player.set_media_list(media_list)
+media_player.set_media_list(media_list)
 
 for song in playlist:
     print(song)
