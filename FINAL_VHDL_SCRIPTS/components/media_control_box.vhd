@@ -208,6 +208,16 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT mux_2_to_1_12b_data_ctrl
+	PORT(
+		clk : IN std_logic;
+		data0 : IN std_logic_vector(11 downto 0);
+		data1 : IN std_logic_vector(11 downto 0);
+		mux_select : IN std_logic;          
+		data_out : OUT std_logic_vector(11 downto 0)
+		);
+	END COMPONENT;
+	
 	signal sig_btn_en				: std_logic; 
 	signal sig_ir_en				: std_logic;
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
@@ -217,7 +227,7 @@ architecture Behavioral of media_control_box is
 	signal buttons_mapped 		: std_logic_vector (11 downto 0);	
 	signal mux_out_epp_in 		: std_logic_vector (11 downto 0);
 	signal vol_data_out			: std_logic_vector (11 downto 0);
-	signal vol_en_out				: std_logic;
+--	signal sig_vol_ctrl			: std_logic_vector (11 downto 0);
 	signal buttons_msg_sig		: std_logic_vector (15 downto 0);
 	signal mux_out_segments_in	: std_logic_vector (15 downto 0);
 	signal sw_btn_out				: std_logic_vector (3 downto 0);
@@ -319,20 +329,26 @@ begin
 		EppASTB => EppASTB,
 		EppDSTB => EppDSTB,
 		EppWrite => EppWrite,
-		vol_en	=> vol_en_out,
+		vol_ctrl	=> vol_data_out,
 		EppWait => EppWait,
 		data_to_send => mux_out_epp_in
 	);
 
-	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(			
+--	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(			
 --		data0 => ir_mapped,
+--		data1 => buttons_mapped,
+--		--data0 => vol_data_out,
+--		mux_select => sig_btn_en,
+--		data_out => mux_out_epp_in
+--	);
+--	
+	Inst_mux_2_to_1_12b_data_ctrl: mux_2_to_1_12b_data_ctrl PORT MAP(
+		clk => clk,
+		data0 => ir_mapped,
 		data1 => buttons_mapped,
-		data0 => vol_data_out,
 		mux_select => sig_btn_en,
 		data_out => mux_out_epp_in
 	);
-	
--- Add another mux for vol_data to intersect with mux above
 	
 	 Inst_volume_control: volume_control PORT MAP(
 	 	clk => clk,

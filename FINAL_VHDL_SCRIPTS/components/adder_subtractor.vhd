@@ -52,7 +52,7 @@ begin
 			elsif(ir_en = '1') then
 				if (ir_data = "010000000001" AND sig_data /= "01100100")  then
 					sig_data <= std_logic_vector(unsigned(sig_data) + 5);
-				elsif (ir_data = "010000000010" AND sig_data /= "00000000") then 			--sign_data 2 means volume is 0
+				elsif (ir_data = "010000000010" AND sig_data /= "00000000") then 
 					sig_data <= std_logic_vector(unsigned(sig_data) - 5);
 				end if;
 			end if;
