@@ -333,7 +333,7 @@ begin
 
 	Inst_mux_2_to_1_16b: mux_2_to_1_16b PORT MAP(
 		data0(15 downto 12) => "0000",
-		data0(11 downto 0)  => ir_mapped,
+		data0(11 downto 0)  => ir_decoded,
 		data1 => buttons_msg_sig,
 		mux_select => sig_btn_en,
 		data_out => mux_out_segments_in
