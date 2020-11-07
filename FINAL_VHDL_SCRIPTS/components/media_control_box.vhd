@@ -243,6 +243,8 @@ architecture Behavioral of media_control_box is
 	
 	signal debug					: std_logic_vector(7 downto 0);
 	signal sig_test				: std_logic_vector(11 downto 0);
+	
+	signal sig_7_seg			: std_logic_vector(15 downto 0);
 begin
 	
 	-- REASON FOR HAVING 2 2-1 MUX's instead of 3-1:
@@ -299,7 +301,7 @@ begin
 	);
 	
 	Inst_seven_seg_display: seven_seg_display PORT MAP(
-		input => mux_out_segments_in,
+		input => sig_7_seg,
 		clk => clk,
 		segment_output => sig_sseg,
 		anode_out => an
@@ -393,6 +395,6 @@ begin
 	);
 	led <= sig_pot_data(7 downto 0);
 
-	
+	sig_7_seg <= "000000" & sig_pot_data;
 end Behavioral;
 

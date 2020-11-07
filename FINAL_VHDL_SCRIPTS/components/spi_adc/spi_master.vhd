@@ -49,7 +49,7 @@ BEGIN
 						state <= config;
                     end if;
                 when receive =>
-                    if (rx_count = 9) then      -- if the number of received bits is equal to the register size stop
+                    if (rx_count = 10) then      -- if the number of received bits is equal to the register size stop
                         state <= done;
                     else
                         state <= receive;
