@@ -42,10 +42,10 @@ architecture Behavioral of ir_mapping_module is
 signal sig_ir_mapped_out : std_logic_vector(15 downto 0);
 signal hold_ir_en			 : std_logic;
 
-constant next_sig_ir		 : std_logic_vector(11 downto 0) := X"39D";
-constant play_sig_ir		 : std_logic_vector(11 downto 0) := X"5BA";
-constant stop_sig_ir		 : std_logic_vector(11 downto 0) := X"A70"; -- Just using enter for this
-constant prev_sig_ir		 : std_logic_vector(11 downto 0) := X"D9D";
+constant next_sig_ir		 : std_logic_vector(11 downto 0) := X"CD0";
+constant play_sig_ir		 : std_logic_vector(11 downto 0) := X"A70";
+constant stop_sig_ir		 : std_logic_vector(11 downto 0) := X"AF0"; -- Just using enter for this
+constant prev_sig_ir		 : std_logic_vector(11 downto 0) := X"2D0";
 
 constant next_button 	 : std_logic_vector(11 downto 0) := "000000000001";
 constant play_button		 : std_logic_vector(11 downto 0) := "000100000010"; 
@@ -56,6 +56,7 @@ begin
 	begin
 	if (clk'event and clk = '1') then
 		ir_mapped_en <= '0';
+		ir_mapped_out <= (others => '0');
 		if (hold_ir_en = '1') then
 			if (ir_signal = next_sig_ir) then 
 				ir_mapped_en <= '1';
@@ -70,6 +71,8 @@ begin
 				ir_mapped_en <= '1';
 				ir_mapped_out <= back_button;
 			end if;
+		else
+			ir_mapped_out <= (others => '0');
 		end if;
 	end if;
 	
@@ -86,7 +89,7 @@ begin
 			cnt := cnt + 1;
 			END IF;
 			
-			IF (cnt = 1000000000) THEN
+			IF (cnt = 35000000) THEN
 				hold_ir_en <= '0';
 				cnt := 0;
 			
