@@ -114,7 +114,7 @@ architecture Behavioral of media_control_box is
 	COMPONENT volume_control is
     PORT ( clk : in  STD_LOGIC;
            pot_data : in  STD_LOGIC_VECTOR (9 downto 0);
-           ir_data : in  STD_LOGIC_VECTOR (7 downto 0);
+           ir_data : in  STD_LOGIC_VECTOR (11 downto 0);
            ir_en : in  STD_LOGIC;
            vol_data_out : out  STD_LOGIC_VECTOR (11 downto 0));
 			  
@@ -335,8 +335,8 @@ begin
 	 Inst_volume_control: volume_control PORT MAP(
 	 	clk => clk,
 	 	pot_data => sig_pot_data,
-	 	ir_data => ir_mapped_test,
-	 	ir_en => btn(3),
+	 	ir_data => ir_mapped,
+	 	ir_en => ir_mapped_en,
 	 	vol_data_out => vol_data_out
 	 );
 

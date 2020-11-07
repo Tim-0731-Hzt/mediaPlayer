@@ -46,11 +46,15 @@ constant next_sig_ir		 : std_logic_vector(11 downto 0) := X"CD0";
 constant play_sig_ir		 : std_logic_vector(11 downto 0) := X"A70";
 constant stop_sig_ir		 : std_logic_vector(11 downto 0) := X"AF0"; -- Just using enter for this
 constant prev_sig_ir		 : std_logic_vector(11 downto 0) := X"2D0";
+constant vol_up_sig_ir	 : std_logic_vector(11 downto 0) := X"490";
+constant vol_down_sig_ir : std_logic_vector(11 downto 0) := X"C90";
 
 constant next_button 	 : std_logic_vector(11 downto 0) := "000000000001";
 constant play_button		 : std_logic_vector(11 downto 0) := "000100000010"; 
 constant stop_button		 : std_logic_vector(11 downto 0) := "001000000001";
 constant back_button		 : std_logic_vector(11 downto 0) := "001100000001";
+constant vol_up			 : std_logic_vector(11 downto 0) := "010000000001";
+constant vol_down			 : std_logic_vector(11 downto 0) := "010000000010";
 begin
 	ir_mapping_process : process(clk)
 	begin
@@ -70,6 +74,12 @@ begin
 			elsif (ir_signal = prev_sig_ir) then
 				ir_mapped_en <= '1';
 				ir_mapped_out <= back_button;
+			elsif (ir_signal = vol_up_sig_ir) then
+				ir_mapped_en <= '1';
+				ir_mapped_out <= vol_up;
+			elsif (ir_signal = vol_down_sig_ir) then
+				ir_mapped_en <= '1';
+				ir_mapped_out <= vol_down;
 			end if;
 		else
 			ir_mapped_out <= (others => '0');
