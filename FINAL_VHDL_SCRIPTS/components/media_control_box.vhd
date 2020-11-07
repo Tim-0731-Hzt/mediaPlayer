@@ -195,6 +195,7 @@ architecture Behavioral of media_control_box is
 		ir_signal : IN std_logic_vector(11 downto 0);
 		ir_en : IN std_logic;          
 		ir_mapped_en : OUT std_logic;
+	   ir_vol_en : out std_logic;
 		ir_mapped_out : OUT std_logic_vector(11 downto 0)
 		);
 	END COMPONENT;
@@ -240,6 +241,7 @@ architecture Behavioral of media_control_box is
 	signal sig_ir_btn_noise		: std_logic;
 	signal sig_noise_toggle		: std_logic;
 	signal ir_mapped_en			: std_logic;
+	signal ir_vol_en			: std_logic;
 	-- Internal IR Signals
 	signal sig_ir_done			: std_logic;
 	signal sig_ir_busy			: std_logic;
@@ -311,7 +313,7 @@ begin
 	);
 	
 	Inst_seven_seg_display: seven_seg_display PORT MAP(
-		input => sig_7_seg,
+		input => mux_out_segments_in,
 		clk => clk,
 		segment_output => sig_sseg,
 		anode_out => an
@@ -354,7 +356,7 @@ begin
 	 	clk => clk,
 	 	pot_data => sig_pot_data,
 	 	ir_data => ir_mapped,
-	 	ir_en => ir_mapped_en,
+	 	ir_en => ir_vol_en,
 	 	vol_data_out => vol_data_out
 	 );
 
@@ -400,6 +402,7 @@ begin
 		ir_signal => ir_decoded,
 		ir_en => sig_ir_done,
 		ir_mapped_en => ir_mapped_en,
+	   ir_vol_en => ir_vol_en,
 		ir_mapped_out => ir_mapped
 	);
 

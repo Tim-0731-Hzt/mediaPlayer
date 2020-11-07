@@ -25,7 +25,7 @@ media_player.get_media_player().audio_set_volume(volume)
 # media_player.set_playback_mode(1)
 # add song   
 for entry in os.listdir(path='./audio/'):
-    if (".mp3" in entry or ".wav" in etry):
+    if (".mp3" in entry or ".wav" in entry):
         playlist.append(entry.split(".")[0])
         media = player.media_new("audio/" + entry) 
         media_list.add_media(media) 
@@ -141,8 +141,10 @@ def udp_server():
         operation = result[0]
         if (operation == 'play'):
             is_playing = True
-        elif (operation == 'stop'):
+        elif (operation == 'pause'):
             is_playing = False
+        elif (operation == 'stop'):
+            stopSong()
         elif (operation == 'next'):
             other_operation = 'next'
         elif (operation == 'back'):
