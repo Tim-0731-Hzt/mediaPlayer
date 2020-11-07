@@ -95,7 +95,7 @@ architecture Behavioral of media_control_box is
 		EppASTB : IN std_logic;											--No need to change anything else
 		EppDSTB : IN std_logic;
 		EppWrite : IN std_logic;
-		vol_en	: IN std_logic;
+		vol_ctrl	: IN std_logic_vector(11 downto 0);
 		data_to_send : IN std_logic_vector(11 downto 0);    
 		DB : INOUT std_logic_vector(7 downto 0);      
 		EppWait : OUT std_logic
