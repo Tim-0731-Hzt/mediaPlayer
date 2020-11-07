@@ -33,7 +33,7 @@ entity adder_subtractor is
     Port ( clk : in std_logic;
 			  pot_data : in  STD_LOGIC_VECTOR (7 downto 0);
            pot_en : in  STD_LOGIC;
-           ir_data : in  STD_LOGIC_VECTOR (7 downto 0);
+           ir_data : in  STD_LOGIC_VECTOR (11 downto 0);
            ir_en : in  STD_LOGIC;
            add_sub_out : out  STD_LOGIC_VECTOR (11 downto 0));
 end adder_subtractor;
@@ -50,9 +50,9 @@ begin
 			if (pot_en = '1') then
 				sig_data <= pot_data;
 			elsif(ir_en = '1') then
-				if (ir_data = "00000001" AND sig_data /= "01100100")  then
+				if (ir_data = "010000000001" AND sig_data /= "01100100")  then
 					sig_data <= std_logic_vector(unsigned(sig_data) + 5);
-				elsif (ir_data = "00000010" AND sig_data /= "00000000") then 
+				elsif (ir_data = "010000000010" AND sig_data /= "00000000") then 			--sign_data 2 means volume is 0
 					sig_data <= std_logic_vector(unsigned(sig_data) - 5);
 				end if;
 			end if;

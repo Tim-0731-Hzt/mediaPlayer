@@ -41,15 +41,15 @@ architecture Behavioral of swtiching_btn_function_module is
 	signal button_sig		: std_logic_vector(3 downto 0);
 	signal swap_0_1		: std_logic := '0';
 	signal swap_0_2		: std_logic := '0';
-	signal extract_two 	: std_logic;
-	signal init 	: std_logic := '0';
+	signal init 			: std_logic := '0';
 
 begin
 	button_sig <= btn;
 	
 	swapping_en: process(clk)
 	begin
-	if (clk'event and clk = '1') then		
+	if (clk'event and clk = '1') then
+		swap_0_1 <= '0';
 		if (sw(0) = '1' and sw(1) = '1') then
 			swap_0_1 <= '1';
 			init <= '1';
