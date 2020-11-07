@@ -218,136 +218,154 @@ void DoGetReg(SOCKET s) {
         puts(r3);
         send(s, r3, strlen(r3), 0);
     }
-    
-    if (idData4 != prev_volume) {
-        if (idData4 == (BYTE)2) {
-            r4 = "0";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
 
-        else if (idData4 == (BYTE)5) {
-            prev_volume = idData4;
-            r4 = "5";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)10) {
-            r4 = "10";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)15) {
-            r4 = "15";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)20) {
-            r4 = "20";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)25) {
-            r4 = "25";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)30) {
-            r4 = "30";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)35) {
-            r4 = "35";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)40) {
-            r4 = "40";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)45) {
-            r4 = "45";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)50) {
-            r4 = "50";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)55) {
-            r4 = "55";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)60) {
-            r4 = "60";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)65) {
-            r4 = "65";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)70) {
-            r4 = "70";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)75) {
-            r4 = "75";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)80) {
-            r4 = "80";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)85) {
-            r4 = "85";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)90) {
-            r4 = "90";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)95) {
-            r4 = "95";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)100) {
-            r4 = "100";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
+    if (idData4 > prev_volume) {
+        r4 = "volumeup";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
         prev_volume = idData4;
+
+    } else if (idData4 < prev_volume) {
+        r4 = "volumedown";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
+        prev_volume = idData4;
+
+    } else {
+        r4 = "0";
+        puts(r4);
+        send(s, r4, strlen(r4), 0);
     }
+    
+    // if (idData4 != prev_volume) {
+    //     if (idData4 == (BYTE)2) {
+    //         r4 = "0";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)5) {
+    //         prev_volume = idData4;
+    //         r4 = "5";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)10) {
+    //         r4 = "10";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)15) {
+    //         r4 = "15";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)20) {
+    //         r4 = "20";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)25) {
+    //         r4 = "25";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)30) {
+    //         r4 = "30";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)35) {
+    //         r4 = "35";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)40) {
+    //         r4 = "40";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)45) {
+    //         r4 = "45";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)50) {
+    //         r4 = "50";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)55) {
+    //         r4 = "55";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)60) {
+    //         r4 = "60";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)65) {
+    //         r4 = "65";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)70) {
+    //         r4 = "70";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)75) {
+    //         r4 = "75";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)80) {
+    //         r4 = "80";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)85) {
+    //         r4 = "85";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)90) {
+    //         r4 = "90";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)95) {
+    //         r4 = "95";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+
+    //     else if (idData4 == (BYTE)100) {
+    //         r4 = "100";
+    //         puts(r4);
+    //         send(s, r4, strlen(r4), 0);
+    //     }
+    //     prev_volume = idData4;
+    // }
 }
 
 /* ------------------------------------------------------------ */

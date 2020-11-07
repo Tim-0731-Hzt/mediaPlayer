@@ -147,6 +147,14 @@ def udp_server():
             other_operation = 'next'
         elif (operation == 'back'):
             other_operation = 'back'
+        # elif (operation == 'volume'):
+        #     if (len(result) < 2):
+        #         print("Volume error")
+            
+        #     global volume
+        #     volume = int(result[1])
+        #     volumeVariable.set(volume)
+        #     media_player.get_media_player().audio_set_volume(volume)
         elif operation == 'volumeup':
             increaseVolume()
         elif operation == 'volumedown':
