@@ -35,7 +35,7 @@ entity EPP_Communication_Module is
            EppASTB : in  STD_LOGIC;
            EppDSTB : in  STD_LOGIC;
            EppWrite : in  STD_LOGIC;
-			  vol_en		: in STD_LOGIC;
+			  vol_ctrl	: in STD_LOGIC_VECTOR (11 downto 0);
            EppWait : out  STD_LOGIC;
            data_to_send : in  STD_LOGIC_VECTOR (11 downto 0));
 end EPP_Communication_Module;
@@ -281,7 +281,7 @@ begin
 					regData3 <= data_to_send(7 downto 0);
 				elsif data_to_send(11 downto 8) = "0100" then
 					--if (vol_en = '1') then 
-						regData4 <= data_to_send(7 downto 0);
+						regData4 <= vol_ctrl(7 downto 0);
 					--end if;
 				end if;
 			end if;

@@ -32,7 +32,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity volume_control is
     Port ( clk : in  STD_LOGIC;
            pot_data : in  STD_LOGIC_VECTOR (9 downto 0);
-           ir_data : in  STD_LOGIC_VECTOR (11 downto 0);
+           ir_data : in  STD_LOGIC_VECTOR (7 downto 0);
            ir_en : in  STD_LOGIC;
            vol_data_out : out  STD_LOGIC_VECTOR (11 downto 0));
 end volume_control;
@@ -53,7 +53,7 @@ COMPONENT pot_control
 	PORT(clk : in std_logic;
 		pot_data : IN std_logic_vector(7 downto 0);
 		pot_en : IN std_logic;
-		ir_data : IN std_logic_vector(11 downto 0);
+		ir_data : IN std_logic_vector(7 downto 0);
 		ir_en : IN std_logic;          
 		add_sub_out : OUT std_logic_vector(11 downto 0)
 		);
