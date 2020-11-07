@@ -87,8 +87,7 @@ BEGIN
    stim_proc: process
    begin		
       -- hold reset state for 100 ns.
-      pot_data <= "0011111111";
-		ir_data 	<= "00000001";
+      pot_data <= "1111111111";
       
 		wait for clk_period*10;
 	--	ir_en <= '1';

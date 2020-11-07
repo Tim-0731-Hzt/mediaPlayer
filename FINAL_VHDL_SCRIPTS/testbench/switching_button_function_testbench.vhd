@@ -2,15 +2,15 @@
 -- Company: 
 -- Engineer:
 --
--- Create Date:   08:53:00 11/06/2020
+-- Create Date:   21:23:47 11/06/2020
 -- Design Name:   
--- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/ir_mapping_testbench.vhd
+-- Module Name:   C:/Users/brayd/Dropbox/UNSW/y3_t3/COMP3601/COMP3601/FINAL_VHDL_SCRIPTS/testbench/switching_button_function_testbench.vhd
 -- Project Name:  media_control_box
 -- Target Device:  
 -- Tool versions:  
 -- Description:   
 -- 
--- VHDL Test Bench Created by ISE for module: ir_mapping_module
+-- VHDL Test Bench Created by ISE for module: swtiching_btn_function_module
 -- 
 -- Dependencies:
 -- 
@@ -32,32 +32,30 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
  
-ENTITY ir_mapping_testbench IS
-END ir_mapping_testbench;
+ENTITY switching_button_function_testbench IS
+END switching_button_function_testbench;
  
-ARCHITECTURE behavior OF ir_mapping_testbench IS 
+ARCHITECTURE behavior OF switching_button_function_testbench IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
  
-    COMPONENT ir_mapping_module
+    COMPONENT swtiching_btn_function_module
     PORT(
          clk : IN  std_logic;
-         ir_signal : IN  std_logic_vector(11 downto 0);
-         ir_en : IN  std_logic;
-         ir_mapped_en : OUT  std_logic;
-         ir_mapped_out : OUT  std_logic_vector(11 downto 0)
+         btn : IN  std_logic_vector(3 downto 0);
+         sw : IN  std_logic_vector(3 downto 0);
+         btn_out : OUT  std_logic_vector(3 downto 0)
         );
     END COMPONENT;
     
 
    --Inputs
    signal clk : std_logic := '0';
-   signal ir_signal : std_logic_vector(11 downto 0) := (others => '0');
-   signal ir_en : std_logic := '0';
+   signal btn : std_logic_vector(3 downto 0) := (others => '0');
+   signal sw : std_logic_vector(3 downto 0) := (others => '0');
 
  	--Outputs
-   signal ir_mapped_en : std_logic;
-   signal ir_mapped_out : std_logic_vector(11 downto 0);
+   signal btn_out : std_logic_vector(3 downto 0);
 
    -- Clock period definitions
    constant clk_period : time := 10 ns;
@@ -65,12 +63,11 @@ ARCHITECTURE behavior OF ir_mapping_testbench IS
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
-   uut: ir_mapping_module PORT MAP (
+   uut: swtiching_btn_function_module PORT MAP (
           clk => clk,
-          ir_signal => ir_signal,
-          ir_en => ir_en,
-          ir_mapped_en => ir_mapped_en,
-          ir_mapped_out => ir_mapped_out
+          btn => btn,
+          sw => sw,
+          btn_out => btn_out
         );
 
    -- Clock process definitions
@@ -90,13 +87,12 @@ BEGIN
       wait for 100 ns;	
 
       wait for clk_period*10;
-		ir_en <= '1';
-		ir_signal <= X"39D";
-		
-		wait for clk_period;
-		ir_en <= '0';      -- insert stimulus here 
 
-      wait;
+      sw <= "0011";
+		btn <= "0010";
+
+      wait for clk_period*2;
+		sw <= "0000";
    end process;
 
 END;

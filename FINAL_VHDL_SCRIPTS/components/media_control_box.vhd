@@ -191,10 +191,20 @@ architecture Behavioral of media_control_box is
 	
 	COMPONENT ir_mapping_module
 	PORT(
+		clk		 : IN std_logic;
 		ir_signal : IN std_logic_vector(11 downto 0);
 		ir_en : IN std_logic;          
 		ir_mapped_en : OUT std_logic;
 		ir_mapped_out : OUT std_logic_vector(11 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT swtiching_btn_function_module
+	PORT(
+		clk : IN std_logic;
+		btn : IN std_logic_vector(3 downto 0);
+		sw : IN std_logic_vector(3 downto 0);          
+		btn_out : OUT std_logic_vector(3 downto 0)
 		);
 	END COMPONENT;
 	
@@ -210,6 +220,7 @@ architecture Behavioral of media_control_box is
 	signal vol_en_out				: std_logic;
 	signal buttons_msg_sig		: std_logic_vector (15 downto 0);
 	signal mux_out_segments_in	: std_logic_vector (15 downto 0);
+	signal sw_btn_out				: std_logic_vector (3 downto 0);
 	
 	signal sig_ir_beep			: std_logic;
 	signal sig_startup_noise	: std_logic;
@@ -233,8 +244,6 @@ architecture Behavioral of media_control_box is
 	signal debug					: std_logic_vector(7 downto 0);
 	signal sig_test				: std_logic_vector(11 downto 0);
 begin
-	-- ir_mapped(15 downto 12) <= "0000";			--IR signal only 12 bits, need 16 bits to send into a mux with the button msga
-	-- ir_mapped(11 downto 0)  <= "000110011010";
 	
 	-- REASON FOR HAVING 2 2-1 MUX's instead of 3-1:
 	-- IR BEEP WAS INTERRUPTING STARTUP NOISE FOR SOME REASON
@@ -277,7 +286,7 @@ begin
 
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
-		btn => btn,
+		btn => sw_btn_out,
 		button_en => sig_btn_en,
 		button_mapping => buttons_mapped
 	);
@@ -369,12 +378,19 @@ begin
 	);
 	
 	Inst_ir_mapping_module: ir_mapping_module PORT MAP(
+		clk => clk,
 		ir_signal => ir_decoded,
 		ir_en => sig_ir_done,
 		ir_mapped_en => ir_mapped_en,
 		ir_mapped_out => ir_mapped
 	);
 
+	Inst_swtiching_btn_function_module: swtiching_btn_function_module PORT MAP(
+		clk => clk,
+		btn => btn,
+		sw => sw(3 downto 0),
+		btn_out => sw_btn_out
+	);
 	led <= sig_pot_data(7 downto 0);
 
 	
