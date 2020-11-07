@@ -43,7 +43,7 @@ ARCHITECTURE behavior OF volume_testbench IS
     PORT(
          clk : IN  std_logic;
          pot_data : IN  std_logic_vector(9 downto 0);
-         ir_data : IN  std_logic_vector(7 downto 0);
+         ir_data : IN  std_logic_vector(11 downto 0);
          ir_en : IN  std_logic;
          vol_data_out : OUT  std_logic_vector(11 downto 0)
         );
@@ -53,7 +53,7 @@ ARCHITECTURE behavior OF volume_testbench IS
    --Inputs
    signal clk : std_logic := '0';
    signal pot_data : std_logic_vector(9 downto 0) := (others => '0');
-   signal ir_data : std_logic_vector(7 downto 0) := (others => '0');
+   signal ir_data : std_logic_vector(11 downto 0) := (others => '0');
    signal ir_en : std_logic := '0';
 
  	--Outputs
@@ -88,7 +88,9 @@ BEGIN
    begin		
       -- hold reset state for 100 ns.
       pot_data <= "1111111111";
-      
+      ir_en <= '1';
+		ir_data <= "010000000010";
+		
 		wait for clk_period*10;
 	--	ir_en <= '1';
 	--	wait for clk_period;	

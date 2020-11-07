@@ -200,14 +200,14 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
-	COMPONENT swtiching_btn_function_module
-	PORT(
-		clk : IN std_logic;
-		btn : IN std_logic_vector(3 downto 0);
-		sw : IN std_logic_vector(3 downto 0);          
-		btn_out : OUT std_logic_vector(3 downto 0)
-		);
-	END COMPONENT;
+--	COMPONENT swtiching_btn_function_module
+--	PORT(
+--		clk : IN std_logic;
+--		btn : IN std_logic_vector(3 downto 0);
+--		sw : IN std_logic_vector(3 downto 0);          
+--		btn_out : OUT std_logic_vector(3 downto 0)
+--		);
+--	END COMPONENT;
 	
 	COMPONENT mux_2_to_1_12b_data_ctrl
 	PORT(
@@ -216,6 +216,14 @@ architecture Behavioral of media_control_box is
 		data1 : IN std_logic_vector(11 downto 0);
 		mux_select : IN std_logic;          
 		data_out : OUT std_logic_vector(11 downto 0)
+		);
+	END COMPONENT;
+	
+	COMPONENT btn_control_check
+	PORT(
+		clk : IN std_logic;
+		btn : IN std_logic_vector(3 downto 0);          
+		output : OUT std_logic_vector(15 downto 0)
 		);
 	END COMPONENT;
 	
@@ -232,6 +240,7 @@ architecture Behavioral of media_control_box is
 	signal buttons_msg_sig		: std_logic_vector (15 downto 0);
 	signal mux_out_segments_in	: std_logic_vector (15 downto 0);
 	signal sw_btn_out				: std_logic_vector (3 downto 0);
+	signal mux_out_vol_check_in: std_logic_vector (15 downto 0);
 	
 	signal sig_ir_beep			: std_logic;
 	signal sig_startup_noise	: std_logic;
@@ -300,7 +309,7 @@ begin
 
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
-		btn => sw_btn_out,
+		btn => btn,
 		button_en => sig_btn_en,
 		button_mapping => buttons_mapped
 	);
@@ -336,14 +345,6 @@ begin
 		data_to_send => mux_out_epp_in
 	);
 
---	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(			
---		data0 => ir_mapped,
---		data1 => buttons_mapped,
---		--data0 => vol_data_out,
---		mux_select => sig_btn_en,
---		data_out => mux_out_epp_in
---	);
---	
 	Inst_mux_2_to_1_12b_data_ctrl: mux_2_to_1_12b_data_ctrl PORT MAP(
 		clk => clk,
 		data0 => ir_mapped,
@@ -365,6 +366,14 @@ begin
 		data0(11 downto 0)  => ir_decoded,
 		data1 => buttons_msg_sig,
 		mux_select => sig_btn_en,
+		data_out => mux_out_vol_check_in
+	);
+	
+	Inst_mux_2_to_1_16b_vol_check: mux_2_to_1_16b PORT MAP(
+		data0 => mux_out_vol_check_in,
+		data1(15 downto 10) => "000000",
+		data1(9 downto 0) => sig_pot_data,
+		mux_select => sw(6),
 		data_out => mux_out_segments_in
 	);
 	
@@ -406,12 +415,19 @@ begin
 		ir_mapped_out => ir_mapped
 	);
 
-	Inst_swtiching_btn_function_module: swtiching_btn_function_module PORT MAP(
-		clk => clk,
-		btn => btn,
-		sw => sw(3 downto 0),
-		btn_out => sw_btn_out
-	);
+--	Inst_swtiching_btn_function_module: swtiching_btn_function_module PORT MAP(
+--		clk => clk,
+--		btn => btn,
+--		sw => sw(3 downto 0),
+--		btn_out => sw_btn_out
+--	);
+
+--	Inst_btn_control_check: btn_control_check PORT MAP(				NOT NEEDED! REMOVE LATER
+--		clk => clk,
+--		btn => ,
+--		output => 
+--	);
+	
 	led <= sig_pot_data(7 downto 0);
 
 	sig_7_seg <= "000000" & sig_pot_data;
