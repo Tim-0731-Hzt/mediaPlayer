@@ -22,10 +22,11 @@ media_player = vlc.MediaListPlayer()
 player = vlc.Instance() 
 media_list = player.media_list_new() 
 media_player.get_media_player().audio_set_volume(volume)
+# media_player.set_playback_mode(1)
 # add song   
 for entry in os.listdir(path='./audio/'):
-    if (".mp3" in entry):
-        playlist.append(entry.split(".mp3")[0])
+    if (".mp3" in entry or ".wav" in etry):
+        playlist.append(entry.split(".")[0])
         media = player.media_new("audio/" + entry) 
         media_list.add_media(media) 
 
@@ -45,6 +46,8 @@ def changeSong(direction):
     global num
     if (direction == 'next'):
         if (num == len(playlist) - 1):
+            # endPlaylist()
+            # return
             num = 0
         else:
             num += 1
@@ -54,14 +57,29 @@ def changeSong(direction):
         else:
             num -= 1
 
-    song_name.set(playlist[num])
 
-    playlistDisplay.select_clear(0, "end")
-    playlistDisplay.selection_set(num)
-    playlistDisplay.activate(num)
+    updatePlaylistDisplay()
+    media_player.stop()
 
+    global is_playing
+    is_playing = True
     print ("select " + playlist[num] + " from " + str(playlist))
 
+def updatePlaylistDisplay():
+    song_name.set(playlist[num])
+    playlist_display.select_clear(0, "end")
+    playlist_display.selection_set(num)
+    playlist_display.activate(num)
+
+def endPlaylist():
+    global num
+    global is_playing
+    num = 0
+    is_playing = False
+    play_button_text.set("Play")
+    playlist_display.select_clear(0, "end")
+    playlist_display.selection_set(num)
+    playlist_display.activate(num)
 
 def mediaPlayer():
     global is_playing
@@ -80,6 +98,7 @@ def mediaPlayer():
                 media_player.play_item_at_index(num) 
                 song_name.set(playlist[num])
                 print ("playing " + playlist[num])
+                sleep(0.05)
             # sleep(5)
             while media_player.is_playing():
                 updateProgress()
@@ -93,8 +112,6 @@ def mediaPlayer():
                         print ("stop playing " + playlist[num])
                         changeSong(other_operation)
                         other_operation = None
-                        media_player.stop()
-                        is_playing = True
                         break
                     # sleep(1)
                 else:
@@ -155,16 +172,23 @@ def previousSong():
 
 def playSong():
     global is_playing
+    global is_pause
     if is_playing == True:
         is_playing = False
+        is_pause = True
         play_button_text.set("Play")
     else:
         is_playing = True
-        play_button_text.set("Stop")
+        play_button_text.set("Pause")
 
-def pauseSong():
-    global is_pause
-    is_pause = True
+def stopSong():
+    global is_playing
+    if (is_playing):
+        playSong()
+    p =  media_player.get_media_player()
+    p.set_position(0)
+    sleep(0.1)
+    resetProgress()
 
 def nextSong():
     global other_operation
@@ -173,10 +197,8 @@ def nextSong():
 def barVolume(newVal):
     global volume
     volume = int(newVal)
-    volumeVariable.set(newVal)
+    volume_variable.set(newVal)
     media_player.get_media_player().audio_set_volume(volume)
-
-
 
 def increaseVolume():
     global volume
@@ -184,48 +206,89 @@ def increaseVolume():
         return
     else:
         volume += 5
-    volumeVariable.set(volume)
+    volume_variable.set(volume)
     media_player.get_media_player().audio_set_volume(volume)
+
 def decreaseVolume():
     global volume
     if volume == 0:
         return
     else:
         volume -= 5
-    volumeVariable.set(volume)
+    volume_variable.set(volume)
     media_player.get_media_player().audio_set_volume(volume)
 
+def resetProgress():
+    song_progress.set(0)
+    song_time.set("0:00")
+    duration_number = (media_player.get_media_player().get_length() / 1000)
+    song_duration.set(str(math.floor(duration_number/60)) + ":" + str(math.floor(duration_number%60/10)) + str(math.floor((duration_number%60)%10)))
+
 def openSong():
+    # if (is_playing):
+    #     playSong()
     new_song = fd.askopenfile(initialdir = os.getcwd, filetypes=(("mp3 files", "*.mp3"),("all files","*.*")))
+    if new_song == None:
+        return
     new_name = os.path.basename(new_song.name)
     playlist.append(new_name)
     media = player.media_new(new_song.name) 
     media_list.add_media(media) 
     global num
     num = playlist.index(new_name)
-    is_playing = True
+    # is_playing = True
 
 def openFolder():
     new_medialist = player.media_list_new() 
     new_playlist = []
     directory = fd.askdirectory(initialdir = os.getcwd)
+    if directory == None:
+        return
     print(directory)
     for entry in os.listdir(directory):
         print(entry)
-        if (".mp3" in entry):
-            new_playlist.append(entry.split(".mp3")[0])
+        if (".mp3" in entry or ".wav" in entry):
+            new_playlist.append(entry.split(".")[0])
             media = player.media_new(directory +  "/" + entry) 
             new_medialist.add_media(media) 
 
     print(new_medialist.count())
 
     if new_medialist.count() > 0:
+        enableControls()
         media_player.set_media_list(new_medialist)
         global playlist
         playlist = new_playlist
+        next_song_var.set(playlist)
         global num
         num = 0
+        global is_playing
+        is_playing = True
+        updatePlaylistDisplay()
 
+def disableControls():
+    buttons = [play_button, stop_button, ffwd_button, rewind_button, next_button, decrease_volume_button, increase_volume_button, back_button]
+    for button in buttons:
+        button.state(["disabled"])
+
+    volume_control.config(state=DISABLED)
+
+def enableControls():
+    buttons = [play_button, stop_button, ffwd_button, rewind_button, next_button, decrease_volume_button, increase_volume_button, back_button]
+    for button in buttons:
+        button.state(["!disabled"])
+
+    volume_control.config(state=NORMAL)
+
+def rewind():
+    p =  media_player.get_media_player()
+    p.set_position(p.get_position() - 0.05)
+    updateProgress()
+
+def fastForward():
+    p =  media_player.get_media_player()
+    p.set_position(p.get_position() + 0.05)
+    updateProgress()
 
 def updateProgress():
     song_progress.set(media_player.get_media_player().get_position() * 100)
@@ -233,11 +296,16 @@ def updateProgress():
     song_time.set(str(math.floor(time_number/60)) + ":" + str(math.floor(time_number%60/10)) + str(math.floor((time_number%60)%10)))
     duration_number = (media_player.get_media_player().get_length() / 1000)
     song_duration.set(str(math.floor(duration_number/60)) + ":" + str(math.floor(duration_number%60/10)) + str(math.floor((duration_number%60)%10)))
+    # print(str(time_number) + ", " + str(duration_number))
+
+    if (time_number >= duration_number):
+        nextSong()
 
 
 if __name__ == "__main__":
     root = Tk()
     root.title("Violet Player")
+    # root.geometry("500x500")
     mainframe = ttk.Frame(root, padding="12 12 12 12")
     mainframe.grid(sticky=N+S+E+W)
 
@@ -247,49 +315,59 @@ if __name__ == "__main__":
     play_button_text = StringVar()
     play_button_text.set("Play")
     song_progress = StringVar()
+    song_progress.set("0.0")
 
 
-    openSongButton = ttk.Button(mainframe, text="Choose song", command=openSong).grid(column=0, row=0, sticky="W")
-    openFolderButton = ttk.Button(mainframe, text="Open songs from folder", command=openFolder).grid(column=2, columnspan=2, row=0, sticky="E")
+    open_song_button = ttk.Button(mainframe, text="Choose song", command=openSong).grid(column=0, row=0, sticky="W")
+    open_folder_button = ttk.Button(mainframe, text="Open songs from folder", command=openFolder).grid(column=4, columnspan=2, row=0, sticky="E")
 
-    nameLabel = ttk.Label(mainframe, text="Song Name:").grid(column=0, row=1)
-    songNameLabel = ttk.Label(mainframe, textvariable=song_name)
-    songNameLabel.grid(columnspan=4, row=1, sticky="E")
-    songProgressBar = ttk.Progressbar(mainframe, variable=song_progress, mode="determinate")
-    songProgressBar.grid(columnspan=4, sticky="W E", row=2)
+    name_label = ttk.Label(mainframe, text="Song Name:").grid(column=0, row=1)
+    song_name_label = ttk.Label(mainframe, textvariable=song_name, width=70)
+    song_name_label.grid(column=1, columnspan=5, row=1, sticky="E")
+    song_progress_bar = ttk.Progressbar(mainframe, variable=song_progress, mode="determinate")
+    song_progress_bar.grid(columnspan=6, sticky="W E", row=2)
 
-    songTime = ttk.Label(mainframe, textvariable=song_time).grid(column=0, row=3, sticky="W")
-    songDuration = ttk.Label(mainframe, textvariable=song_duration).grid(column=1, columnspan=3, row=3, sticky="E")
+    song_time_display = ttk.Label(mainframe, textvariable=song_time).grid(column=0, row=3, sticky="W")
+    song_duration_display = ttk.Label(mainframe, textvariable=song_duration).grid(column=5, row=3, sticky="E")
 
-    previousButton = ttk.Button(mainframe, text="<<", command=previousSong).grid(column=0, row=4)
-    playButton = ttk.Button(mainframe, textvariable=play_button_text, command=playSong).grid(column=1, row=4)
-    pauseButton = ttk.Button(mainframe, text="Pause", command=pauseSong).grid(column=2, row=4)
-    nextButton = ttk.Button(mainframe, text=">>", command=nextSong).grid(column=3, row=4)
+    back_button = ttk.Button(mainframe, text="Back", command=previousSong)
+    back_button.grid(column=0, row=4)
+    rewind_button = ttk.Button(mainframe, text="<<", command=rewind)
+    rewind_button.grid(column=1, row=4)
 
-    volumeVariable = IntVar()
-    volumeVariable.set(volume)
+    play_button = ttk.Button(mainframe, textvariable=play_button_text, command=playSong)
+    play_button.grid(column=2, row=4)
+    stop_button = ttk.Button(mainframe, text="Stop", command=stopSong)
+    stop_button.grid(column=3, row=4)
 
-    volumeControl = Scale(mainframe, variable=volumeVariable, from_=0, to=100, resolution=5, showvalue=0, orient=HORIZONTAL, command=barVolume)
-    volumeControl.grid(column=0, row=5, columnspan=4, sticky="E W")
+    ffwd_button = ttk.Button(mainframe, text=">>", command=fastForward)
+    ffwd_button.grid(column=4, row=4)
+    next_button = ttk.Button(mainframe, text="Next", command=nextSong)
+    next_button.grid(column=5, row=4)
 
-    decreaseVolumeButton = ttk.Button(mainframe, text="-", command=decreaseVolume)
-    decreaseVolumeButton.grid(column=0, row=6, sticky="W")
+    volume_variable = IntVar()
+    volume_variable.set(volume)
 
-    volumeDisplay = ttk.Label(mainframe, textvariable=volumeVariable)
-    volumeDisplay.grid(column=1, columnspan=2, row=6)
+    volume_control = Scale(mainframe, variable=volume_variable, from_=0, to=100, resolution=5, showvalue=0, orient=HORIZONTAL, command=barVolume)
+    volume_control.grid(column=0, row=5, columnspan=6, sticky="E W")
 
-    increaseVolumeButton = ttk.Button(mainframe, text="+", command=increaseVolume)
-    increaseVolumeButton.grid(column=3, row=6, sticky="E")
+    decrease_volume_button = ttk.Button(mainframe, text="-", command=decreaseVolume)
+    decrease_volume_button.grid(column=0, row=6, sticky="W")
 
-    nextSongVar = StringVar(value=playlist)
+    volume_display = ttk.Label(mainframe, textvariable=volume_variable)
+    volume_display.grid(column=2, columnspan=2, row=6)
 
-    playlistDisplay = Listbox(mainframe, selectmode="single", listvariable=nextSongVar)
-    playlistDisplay.grid(row=7, columnspan=4, sticky="W E")
-    # playlistDisplay.set
-    playlistDisplay.selection_set(0)
-    playlistDisplay.selection_anchor(0)
-    playlistDisplay.activate(num)
-    playlistDisplay.bindtags((playlistDisplay, mainframe, "all"))
+    increase_volume_button = ttk.Button(mainframe, text="+", command=increaseVolume)
+    increase_volume_button.grid(column=5, row=6, sticky="E")
+
+    next_song_var = StringVar(value=playlist)
+
+    playlist_display = Listbox(mainframe, selectmode="single", listvariable=next_song_var)
+    playlist_display.grid(row=7, columnspan=6, sticky="W E")
+    playlist_display.selection_set(0)
+    playlist_display.selection_anchor(0)
+    playlist_display.activate(num)
+    playlist_display.bindtags((playlist_display, mainframe, "all"))
 
     for i in range(0,7):
         Grid.columnconfigure(mainframe, i, weight=1)
@@ -297,12 +375,14 @@ if __name__ == "__main__":
 
 
     # select the first song in playlist as default
-    print ("select " + playlist[num] + " from " + str(playlist))
+    # print ("select " + playlist[num] + " from " + str(playlist))
     # create threads
     mediaPlayer = threading.Thread(target = mediaPlayer)
     mediaPlayer.start()
     server = threading.Thread(target = udp_server)
     server.start()
+
+    disableControls()
 
     root.protocol("WM_DELETE_WINDOW", close_window)
     # is_playing = True
