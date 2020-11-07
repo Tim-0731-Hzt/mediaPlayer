@@ -323,9 +323,9 @@ begin
 	);
 
 	Inst_mux_2_to_1_12b: mux_2_to_1_12b PORT MAP(			
-		data0 => ir_mapped,
+--		data0 => ir_mapped,
 		data1 => buttons_mapped,
---		data0 => vol_data_out,
+		data0 => vol_data_out,
 		mux_select => sig_btn_en,
 		data_out => mux_out_epp_in
 	);

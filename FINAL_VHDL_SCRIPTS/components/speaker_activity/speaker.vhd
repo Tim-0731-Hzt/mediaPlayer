@@ -84,7 +84,7 @@ begin
 			cnt := cnt + 1;
 			END IF;
 			
-			IF (cnt = 50000000) THEN
+			IF (cnt = 10000000) THEN
 				hold_en <= '0';
 				cnt := 0;
 			
