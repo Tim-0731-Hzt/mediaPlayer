@@ -9,7 +9,7 @@ ENTITY spi_master is
             reset_n : IN    std_logic;
             miso    : IN    std_logic;
 
-            busy    : OUT   std_logic;
+           -- busy    : OUT   std_logic;
             mosi    : OUT   std_logic;
 			sclk_out	: OUT	std_logic;
 			nCS_out		: OUT	std_logic;
@@ -71,13 +71,13 @@ BEGIN
 --                rx_buffer <= (others => '0');
 --                rx_count <= 0;
 				shift_reset <= '1';
-                busy <= '0';
+              --  busy <= '0';
 				nCS <= '1';						-- Chip select active low
 				shift_en <= '0';
             when start =>
                 state_out(1) <= '1';
 
-                busy <= '1';
+              --  busy <= '1';
                 nCS <= '0';                     -- Bring nCS low before sclk starts to initialise to mode 0,0
 				shift_reset <= '0';
             when config =>
@@ -99,7 +99,7 @@ BEGIN
                 state_out(4) <= '1';
 				rx_data <= rx_buffer;
 
-                busy <= '0';
+               -- busy <= '0';
 				shift_en <= '0';
         end case;
     end process;

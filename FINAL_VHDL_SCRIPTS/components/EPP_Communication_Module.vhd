@@ -35,7 +35,7 @@ entity EPP_Communication_Module is
            EppASTB : in  STD_LOGIC;
            EppDSTB : in  STD_LOGIC;
            EppWrite : in  STD_LOGIC;
-			  vol_ctrl	: in STD_LOGIC_VECTOR (11 downto 0);
+			  vol_ctrl	: in STD_LOGIC_VECTOR (7 downto 0);
            EppWait : out  STD_LOGIC;
            data_to_send : in  STD_LOGIC_VECTOR (11 downto 0));
 end EPP_Communication_Module;
@@ -97,14 +97,13 @@ architecture Behavioral of EPP_Communication_Module is
 	signal	regEppAdr	: std_logic_vector(3 downto 0);
 	signal	regData0	: std_logic_vector(7 downto 0);
 	signal	regData1	: std_logic_vector(7 downto 0);
-    signal  regData2	: std_logic_vector(7 downto 0); 
-    signal  regData3	: std_logic_vector(7 downto 0);
-    signal  regData4	: std_logic_vector(7 downto 0);
+   signal   regData2	: std_logic_vector(7 downto 0); 
+   signal   regData3	: std_logic_vector(7 downto 0);
+   signal   regData4	: std_logic_vector(7 downto 0);
 	signal	regData5	: std_logic_vector(7 downto 0);
 	signal	regData6	: std_logic_vector(7 downto 0);
 	signal	regData7	: std_logic_vector(7 downto 0);
 
-	signal hold_en		: std_logic;
 ------------------------------------------------------------------------
 -- Module Implementation
 ------------------------------------------------------------------------
@@ -271,6 +270,7 @@ begin
 			regData1 <= "00000000";
 			regData2 <= "00000000";
 			regData3 <= "00000000";
+			regData5 <= "00000000";
 				if data_to_send(11 downto 8) = "0000" then
 					regData0 <= data_to_send(7 downto 0);
 				elsif data_to_send(11 downto 8) = "0001" then
@@ -279,11 +279,13 @@ begin
 					regData2 <= data_to_send(7 downto 0);
 				elsif data_to_send(11 downto 8) = "0011" then
 					regData3 <= data_to_send(7 downto 0);
-				elsif data_to_send(11 downto 8) = "0100" then
+				elsif data_to_send(11 downto 8) = "0101" then
+					regData5 <= data_to_send(7 downto 0);
 					--if (vol_en = '1') then 
-						regData4 <= vol_ctrl(7 downto 0);
+--						regData4 <= vol_ctrl(7 downto 0);
 					--end if;
 				end if;
+				regData4 <= vol_ctrl(7 downto 0);
 			end if;
 	end process;
 

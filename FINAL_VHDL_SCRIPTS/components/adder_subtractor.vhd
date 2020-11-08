@@ -41,6 +41,7 @@ end adder_subtractor;
 architecture Behavioral of adder_subtractor is
 
 signal sig_data : std_logic_vector(7 downto 0);
+signal vol_busy : std_logic := '0';
 
 begin
 	
@@ -61,5 +62,6 @@ begin
 	
 	add_sub_out(11 downto 8) <= "0100";
 	add_sub_out(7 downto 0) <= sig_data;
+	
 end Behavioral;
 

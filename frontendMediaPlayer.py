@@ -141,8 +141,10 @@ def udp_server():
         operation = result[0]
         if (operation == 'play'):
             is_playing = True
-        elif (operation == 'stop'):
+        elif (operation == 'pause'):
             is_playing = False
+        elif (operation == 'stop'):
+            stopSong()
         elif (operation == 'next'):
             other_operation = 'next'
         elif (operation == 'back'):

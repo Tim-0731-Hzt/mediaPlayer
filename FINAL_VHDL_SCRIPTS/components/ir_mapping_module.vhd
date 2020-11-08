@@ -33,13 +33,14 @@ entity ir_mapping_module is
     Port ( clk : in STD_LOGIC;
 			  ir_signal : in  STD_LOGIC_VECTOR (11 downto 0);
            ir_en : in  STD_LOGIC;
-           ir_mapped_en : out  STD_LOGIC;									-- It's essentially just ir_en, just thought there might be clock sync issues
+         --  ir_mapped_en : out  STD_LOGIC;									-- It's essentially just ir_en, just thought there might be clock sync issues
+		  -- ir_vol_en : out std_logic;
            ir_mapped_out : out  STD_LOGIC_VECTOR (11 downto 0));
 end ir_mapping_module;
 
 architecture Behavioral of ir_mapping_module is
 
-signal sig_ir_mapped_out : std_logic_vector(15 downto 0);
+--signal sig_ir_mapped_out : std_logic_vector(15 downto 0);
 signal hold_ir_en			 : std_logic;
 
 constant next_sig_ir		 : std_logic_vector(11 downto 0) := X"CD0";
@@ -53,32 +54,35 @@ constant next_button 	 : std_logic_vector(11 downto 0) := "000000000001";
 constant play_button		 : std_logic_vector(11 downto 0) := "000100000010"; 
 constant stop_button		 : std_logic_vector(11 downto 0) := "001000000001";
 constant back_button		 : std_logic_vector(11 downto 0) := "001100000001";
-constant vol_up			 : std_logic_vector(11 downto 0) := "010000000001";
-constant vol_down			 : std_logic_vector(11 downto 0) := "010000000010";
+constant vol_up			 : std_logic_vector(11 downto 0) := "010100000001";
+constant vol_down			 : std_logic_vector(11 downto 0) := "010100000010";
 begin
 	ir_mapping_process : process(clk)
 	begin
 	if (clk'event and clk = '1') then
-		ir_mapped_en <= '0';
+	--	ir_vol_en <= '0';
+		--ir_mapped_en <= '0';
 		ir_mapped_out <= (others => '0');
 		if (hold_ir_en = '1') then
 			if (ir_signal = next_sig_ir) then 
-				ir_mapped_en <= '1';
+			--	ir_mapped_en <= '1';
 				ir_mapped_out <= next_button;
 			elsif (ir_signal = play_sig_ir) then	
-				ir_mapped_en <= '1';
+			--	ir_mapped_en <= '1';
 				ir_mapped_out <= play_button;
 			elsif (ir_signal = stop_sig_ir) then
-				ir_mapped_en <= '1';
+			--	ir_mapped_en <= '1';
 				ir_mapped_out <= stop_button;
 			elsif (ir_signal = prev_sig_ir) then
-				ir_mapped_en <= '1';
+			--	ir_mapped_en <= '1';
 				ir_mapped_out <= back_button;
 			elsif (ir_signal = vol_up_sig_ir) then
-				ir_mapped_en <= '1';
+--				ir_mapped_en <= '1';
+			--	ir_vol_en <= '1';
 				ir_mapped_out <= vol_up;
 			elsif (ir_signal = vol_down_sig_ir) then
-				ir_mapped_en <= '1';
+--				ir_mapped_en <= '1';
+			--	ir_vol_en <= '1';
 				ir_mapped_out <= vol_down;
 			end if;
 		else
@@ -98,7 +102,7 @@ begin
 			IF (hold_ir_en = '1') THEN
 			cnt := cnt + 1;
 			END IF;
-			
+--			35000000
 			IF (cnt = 35000000) THEN
 				hold_ir_en <= '0';
 				cnt := 0;

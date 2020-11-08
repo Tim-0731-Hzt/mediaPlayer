@@ -24,11 +24,11 @@ entity IR_Decoder is
 			ir			: in	STD_LOGIC;
             data    	: inout   STD_LOGIC_VECTOR(11 DOWNTO 0);			--Changed from 15 downto 0 to 11 downto 0
 			busy		: out	STD_LOGIC;
-			done    	: out   STD_LOGIC;
+			done    	: out   STD_LOGIC
 			
 			-- Debugging Singals
 --			 nBits_out	: out std_logic_vector(7 downto 0);
-			 curstate 	: out std_logic_vector(6 downto 0)
+			-- curstate 	: out std_logic_vector(6 downto 0)
 		);
 end IR_Decoder;
 
@@ -61,7 +61,7 @@ architecture Behavioral of IR_Decoder is
     -- Datapath signals
 	signal EC, RC, EA, w, resetn    : std_logic; -- Load, enable, write and reset for L-Shift Register A
     signal ET, RT       			: std_logic; -- Enable and reset for timer
-	signal nBits 					: integer;
+	--signal nBits 					: integer;
 	signal data_buffer				: std_logic_vector(11 downto 0);
     
 	-- Timer signals
@@ -152,7 +152,7 @@ begin
 
     fsm_outputs: process(y, data_buffer)
 	begin
-        EA <= '0'; ET <= '0'; RT <= '0'; resetn <= '1'; EC <= '0'; RC <= '0'; update_en <= '0'; curstate <= "0000000";
+        EA <= '0'; ET <= '0'; RT <= '0'; resetn <= '1'; EC <= '0'; RC <= '0'; update_en <= '0';-- curstate <= "0000000";
 		busy <= '0';
 		
 		-- Debugging signals
@@ -162,7 +162,7 @@ begin
             -- Reset state
             when S1 =>
                 RT <= '1';      -- reset timer
-				curstate(0) <= '1';
+				--curstate(0) <= '1';
             -- State 2
             -- Time 2.6ms to initialise reading command
             when S2 =>
@@ -170,7 +170,7 @@ begin
                 RT <= '0';       -- Stop reset timer
                 ET <= '1';       -- Enable timer
 				resetn <= '0';		-- Reset shift reg
-				curstate(1) <= '1';
+				--curstate(1) <= '1';
 				
 				RC <= '1';			-- Reset counter for shift reg
             -- State 3
@@ -179,29 +179,29 @@ begin
 				busy <= '1';
                 ET <= '0';       -- Stop timer
                 RT <= '1';       -- reset timer
-				curstate(2) <= '1';
+			--	curstate(2) <= '1';
             when S4 =>
 				busy <= '1';
                 ET <= '1';       -- Start timer
-				curstate(3) <= '1';
+			--	curstate(3) <= '1';
             when S5 =>
 				busy <= '1';
 				w <= '0';		-- Bit to be shifter into buffer
                 ET <= '0';       -- Stop timer but don't reset it
                 EA <= '1';       -- Enable left shift register to load the received bit
-				curstate(4) <= '1';
+			--	curstate(4) <= '1';
 				EC <= '1';
 			when S6 =>
 				busy <= '1';
 				w <= '1';
 				ET <= '0';       -- Stop timer but don't reset it
 				EA <= '1';       -- Enable left shift register to load the received bit
-				curstate(5) <= '1';
+			--	curstate(5) <= '1';
 				EC <= '1';
 			when S7 =>
 				busy <= '1';
 				ET <= '1';
-				curstate(6) <= '1';
+			--	curstate(6) <= '1';
 				
 				update_en <= '1';
         end case;
