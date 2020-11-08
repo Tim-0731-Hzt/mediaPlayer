@@ -35,7 +35,7 @@ entity EPP_Communication_Module is
            EppASTB : in  STD_LOGIC;
            EppDSTB : in  STD_LOGIC;
            EppWrite : in  STD_LOGIC;
-			  vol_ctrl	: in STD_LOGIC_VECTOR (11 downto 0);
+			  vol_ctrl	: in STD_LOGIC_VECTOR (7 downto 0);
            EppWait : out  STD_LOGIC;
            data_to_send : in  STD_LOGIC_VECTOR (11 downto 0));
 end EPP_Communication_Module;
@@ -97,14 +97,13 @@ architecture Behavioral of EPP_Communication_Module is
 	signal	regEppAdr	: std_logic_vector(3 downto 0);
 	signal	regData0	: std_logic_vector(7 downto 0);
 	signal	regData1	: std_logic_vector(7 downto 0);
-    signal  regData2	: std_logic_vector(7 downto 0); 
-    signal  regData3	: std_logic_vector(7 downto 0);
-    signal  regData4	: std_logic_vector(7 downto 0);
+   signal   regData2	: std_logic_vector(7 downto 0); 
+   signal   regData3	: std_logic_vector(7 downto 0);
+   signal   regData4	: std_logic_vector(7 downto 0);
 	signal	regData5	: std_logic_vector(7 downto 0);
 	signal	regData6	: std_logic_vector(7 downto 0);
 	signal	regData7	: std_logic_vector(7 downto 0);
 
-	signal hold_en		: std_logic;
 ------------------------------------------------------------------------
 -- Module Implementation
 ------------------------------------------------------------------------

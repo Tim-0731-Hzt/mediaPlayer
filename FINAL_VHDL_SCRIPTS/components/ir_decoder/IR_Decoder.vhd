@@ -61,7 +61,7 @@ architecture Behavioral of IR_Decoder is
     -- Datapath signals
 	signal EC, RC, EA, w, resetn    : std_logic; -- Load, enable, write and reset for L-Shift Register A
     signal ET, RT       			: std_logic; -- Enable and reset for timer
-	signal nBits 					: integer;
+	--signal nBits 					: integer;
 	signal data_buffer				: std_logic_vector(11 downto 0);
     
 	-- Timer signals

@@ -40,7 +40,7 @@ end ir_mapping_module;
 
 architecture Behavioral of ir_mapping_module is
 
-signal sig_ir_mapped_out : std_logic_vector(15 downto 0);
+--signal sig_ir_mapped_out : std_logic_vector(15 downto 0);
 signal hold_ir_en			 : std_logic;
 
 constant next_sig_ir		 : std_logic_vector(11 downto 0) := X"CD0";
