@@ -25,7 +25,7 @@ media_player.get_media_player().audio_set_volume(volume)
 # media_player.set_playback_mode(1)
 # add song   
 for entry in os.listdir(path='./audio/'):
-    if (".mp3" in entry or ".wav" in etry):
+    if (".mp3" in entry or ".wav" in entry):
         playlist.append(entry.split(".")[0])
         media = player.media_new("audio/" + entry) 
         media_list.add_media(media) 
@@ -179,6 +179,7 @@ def playSong():
         play_button_text.set("Play")
     else:
         is_playing = True
+        is_pause = False
         play_button_text.set("Pause")
 
 def stopSong():
@@ -382,7 +383,7 @@ if __name__ == "__main__":
     server = threading.Thread(target = udp_server)
     server.start()
 
-    disableControls()
+    # disableControls()
 
     root.protocol("WM_DELETE_WINDOW", close_window)
     # is_playing = True
