@@ -142,11 +142,11 @@ architecture Behavioral of media_control_box is
 		clk 		: IN std_logic;													--the potentiometer. Returns value between 0 and 1023
 		reset_n 	: IN std_logic;
 		miso 		: IN std_logic;          
-		busy 		: OUT std_logic;
+		--busy 		: OUT std_logic;
 		mosi 		: OUT std_logic;
 		sclk_out 	: OUT std_logic;
 		nCS_out 	: OUT std_logic;
-		state_out 	: OUT std_logic_vector(4 downto 0);
+		--state_out 	: OUT std_logic_vector(4 downto 0);
 		rx_data 	: OUT std_logic_vector(9 downto 0)
 		);
 	END COMPONENT;
@@ -158,8 +158,8 @@ architecture Behavioral of media_control_box is
 		ir			: in	STD_LOGIC;
 		data    	: inout   STD_LOGIC_VECTOR(11 DOWNTO 0);
 		busy		: out	STD_LOGIC;
-		done    	: out   STD_LOGIC;
-		curstate	: out	STD_LOGIC_VECTOR(6 DOWNTO 0)
+		done    	: out   STD_LOGIC
+		--curstate	: out	STD_LOGIC_VECTOR(6 DOWNTO 0)
 		);
 	END COMPONENT;
 	
@@ -168,8 +168,8 @@ architecture Behavioral of media_control_box is
 		clk		 : IN std_logic;
 		ir_signal : IN std_logic_vector(11 downto 0);
 		ir_en : IN std_logic;          
-		ir_mapped_en : OUT std_logic;
-	   ir_vol_en : out std_logic;
+		--ir_mapped_en : OUT std_logic;
+	   --ir_vol_en : out std_logic;
 		ir_mapped_out : OUT std_logic_vector(11 downto 0)
 		);
 	END COMPONENT;
@@ -375,11 +375,11 @@ begin
 		clk 		=> clk,
 		reset_n 	=> not(sig_ir_busy),
 		miso 		=> miso,
-		busy 		=> open, --sig_spi_busy,
+		--busy 		=> open, --sig_spi_busy,
 		mosi 		=> mosi,
 		sclk_out 	=> sclk,
 		nCS_out 	=> nCS,
-		state_out 	=> open, --sig_spi_state,
+		--state_out 	=> open, --sig_spi_state,
 		rx_data 	=> sig_pot_data
 	);
 	
@@ -396,16 +396,16 @@ begin
 		ir		=>	ir,
 		data	=>	ir_decoded,
 		busy	=>	sig_ir_busy,
-		done	=>	sig_ir_done,
-		curstate => open --sig_ir_state
+		done	=>	sig_ir_done
+		--curstate => open --sig_ir_state
 	);
 	
 	Inst_ir_mapping_module: ir_mapping_module PORT MAP(
 		clk => clk,
 		ir_signal => ir_decoded,
 		ir_en => sig_ir_done,
-		ir_mapped_en => open,-- ir_mapped_en,
-	   ir_vol_en => open, --ir_vol_en, -- Maybe don't need
+		--ir_mapped_en => open,-- ir_mapped_en,
+	   --ir_vol_en => open, --ir_vol_en, -- Maybe don't need
 		ir_mapped_out => ir_mapped
 	);
 	
