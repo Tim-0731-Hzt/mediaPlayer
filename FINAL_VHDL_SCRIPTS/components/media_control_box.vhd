@@ -412,8 +412,9 @@ begin
 		sw => sw(3 downto 0),
 		btn_out => sw_btn_out
 	);
-	led <= sig_pot_data(7 downto 0);
+	-- led <= sig_pot_data(7 downto 0);
 
+	led(7) <= miso;
 	sig_7_seg <= "000000" & sig_pot_data;
 end Behavioral;
 
