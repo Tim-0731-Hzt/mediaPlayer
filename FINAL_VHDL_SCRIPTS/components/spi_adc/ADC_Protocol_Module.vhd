@@ -32,7 +32,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity ADC_Protocol_Module is
     Port ( ADC_in : in  		STD_LOGIC_VECTOR (9 downto 0);
 			  clk		: in 			STD_LOGIC;
-           output : out  		STD_LOGIC_VECTOR (11 downto 0));
+           output : out  		STD_LOGIC_VECTOR (7 downto 0));
 end ADC_Protocol_Module;
 
 architecture Behavioral of ADC_Protocol_Module is
@@ -42,72 +42,72 @@ begin
 		begin	
 			if (clk'event and clk = '1') then
 				if(ADC_in = std_logic_vector(to_unsigned(0, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(0, 8));
+					output <= std_logic_vector(to_unsigned(0, 8));
 					
 				elsif(ADC_in < std_logic_vector(to_unsigned(50, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(5, 8));
+					output <= std_logic_vector(to_unsigned(5, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(100, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(10, 8));
+					output <= std_logic_vector(to_unsigned(10, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(150, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(15, 8));
+					output <= std_logic_vector(to_unsigned(15, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(200, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(20, 8));
+					output <= std_logic_vector(to_unsigned(20, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(250, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(25, 8));
+					output <= std_logic_vector(to_unsigned(25, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(300, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(30, 8));
+					output <= std_logic_vector(to_unsigned(30, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(350, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(35, 8));
+					output <= std_logic_vector(to_unsigned(35, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(400, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(40, 8));
+					output <= std_logic_vector(to_unsigned(40, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(450, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(45, 8));
+					output <= std_logic_vector(to_unsigned(45, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(500, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(50, 8));
+					output <= std_logic_vector(to_unsigned(50, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(550, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(55, 8));
+					output <= std_logic_vector(to_unsigned(55, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(600, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(60, 8));
+					output <= std_logic_vector(to_unsigned(60, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(650, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(65, 8));
+					output <= std_logic_vector(to_unsigned(65, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(700, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(70, 8));
+					output <= std_logic_vector(to_unsigned(70, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(750, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(75, 8));
+					output <= std_logic_vector(to_unsigned(75, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(800, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(80, 8));
+					output <= std_logic_vector(to_unsigned(80, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(850, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(85, 8));
+					output <= std_logic_vector(to_unsigned(85, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(900, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(90, 8));
+					output <= std_logic_vector(to_unsigned(90, 8));
 					
 				elsif (ADC_in < std_logic_vector(to_unsigned(950, 10))) then
-					output(7 downto 0) <= std_logic_vector(to_unsigned(95, 8));
+					output <= std_logic_vector(to_unsigned(95, 8));
 				
 				else
-					output(7 downto 0) <= std_logic_vector(to_unsigned(100, 8));	
+					output <= std_logic_vector(to_unsigned(100, 8));	
 					
 				end if;		
 			end if;
 		end process;
 		
-		output(11 downto 8) <= "0100";
+		--output(11 downto 8) <= "0100";
 end Behavioral;
 

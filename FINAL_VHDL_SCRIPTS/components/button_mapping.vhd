@@ -40,10 +40,11 @@ architecture Behavioral of button_mapping is
 
 signal button_en_sig	: std_logic;
 signal button_sig : std_logic_vector(11 downto 0);
-signal addr_0 : 	std_logic_vector (3 downto 0) := "0000";
-signal addr_1 : 	std_logic_vector (3 downto 0) := "0001";
-signal addr_2 :	std_logic_vector (3 downto 0) := "0010";
-signal addr_3 : 	std_logic_vector (3 downto 0) := "0011";
+
+constant addr_0 : 	std_logic_vector (3 downto 0) := "0000";
+constant addr_1 : 	std_logic_vector (3 downto 0) := "0001";
+constant addr_2 :	std_logic_vector (3 downto 0) := "0010";
+constant addr_3 : 	std_logic_vector (3 downto 0) := "0011";
 
 
 -- Simple process, each top 4 bits is for address, botton 8 bits is for output pulse to indicate what is to be done

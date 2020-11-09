@@ -41,46 +41,6 @@ for song in playlist:
 #     media_list.add_media(media) 
 #     media_player.set_media_list(media_list)
 
-# change song by direction
-def changeSong(direction):
-    global num
-    if (direction == 'next'):
-        if (num == len(playlist) - 1):
-            # endPlaylist()
-            # return
-            num = 0
-        else:
-            num += 1
-    else:
-        if (num == 0):
-            num = len(playlist) - 1
-        else:
-            num -= 1
-
-
-    updatePlaylistDisplay()
-    media_player.stop()
-
-    global is_playing
-    is_playing = True
-    print ("select " + playlist[num] + " from " + str(playlist))
-
-def updatePlaylistDisplay():
-    song_name.set(playlist[num])
-    playlist_display.select_clear(0, "end")
-    playlist_display.selection_set(num)
-    playlist_display.activate(num)
-
-def endPlaylist():
-    global num
-    global is_playing
-    num = 0
-    is_playing = False
-    play_button_text.set("Play")
-    playlist_display.select_clear(0, "end")
-    playlist_display.selection_set(num)
-    playlist_display.activate(num)
-
 def mediaPlayer():
     global is_playing
     global num
@@ -98,18 +58,19 @@ def mediaPlayer():
                 media_player.play_item_at_index(num) 
                 song_name.set(playlist[num])
                 print ("playing " + playlist[num])
-                sleep(0.05)
+                sleep(0.1)
             # sleep(5)
             while media_player.is_playing():
                 updateProgress()
+                checkSongEnd()
                 # check if user press stop button when the song is playing
                 if (is_playing):
                     # check if user press next when the song is playing
                     if (other_operation == 'next' or other_operation == 'back'):
-                        is_playing = False
+                        # is_playing = False
                         is_pause = False
                         # if 'next' is pressed, the song will be stopped
-                        print ("stop playing " + playlist[num])
+                        # print ("stop playing " + playlist[num])
                         changeSong(other_operation)
                         other_operation = None
                         break
@@ -117,9 +78,14 @@ def mediaPlayer():
                 else:
                     media_player.set_pause(1) 
                     is_pause = True
-                    print ("stop playing " + playlist[num])
+                    print ("stop playing ")
+                
+                # sleep(0.1)
+
+
         elif (other_operation != None):
             if (other_operation == 'next' or other_operation == 'back'):
+                # print("outer loop next")
                 changeSong(other_operation)
                 other_operation = None
                 is_pause = False
@@ -164,6 +130,60 @@ def udp_server():
 
         sleep(0.1)
         
+
+# change song by direction
+def changeSong(direction):
+    global num
+    if (direction == 'next'):
+        if (num == len(playlist) - 1):
+            endPlaylist()
+            # return
+            # num = 0
+        else:
+            num += 1
+    else:
+        if (num == 0):
+            num = len(playlist) - 1
+        else:
+            num -= 1
+
+
+    updatePlaylistDisplay()
+    media_player.stop()
+
+    # global is_playing
+    # is_playing = True
+    print ("select " + playlist[num] + " from " + str(playlist))
+
+def updatePlaylistDisplay():
+    song_name.set(playlist[num])
+    playlist_display.select_clear(0, "end")
+    playlist_display.selection_set(num)
+    playlist_display.activate(num)
+
+def endPlaylist():
+    global num
+    global is_playing
+    num = 0
+    is_playing = False
+    noSongDisplay()
+    updatePlaylistDisplay()
+
+def noSongDisplay():
+    play_button_text.set("Play")
+    song_progress.set(0)
+    song_time.set("0:00")
+    song_duration.set("0:00")
+    song_name.set("")
+    resetProgress()
+
+
+def checkSongEnd():
+    p = media_player.get_media_player()
+    if (p.get_time() >= p.get_length() and p.get_time() != -1):
+        global other_operation
+        other_operation = "next"
+
         
 def close_window():
     os._exit(0)
@@ -181,6 +201,7 @@ def playSong():
         play_button_text.set("Play")
     else:
         is_playing = True
+        # is_pause = False
         play_button_text.set("Pause")
 
 def stopSong():
@@ -229,16 +250,26 @@ def resetProgress():
 def openSong():
     # if (is_playing):
     #     playSong()
-    new_song = fd.askopenfile(initialdir = os.getcwd, filetypes=(("mp3 files", "*.mp3"),("all files","*.*")))
+    new_song = fd.askopenfile(initialdir = os.getcwd, filetypes=(("Audio Files", ("*.mp3", "*.wav")),("All Files","*.*")))
     if new_song == None:
         return
-    new_name = os.path.basename(new_song.name)
+    new_path = os.path.basename(new_song.name)
+    new_name = new_path.split(".")[0]
+    print(new_name)
+    global playlist
+    if playlist == []:
+        new_medialist = player.media_list_new()
+        media_player.set_media_list(new_medialist)
+        media_list = new_medialist
+    elif new_name in playlist:
+        return
+
     playlist.append(new_name)
     media = player.media_new(new_song.name) 
-    media_list.add_media(media) 
-    global num
-    num = playlist.index(new_name)
+    media_list.add_media(media)
     # is_playing = True
+    next_song_var.set(playlist)
+    enableControls()
 
 def openFolder():
     new_medialist = player.media_list_new() 
@@ -259,6 +290,7 @@ def openFolder():
     if new_medialist.count() > 0:
         enableControls()
         media_player.set_media_list(new_medialist)
+        media_list = new_medialist
         global playlist
         playlist = new_playlist
         next_song_var.set(playlist)
@@ -266,7 +298,6 @@ def openFolder():
         num = 0
         global is_playing
         is_playing = True
-        updatePlaylistDisplay()
 
 def disableControls():
     buttons = [play_button, stop_button, ffwd_button, rewind_button, next_button, decrease_volume_button, increase_volume_button, back_button]
@@ -284,24 +315,50 @@ def enableControls():
 
 def rewind():
     p =  media_player.get_media_player()
-    p.set_position(p.get_position() - 0.05)
+    next_time = p.get_position() - 0.05
+    if (next_time > 0):
+        p.set_position(next_time)
+    else:
+        p.set_position(0.0)
     updateProgress()
 
 def fastForward():
     p =  media_player.get_media_player()
-    p.set_position(p.get_position() + 0.05)
+    next_time = p.get_position() + 0.05
+    if (next_time < 1.0):
+        p.set_position(next_time)
+    else:
+        p.set_position(1.0)
     updateProgress()
+    checkSongEnd()
+
+def clearPlaylist():
+    stopSong()
+    global playlist
+    playlist = []
+    noSongDisplay()
+    disableControls()
+    next_song_var.set(playlist)
+    media_player.stop()
+    sleep(0.2)
+    global is_pause
+    is_pause = False
+    print("pause = false")
+    global num
+    num = 0
+
+
 
 def updateProgress():
-    song_progress.set(media_player.get_media_player().get_position() * 100)
-    time_number = (media_player.get_media_player().get_time() / 1000)
-    song_time.set(str(math.floor(time_number/60)) + ":" + str(math.floor(time_number%60/10)) + str(math.floor((time_number%60)%10)))
-    duration_number = (media_player.get_media_player().get_length() / 1000)
-    song_duration.set(str(math.floor(duration_number/60)) + ":" + str(math.floor(duration_number%60/10)) + str(math.floor((duration_number%60)%10)))
+    if media_player.get_media_player().get_position() < 0:
+        resetProgress()
+    else:
+        song_progress.set(media_player.get_media_player().get_position() * 100)
+        time_number = (media_player.get_media_player().get_time() / 1000)
+        song_time.set(str(math.floor(time_number/60)) + ":" + str(math.floor(time_number%60/10)) + str(math.floor((time_number%60)%10)))
+        duration_number = (media_player.get_media_player().get_length() / 1000)
+        song_duration.set(str(math.floor(duration_number/60)) + ":" + str(math.floor(duration_number%60/10)) + str(math.floor((duration_number%60)%10)))
     # print(str(time_number) + ", " + str(duration_number))
-
-    if (time_number >= duration_number):
-        nextSong()
 
 
 if __name__ == "__main__":
@@ -320,8 +377,9 @@ if __name__ == "__main__":
     song_progress.set("0.0")
 
 
-    open_song_button = ttk.Button(mainframe, text="Choose song", command=openSong).grid(column=0, row=0, sticky="W")
-    open_folder_button = ttk.Button(mainframe, text="Open songs from folder", command=openFolder).grid(column=4, columnspan=2, row=0, sticky="E")
+    open_song_button = ttk.Button(mainframe, text="Add song to queue", command=openSong).grid(column=0, columnspan=2, row=0, sticky="W")
+    clear_queue_button = ttk.Button(mainframe, text="Clear Queue", command=clearPlaylist).grid(column=2, columnspan=2, sticky="N", row=0)
+    open_folder_button = ttk.Button(mainframe, text="Playlist from folder", command=openFolder).grid(column=4, columnspan=2, row=0, sticky="E")
 
     name_label = ttk.Label(mainframe, text="Song Name:").grid(column=0, row=1)
     song_name_label = ttk.Label(mainframe, textvariable=song_name, width=70)
@@ -384,8 +442,9 @@ if __name__ == "__main__":
     server = threading.Thread(target = udp_server)
     server.start()
 
-    disableControls()
+    # disableControls()
 
     root.protocol("WM_DELETE_WINDOW", close_window)
+    noSongDisplay()
     # is_playing = True
     root.mainloop()
