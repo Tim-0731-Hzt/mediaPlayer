@@ -49,6 +49,9 @@ constant stop_sig_ir		 : std_logic_vector(11 downto 0) := X"AF0"; -- Just using 
 constant prev_sig_ir		 : std_logic_vector(11 downto 0) := X"2D0";
 constant vol_up_sig_ir	 : std_logic_vector(11 downto 0) := X"490";
 constant vol_down_sig_ir : std_logic_vector(11 downto 0) := X"C90";
+constant mute_sig_ir		 : std_logic_vector(11 downto 0) := X"290";
+constant ffwd_sig_ir		 : std_logic_vector(11 downto 0) := X"39D";
+constant rwd_sig_ir		 : std_logic_vector(11 downto 0) := X"D9D";
 
 constant next_button 	 : std_logic_vector(11 downto 0) := "000000000001";
 constant play_button		 : std_logic_vector(11 downto 0) := "000100000010"; 
@@ -56,6 +59,10 @@ constant stop_button		 : std_logic_vector(11 downto 0) := "001000000001";
 constant back_button		 : std_logic_vector(11 downto 0) := "001100000001";
 constant vol_up			 : std_logic_vector(11 downto 0) := "010100000001";
 constant vol_down			 : std_logic_vector(11 downto 0) := "010100000010";
+constant mute_button		 : std_logic_vector(11 downto 0) := "010100000100";
+constant ffwd_button		 : std_logic_vector(11 downto 0) := "011000000101";
+constant rwd_button		 : std_logic_vector(11 downto 0) := "011000000110";
+
 begin
 	ir_mapping_process : process(clk)
 	begin
@@ -84,6 +91,12 @@ begin
 --				ir_mapped_en <= '1';
 			--	ir_vol_en <= '1';
 				ir_mapped_out <= vol_down;
+			elsif (ir_signal = mute_sig_ir) then
+				ir_mapped_out <= mute_button;
+			elsif (ir_signal = ffwd_sig_ir) then
+				ir_mapped_out <= ffwd_button;
+			elsif (ir_signal = rwd_sig_ir) then
+				ir_mapped_out <= rwd_button;
 			end if;
 		else
 			ir_mapped_out <= (others => '0');
