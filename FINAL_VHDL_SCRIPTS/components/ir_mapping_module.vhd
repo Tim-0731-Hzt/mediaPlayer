@@ -60,8 +60,8 @@ constant back_button		 : std_logic_vector(11 downto 0) := "001100000001";
 constant vol_up			 : std_logic_vector(11 downto 0) := "010100000001";
 constant vol_down			 : std_logic_vector(11 downto 0) := "010100000010";
 constant mute_button		 : std_logic_vector(11 downto 0) := "010100000100";
-constant ffwd_button		 : std_logic_vector(11 downto 0) := "011000000101";
-constant rwd_button		 : std_logic_vector(11 downto 0) := "011000000110";
+constant ffwd_button		 : std_logic_vector(11 downto 0) := "011000000001";
+constant rwd_button		 : std_logic_vector(11 downto 0) := "011000000010";
 
 begin
 	ir_mapping_process : process(clk)
