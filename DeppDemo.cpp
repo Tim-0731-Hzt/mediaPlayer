@@ -41,6 +41,7 @@ const char* r2 = "2";
 const char* r3 = "3";
 const char* r4 = "4";
 const char* r5 = "5";
+const char* r6 = "6";
 
 char			szDvc[cchSzLen];
 char            R0[cchSzLen];
@@ -49,7 +50,7 @@ char            R2[cchSzLen];
 char            R3[cchSzLen];
 char            R4[cchSzLen];
 char            R5[cchSzLen];
-
+char            R6[cchSzLen];
 
 HIF				hif = hifInvalid;
 
@@ -115,7 +116,7 @@ int main(int cszArg, char* rgszArg[]) {
     StrcpyS(R3, cchSzLen, r3);
     StrcpyS(R4, cchSzLen, r4);
     StrcpyS(R5, cchSzLen, r5);
-
+    StrcpyS(R6, cchSzLen, r6);
 
     if (!DmgrOpen(&hif, szDvc)) {
         printf("DmgrOpen failed (check the device name you provided)\n");
@@ -153,7 +154,7 @@ void DoGetReg(SOCKET s) {
     BYTE	idReg3;
     BYTE    idReg4;
     BYTE    idReg5;
-
+    BYTE    idReg6;
 
     BYTE	idData0;
     BYTE	idData1;
@@ -161,7 +162,7 @@ void DoGetReg(SOCKET s) {
     BYTE	idData3;
     BYTE    idData4;
     BYTE    idData5;
-
+    BYTE    idData6;
 
     BYTE    array[8];
     char* szStop;
@@ -172,6 +173,7 @@ void DoGetReg(SOCKET s) {
     idReg3 = (BYTE)strtol(R3, &szStop, 10);
     idReg4 = (BYTE)strtol(R4, &szStop, 10);
     idReg5 = (BYTE)strtol(R5, &szStop, 10);
+    idReg6 = (BYTE)strtol(R6, &szStop, 10);
 
     // DEPP API Call: DeppGetReg
     // get the single byte value from 4 registers which is mapped to 4 buttons
@@ -187,6 +189,8 @@ void DoGetReg(SOCKET s) {
     DeppGetReg(hif, idReg4, &idData4, fFalse);
     Sleep(30);
     DeppGetReg(hif, idReg5, &idData5, fFalse);
+    Sleep(30);
+    DeppGetReg(hif, idReg6, &idData6, fFalse);
 
     printf("%d\n", idData0);
     printf("%d\n", idData1);
@@ -194,7 +198,7 @@ void DoGetReg(SOCKET s) {
     printf("%d\n", idData3);
     printf("%d\n", idData4);
     printf("%d\n", idData5);
-
+    printf("%d\n", idData6);
 
     // message send to python server
     const char* r0;
@@ -203,7 +207,7 @@ void DoGetReg(SOCKET s) {
     const char* r3;
     const char* r4;
     const char* r5;
-
+    const char* r6;
 
     if (idData0 == (BYTE)1) {
         r0 = "next";
@@ -243,13 +247,15 @@ void DoGetReg(SOCKET s) {
         send(s, r4, strlen(r4), 0);
         prev_volume = idData4;
 
-    } else if (idData4 < prev_volume) {
+    }
+    else if (idData4 < prev_volume) {
         r4 = "volumedown";
         puts(r4);
         send(s, r4, strlen(r4), 0);
         prev_volume = idData4;
 
-    } else {
+    }
+    else {
         r4 = "0";
         puts(r4);
         send(s, r4, strlen(r4), 0);
@@ -265,8 +271,22 @@ void DoGetReg(SOCKET s) {
         puts(r5);
         send(s, r5, strlen(r5), 0);
     }
+    else if (idData5 == (BYTE)4) {
+        r5 = "mute";
+        puts(r5);
+        send(s, r5, strlen(r5), 0);
+    }
 
-
+    if (idData6 == (BYTE)1) {
+        r6 = "ffwd";
+        puts(r6);
+        send(s, r6, strlen(r6), 0);
+    }
+    else if (idData6 == (BYTE)2) {
+        r6 = "rwd";
+        puts(r6);
+        send(s, r6, strlen(r6), 0);
+    }
     /*
     if (idData4 != prev_volume) {
         if (idData4 == (BYTE)2) {
