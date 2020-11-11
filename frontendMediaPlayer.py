@@ -58,7 +58,7 @@ def mediaPlayer():
                 media_player.play_item_at_index(num) 
                 song_name.set(playlist[num])
                 print ("playing " + playlist[num])
-                sleep(0.1)
+                sleep(0.15)
             # sleep(5)
             while media_player.is_playing():
                 updateProgress()
@@ -80,7 +80,7 @@ def mediaPlayer():
                     is_pause = True
                     print ("stop playing ")
                 
-                # sleep(0.1)
+                sleep(0.05)
 
 
         elif (other_operation != None):
@@ -232,6 +232,14 @@ def increaseVolume():
     volume_variable.set(volume)
     media_player.get_media_player().audio_set_volume(volume)
 
+def muteButton():
+    p = media_player.get_media_player()
+    p.audio_toggle_mute()
+    if (p.audio_get_mute() == True):
+        mute_button["image"] = unmute_image
+    else:
+        mute_button["image"] = mute_image
+
 def decreaseVolume():
     global volume
     if volume == 0:
@@ -296,8 +304,6 @@ def openFolder():
         next_song_var.set(playlist)
         global num
         num = 0
-        global is_playing
-        is_playing = True
 
 def disableControls():
     buttons = [play_button, stop_button, ffwd_button, rewind_button, next_button, decrease_volume_button, increase_volume_button, back_button]
@@ -365,7 +371,8 @@ if __name__ == "__main__":
     root = Tk()
     root.title("Violet Player")
     # root.geometry("500x500")
-    mainframe = ttk.Frame(root, padding="12 12 12 12")
+    # mainframe = ttk.Frame(root, padding="12 12 12 12")
+    mainframe = Frame(root)
     mainframe.grid(sticky=N+S+E+W)
 
     song_name = StringVar()
@@ -381,7 +388,7 @@ if __name__ == "__main__":
     clear_queue_button = ttk.Button(mainframe, text="Clear Queue", command=clearPlaylist).grid(column=2, columnspan=2, sticky="N", row=0)
     open_folder_button = ttk.Button(mainframe, text="Playlist from folder", command=openFolder).grid(column=4, columnspan=2, row=0, sticky="E")
 
-    name_label = ttk.Label(mainframe, text="Song Name:").grid(column=0, row=1)
+    name_label = ttk.Label(mainframe, text="Song Name:").grid(column=0, row=1, sticky="W")
     song_name_label = ttk.Label(mainframe, textvariable=song_name, width=70)
     song_name_label.grid(column=1, columnspan=5, row=1, sticky="E")
     song_progress_bar = ttk.Progressbar(mainframe, variable=song_progress, mode="determinate")
@@ -403,36 +410,45 @@ if __name__ == "__main__":
     ffwd_button = ttk.Button(mainframe, text=">>", command=fastForward)
     ffwd_button.grid(column=4, row=4)
     next_button = ttk.Button(mainframe, text="Next", command=nextSong)
-    next_button.grid(column=5, row=4)
+    next_button.grid(column=5, row=4, sticky="E")
 
     volume_variable = IntVar()
     volume_variable.set(volume)
 
-    volume_control = Scale(mainframe, variable=volume_variable, from_=0, to=100, resolution=5, showvalue=0, orient=HORIZONTAL, command=barVolume)
+
+    volume_control = Scale(mainframe, variable=volume_variable, from_=0, to=100, showvalue=0, resolution=5, orient=HORIZONTAL, command=barVolume)
     volume_control.grid(column=0, row=5, columnspan=6, sticky="E W")
 
     decrease_volume_button = ttk.Button(mainframe, text="-", command=decreaseVolume)
-    decrease_volume_button.grid(column=0, row=6, sticky="W")
+    decrease_volume_button.grid(column=0, row=7, sticky="W")
 
     volume_display = ttk.Label(mainframe, textvariable=volume_variable)
     volume_display.grid(column=2, columnspan=2, row=6)
 
+    mute_image = PhotoImage(file="mute.png")
+    unmute_image = PhotoImage(file="unmute.png")
+
+    mute_button = Button(mainframe, image=unmute_image, command=muteButton)
+    mute_button.grid(column=2, columnspan=2, row=7)
+
     increase_volume_button = ttk.Button(mainframe, text="+", command=increaseVolume)
-    increase_volume_button.grid(column=5, row=6, sticky="E")
+    increase_volume_button.grid(column=5, row=7, sticky="E")
 
     next_song_var = StringVar(value=playlist)
 
     playlist_display = Listbox(mainframe, selectmode="single", listvariable=next_song_var)
-    playlist_display.grid(row=7, columnspan=6, sticky="W E")
+    playlist_display.grid(row=8, columnspan=6, sticky="W E")
     playlist_display.selection_set(0)
     playlist_display.selection_anchor(0)
     playlist_display.activate(num)
     playlist_display.bindtags((playlist_display, mainframe, "all"))
 
-    for i in range(0,7):
-        Grid.columnconfigure(mainframe, i, weight=1)
-        Grid.rowconfigure(mainframe, i, weight=1)
+    # for i in range(0,7):
+    #     Grid.columnconfigure(mainframe, i, weight=1)
+    #     Grid.rowconfigure(mainframe, i, weight=1)
 
+    for child in mainframe.winfo_children():
+        child.grid(padx=5, pady=5)
 
     # select the first song in playlist as default
     # print ("select " + playlist[num] + " from " + str(playlist))
@@ -446,5 +462,21 @@ if __name__ == "__main__":
 
     root.protocol("WM_DELETE_WINDOW", close_window)
     noSongDisplay()
+
+
+
+    # root.tk.call('source', 'scidthemes.0.9.3/scidthemes.tcl')
+    s = ttk.Style()
+    # print(s.element_options('Button.label'))
+    s.theme_use('clam')
+    # s.configure('TButton', bordercolor="violet")
+    volume_control.configure(highlightbackground="#bc4899", highlightthickness=3, borderwidth=0, troughcolor="#bab5ab", background="violet", activebackground="violet")
+    # volume_control.configure(highlightthickness=0, bordercolor='#bc4899', troughcolor="#bab5ab")
+    s.configure('Horizontal.TProgressbar', background="violet")
+    button_image = PhotoImage(file="button.png")
+    s.configure('TButton', font=("Helvetica", 10))
+
+    mainframe.configure(highlightcolor='#bc4899', highlightbackground='#bc4899', highlightthickness=10, borderwidth=20, background="violet")
+    playlist_display.configure(selectbackground="#bc4899", background="#bab5ab", highlightthickness=3, highlightbackground="#bc4899", foreground="#000000")
     # is_playing = True
     root.mainloop()
