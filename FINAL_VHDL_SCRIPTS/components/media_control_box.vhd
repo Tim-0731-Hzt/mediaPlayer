@@ -50,7 +50,9 @@ entity media_control_box is
 		miso    	: IN    std_logic;
 		mosi    	: OUT   std_logic;
 		sclk		: OUT	std_logic;
-		nCS			: OUT	std_logic
+		nCS			: OUT	std_logic;
+		-- IR proximity inputs
+		ir_prox		: IN	std_logic
 	);
 end media_control_box;
 
@@ -122,6 +124,7 @@ architecture Behavioral of media_control_box is
 		EppDSTB : IN std_logic;
 		EppWrite : IN std_logic;
 		vol_ctrl	: IN std_logic_vector(7 downto 0);
+		proximity_toggle	: in STD_LOGIC;
 		data_to_send : IN std_logic_vector(11 downto 0);    
 		DB : INOUT std_logic_vector(7 downto 0);      
 		EppWait : OUT std_logic
@@ -218,6 +221,13 @@ architecture Behavioral of media_control_box is
 		);
 	END COMPONENT;
 	
+	COMPONENT proximity_sensor
+    port(   clk     	: in    STD_LOGIC;
+			ir_prox		: in	STD_LOGIC;
+            toggle		: out	STD_LOGIC
+    );
+	END COMPONENT;
+	
 	signal sig_btn_en				: std_logic; 
 	--signal sig_ir_en				: std_logic;
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
@@ -253,6 +263,9 @@ architecture Behavioral of media_control_box is
 	
 	--signal debug					: std_logic_vector(7 downto 0);	
 	--signal sig_7_seg			: std_logic_vector(15 downto 0);
+	
+	signal proximity_toggle		: std_logic;
+	signal sig_led				: std_logic;
 	
 begin
 	
@@ -329,6 +342,7 @@ begin
 		EppDSTB => EppDSTB,
 		EppWrite => EppWrite,
 		vol_ctrl	=> vol_data_out,
+		proximity_toggle => sig_led,
 		EppWait => EppWait,
 		data_to_send => mux_out_epp_in
 	);
@@ -409,8 +423,25 @@ begin
 		ir_mapped_out => ir_mapped
 	);
 	
-	led <= sig_pot_data(7 downto 0);
-
+	Inst_ir_proximity_module: proximity_sensor PORT MAP(
+		clk => clk,
+		ir_prox => ir_prox,
+		toggle => proximity_toggle
+	);
+	
+--	led <= sig_pot_data(7 downto 0);
+	
+	toggle_test: process(clk, proximity_toggle)
+	begin
+        if(clk'event and clk = '1') then
+			if proximity_toggle = '1' then
+				sig_led <= not sig_led;
+			end if;
+		end if;
+	end process;
+	led(7) <= sig_led;
+	led(6) <= proximity_toggle;
+	led(5 downto 0) <= "000000";
 	--sig_7_seg <= "000000" & sig_pot_data;
 end Behavioral;
 

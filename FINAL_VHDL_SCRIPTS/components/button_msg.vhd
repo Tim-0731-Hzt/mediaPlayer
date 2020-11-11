@@ -40,7 +40,7 @@ begin
 	button_msg_mapping : PROCESS(button_addr)
 	BEGIN
 		IF button_addr = "00" THEN
-			button_msg <= "1111010001000011"; 		-- FFD
+			button_msg <= "1100010011011010"; 		-- NEXT
 		ELSIF button_addr = "01" THEN
 			button_msg <= "1000011000001011"; 		-- PLAY
 		ELSIF button_addr = "10" THEN
