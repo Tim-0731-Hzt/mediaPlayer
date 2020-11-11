@@ -56,3 +56,5 @@ NET "miso"   LOC = "C5";
 NET "mosi"	 LOC = "B5";
 NET "nCS"	 LOC = "D6";
 NET "sclk"	 LOC = "A4";
+
+NET	"ir_prox"	LOC = "D7";
