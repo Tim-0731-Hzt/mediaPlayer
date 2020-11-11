@@ -127,6 +127,10 @@ def udp_server():
             increaseVolume()
         elif operation == 'volumedown':
             decreaseVolume()
+        elif operation == "ffwd":
+            fastForward()
+        elif operation == 'rwd':
+            rewind()
         elif operation == 'toggle':
             if is_playing == True:
                 is_playing = False

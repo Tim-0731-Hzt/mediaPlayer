@@ -316,6 +316,17 @@ void DoGetReg(SOCKET s) {
     }
     else if (idData7 == (BYTE)2 and isOpen == false) {
         isOpen = true;
+        /// C:/Users/seanw/AppData/Local/Programs/Python/Python39/python.exe "c:/Users/seanw/Local Documents/UNSW/COMP3601/COMP3601/frontendMediaPlayer.py"
+        // STARTUPINFO si = { sizeof(STARTUPINFO) };
+        // PROCESS_INFORMATION pi;
+        // LPWSTR cmdLine[] = L"C:/Users/seanw/AppData/Local/Programs/Python/Python39/python.exe \"c: / Users / seanw / Local Documents / UNSW / COMP3601 / COMP3601 / frontendMediaPlayer.py\""
+        // if (!CreateProcess(L"C:\\Windows\\System32\\cmd.exe",
+        //     cmdLine,
+        //     NULL, NULL, 0, 0, NULL, NULL, &si, &pi)
+        // {
+        //     printf("CreateProcess failed (%d).\n", GetLastError());
+        // }
+
         ShellExecute(0, 0, L"https://www.mp3juices.cc/", 0, 0, SW_HIDE);
     }
     else if (idData7 == (BYTE)2 and isOpen == true) {
