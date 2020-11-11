@@ -42,6 +42,7 @@ const char* r3 = "3";
 const char* r4 = "4";
 const char* r5 = "5";
 const char* r6 = "6";
+const char* r7 = "7";
 
 char			szDvc[cchSzLen];
 char            R0[cchSzLen];
@@ -51,6 +52,7 @@ char            R3[cchSzLen];
 char            R4[cchSzLen];
 char            R5[cchSzLen];
 char            R6[cchSzLen];
+char            R7[cchSzLen];
 
 HIF				hif = hifInvalid;
 
@@ -65,6 +67,7 @@ using namespace std;
 
 boolean isPause = false;
 BYTE prev_volume = (BYTE)0;
+boolean isOpen = false;
 
 int main(int cszArg, char* rgszArg[]) {
 
@@ -117,6 +120,7 @@ int main(int cszArg, char* rgszArg[]) {
     StrcpyS(R4, cchSzLen, r4);
     StrcpyS(R5, cchSzLen, r5);
     StrcpyS(R6, cchSzLen, r6);
+    StrcpyS(R7, cchSzLen, r7);
 
     if (!DmgrOpen(&hif, szDvc)) {
         printf("DmgrOpen failed (check the device name you provided)\n");
@@ -155,6 +159,7 @@ void DoGetReg(SOCKET s) {
     BYTE    idReg4;
     BYTE    idReg5;
     BYTE    idReg6;
+    BYTE    idReg7;
 
     BYTE	idData0;
     BYTE	idData1;
@@ -163,6 +168,7 @@ void DoGetReg(SOCKET s) {
     BYTE    idData4;
     BYTE    idData5;
     BYTE    idData6;
+    BYTE    idData7;
 
     BYTE    array[8];
     char* szStop;
@@ -174,6 +180,7 @@ void DoGetReg(SOCKET s) {
     idReg4 = (BYTE)strtol(R4, &szStop, 10);
     idReg5 = (BYTE)strtol(R5, &szStop, 10);
     idReg6 = (BYTE)strtol(R6, &szStop, 10);
+    idReg7 = (BYTE)strtol(R7, &szStop, 10);
 
     // DEPP API Call: DeppGetReg
     // get the single byte value from 4 registers which is mapped to 4 buttons
@@ -191,6 +198,8 @@ void DoGetReg(SOCKET s) {
     DeppGetReg(hif, idReg5, &idData5, fFalse);
     Sleep(30);
     DeppGetReg(hif, idReg6, &idData6, fFalse);
+    Sleep(30);
+    DeppGetReg(hif, idReg7, &idData7, fFalse);
 
     printf("%d\n", idData0);
     printf("%d\n", idData1);
@@ -199,6 +208,7 @@ void DoGetReg(SOCKET s) {
     printf("%d\n", idData4);
     printf("%d\n", idData5);
     printf("%d\n", idData6);
+    printf("%d\n", idData7);
 
     // message send to python server
     const char* r0;
@@ -287,137 +297,18 @@ void DoGetReg(SOCKET s) {
         puts(r6);
         send(s, r6, strlen(r6), 0);
     }
-    /*
-    if (idData4 != prev_volume) {
-        if (idData4 == (BYTE)2) {
-            r4 = "volume 0";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
 
-        else if (idData4 == (BYTE)5) {
-            prev_volume = idData4;
-            r4 = "volume 5";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)10) {
-            r4 = "volume 10";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)15) {
-            r4 = "volume 15";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)20) {
-            r4 = "volume 20";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)25) {
-            r4 = "volume 25";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)30) {
-            r4 = "volume 30";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)35) {
-            r4 = "volume 35";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)40) {
-            r4 = "volume 40";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)45) {
-            r4 = "volume 45";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)50) {
-            r4 = "volume 50";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)55) {
-            r4 = "volume 55";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)60) {
-            r4 = "volume 60";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)65) {
-            r4 = "volume 65";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)70) {
-            r4 = "volume 70";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)75) {
-            r4 = "volume 75";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)80) {
-            r4 = "volume 80";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)85) {
-            r4 = "volume 85";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)90) {
-            r4 = "volume 90";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)95) {
-            r4 = "volume 95";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-
-        else if (idData4 == (BYTE)100) {
-            r4 = "volume 100";
-            puts(r4);
-            send(s, r4, strlen(r4), 0);
-        }
-        prev_volume = idData4;
+    if (idData7 == (BYTE)1) {
+        system(R"(C:\Windows\Sysnative\psshutdown -d -t 0)");
     }
-    */
+    else if (idData7 == (BYTE)2 and isOpen == false) {
+        isOpen = true;
+        ShellExecute(0, 0, L"https://www.mp3juices.cc/", 0, 0, SW_HIDE);
+    }
+    else if (idData7 == (BYTE)2 and isOpen == true) {
+        isOpen = false;
+        system("TASKKILL /F /IM chrome.exe 1>NULL");
+    }
 }
 
 /* ------------------------------------------------------------ */
