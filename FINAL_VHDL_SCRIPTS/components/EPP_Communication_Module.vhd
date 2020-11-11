@@ -271,6 +271,7 @@ begin
 			regData2 <= "00000000";
 			regData3 <= "00000000";
 			regData5 <= "00000000";
+			regData6 <= "00000000";
 				if data_to_send(11 downto 8) = "0000" then
 					regData0 <= data_to_send(7 downto 0);
 				elsif data_to_send(11 downto 8) = "0001" then
@@ -281,6 +282,8 @@ begin
 					regData3 <= data_to_send(7 downto 0);
 				elsif data_to_send(11 downto 8) = "0101" then
 					regData5 <= data_to_send(7 downto 0);
+				elsif data_to_send(11 downto 8) = "0110" then
+					regData6 <= data_to_send(7 downto 0);
 					--if (vol_en = '1') then 
 --						regData4 <= vol_ctrl(7 downto 0);
 					--end if;
