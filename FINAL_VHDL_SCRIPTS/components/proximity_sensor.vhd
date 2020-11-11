@@ -47,6 +47,10 @@ begin
 	main: process(clk, ir_prox)
 	begin
 		counter_en <= '0';
+--		if ir_prox'event and ir_prox = '0' then
+--			counter_en <= '1';
+--		end if;
+		
 		if ir_prox = '0' then
 			counter_en <= '1';
 		else
@@ -59,7 +63,7 @@ begin
 		if counter_en = '0' then
 			counter <= 0;
         elsif(clk'event and clk = '1') then
-			if counter = 50000000 then
+			if counter = 25000000 then
 				sig_toggle <= '1';
 				counter <= 0;
 			else

@@ -36,6 +36,7 @@ entity EPP_Communication_Module is
            EppDSTB : in  STD_LOGIC;
            EppWrite : in  STD_LOGIC;
 			  vol_ctrl	: in STD_LOGIC_VECTOR (7 downto 0);
+			  proximity_toggle	: in STD_LOGIC;
            EppWait : out  STD_LOGIC;
            data_to_send : in  STD_LOGIC_VECTOR (11 downto 0));
 end EPP_Communication_Module;
@@ -103,6 +104,7 @@ architecture Behavioral of EPP_Communication_Module is
 	signal	regData5	: std_logic_vector(7 downto 0);
 	signal	regData6	: std_logic_vector(7 downto 0);
 	signal	regData7	: std_logic_vector(7 downto 0);
+	signal	regData8	: std_logic_vector(7 downto 0);
 
 ------------------------------------------------------------------------
 -- Module Implementation
@@ -139,6 +141,7 @@ begin
 					   regData5 when regEppAdr = "0101" else
 					   regData6 when regEppAdr = "0110" else
 					   regData7 when regEppAdr = "0111" else
+					   regData8 when regEppAdr = "1000" else
 					   "00000000";
 
     ------------------------------------------------------------------------
@@ -291,6 +294,8 @@ begin
 --						regData4 <= vol_ctrl(7 downto 0);
 					--end if;
 				end if;
+				regData8(7 downto 1) <= "0000000";
+				regData8(0) <= proximity_toggle;
 				regData4 <= vol_ctrl(7 downto 0);
 			end if;
 	end process;

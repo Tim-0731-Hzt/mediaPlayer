@@ -124,6 +124,7 @@ architecture Behavioral of media_control_box is
 		EppDSTB : IN std_logic;
 		EppWrite : IN std_logic;
 		vol_ctrl	: IN std_logic_vector(7 downto 0);
+		proximity_toggle	: in STD_LOGIC;
 		data_to_send : IN std_logic_vector(11 downto 0);    
 		DB : INOUT std_logic_vector(7 downto 0);      
 		EppWait : OUT std_logic
@@ -341,6 +342,7 @@ begin
 		EppDSTB => EppDSTB,
 		EppWrite => EppWrite,
 		vol_ctrl	=> vol_data_out,
+		proximity_toggle => sig_led,
 		EppWait => EppWait,
 		data_to_send => mux_out_epp_in
 	);
