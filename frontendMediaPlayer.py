@@ -132,10 +132,7 @@ def udp_server():
         elif operation == 'rwd':
             rewind()
         elif operation == 'toggle':
-            if is_playing == True:
-                is_playing = False
-            else:
-                is_playing = True
+            playSong()
 
         sleep(0.1)
         
