@@ -135,7 +135,7 @@ def udp_server():
             playSong()
 
         sleep(0.1)
-        
+        git 
 
 # change song by direction
 def changeSong(direction):
@@ -479,7 +479,7 @@ if __name__ == "__main__":
     volume_control.configure(highlightbackground="#bc4899", highlightthickness=3, borderwidth=0, troughcolor="#bab5ab", background="violet", activebackground="violet")
     # volume_control.configure(highlightthickness=0, bordercolor='#bc4899', troughcolor="#bab5ab")
     s.configure('Horizontal.TProgressbar', background="violet")
-    button_image = PhotoImage(file="button.png")
+    # button_image = PhotoImage(file="button.png")
     s.configure('TButton', font=("Helvetica", 10))
 
     mainframe.configure(highlightcolor='#bc4899', highlightbackground='#bc4899', highlightthickness=10, borderwidth=20, background="violet")
