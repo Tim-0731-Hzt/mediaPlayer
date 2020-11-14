@@ -290,10 +290,8 @@ begin
 					regData6 <= data_to_send(7 downto 0);
 				elsif data_to_send(11 downto 8) = "0111" then
 					regData7 <= data_to_send(7 downto 0);
-					--if (vol_en = '1') then 
---						regData4 <= vol_ctrl(7 downto 0);
-					--end if;
 				end if;
+				
 				regData8(7 downto 1) <= "0000000";
 				regData8(0) <= proximity_toggle;
 				regData4 <= vol_ctrl(7 downto 0);

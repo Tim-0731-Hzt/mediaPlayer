@@ -46,11 +46,7 @@ begin
 
 	main: process(clk, ir_prox)
 	begin
-		counter_en <= '0';
---		if ir_prox'event and ir_prox = '0' then
---			counter_en <= '1';
---		end if;
-		
+		counter_en <= '0';		
 		if ir_prox = '0' then
 			counter_en <= '1';
 		else

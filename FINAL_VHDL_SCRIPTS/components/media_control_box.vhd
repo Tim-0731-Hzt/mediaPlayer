@@ -130,26 +130,15 @@ architecture Behavioral of media_control_box is
 		EppWait : OUT std_logic
 		);
 	END COMPONENT;
-	
---	COMPONENT volume_control is
---    PORT ( clk : in  STD_LOGIC;
---           pot_data : in  STD_LOGIC_VECTOR (9 downto 0);
---           ir_data : in  STD_LOGIC_VECTOR (11 downto 0);
---           ir_en : in  STD_LOGIC;
---           vol_data_out : out  STD_LOGIC_VECTOR (11 downto 0));
---			  
---	END COMPONENT;
-	
+		
 	COMPONENT spi_master																--Module used for the SPI with the ADC
 	PORT(																					--Gets the value based on the rotational angle of
 		clk 		: IN std_logic;													--the potentiometer. Returns value between 0 and 1023
 		reset_n 	: IN std_logic;
 		miso 		: IN std_logic;          
-		--busy 		: OUT std_logic;
 		mosi 		: OUT std_logic;
 		sclk_out 	: OUT std_logic;
 		nCS_out 	: OUT std_logic;
-		--state_out 	: OUT std_logic_vector(4 downto 0);
 		rx_data 	: OUT std_logic_vector(9 downto 0)
 		);
 	END COMPONENT;
@@ -162,7 +151,6 @@ architecture Behavioral of media_control_box is
 		data    	: inout   STD_LOGIC_VECTOR(11 DOWNTO 0);
 		busy		: out	STD_LOGIC;
 		done    	: out   STD_LOGIC
-		--curstate	: out	STD_LOGIC_VECTOR(6 DOWNTO 0)
 		);
 	END COMPONENT;
 	
@@ -171,8 +159,6 @@ architecture Behavioral of media_control_box is
 		clk		 : IN std_logic;
 		ir_signal : IN std_logic_vector(11 downto 0);
 		ir_en : IN std_logic;          
-		--ir_mapped_en : OUT std_logic;
-	   --ir_vol_en : out std_logic;
 		ir_mapped_out : OUT std_logic_vector(11 downto 0)
 		);
 	END COMPONENT;
@@ -228,8 +214,17 @@ architecture Behavioral of media_control_box is
     );
 	END COMPONENT;
 	
+	COMPONENT switching_btn_function_module
+	PORT(
+		clk : IN std_logic;
+		btn : IN std_logic_vector(3 downto 0);
+		sw : IN std_logic_vector(4 downto 0);          
+		btn_out : OUT std_logic_vector(3 downto 0)
+		);
+	END COMPONENT;
+	
 	signal sig_btn_en				: std_logic; 
-	--signal sig_ir_en				: std_logic;
+	signal sig_btn_out			: std_logic_vector(3 downto 0);
 	signal sig_sseg 				: std_logic_vector (3 downto 0);
 	signal ir_mapped 				: std_logic_vector (11 downto 0);
 	signal ir_decoded				: std_logic_vector (11 downto 0);
@@ -247,22 +242,13 @@ architecture Behavioral of media_control_box is
 	signal sig_btn_noise_en		: std_logic;
 	signal sig_ir_btn_noise		: std_logic;
 	signal sig_noise_toggle		: std_logic;
-	--signal ir_mapped_en			: std_logic;
-	--signal ir_vol_en			: std_logic;
 	
 	-- Internal IR Signals
 	signal sig_ir_done			: std_logic;
 	signal sig_ir_busy			: std_logic;
-	--signal sig_ir_state			: std_logic_vector(6 downto 0);
 
 	-- Internal SPI Signals
 	signal sig_pot_data			: std_logic_vector(9 downto 0);
-	--signal sig_spi_state		: std_logic_vector(4 downto 0);
-	--signal sig_spi_busy			: std_logic;
-
-	
-	--signal debug					: std_logic_vector(7 downto 0);	
-	--signal sig_7_seg			: std_logic_vector(15 downto 0);
 	
 	signal proximity_toggle		: std_logic;
 	signal sig_led				: std_logic;
@@ -310,7 +296,7 @@ begin
 
 	Inst_button_mapping: button_mapping PORT MAP(
 		clk => clk,
-		btn => btn,
+		btn => sig_btn_out,
 		button_en => sig_btn_en,
 		button_mapping => buttons_mapped
 	);
@@ -355,14 +341,6 @@ begin
 		data_out => mux_out_epp_in
 	);
 	
---	 Inst_volume_control: volume_control PORT MAP(
---	 	clk => clk,
---	 	pot_data => sig_pot_data,
---	 	ir_data => ir_mapped,
---	 	ir_en => ir_vol_en,
---	 	vol_data_out => vol_data_out
---	 );
-
 	Inst_ADC_Protocol_Module: ADC_Protocol_Module PORT MAP(
 			ADC_in => sig_pot_data,
 			clk => clk,
@@ -389,11 +367,9 @@ begin
 		clk 		=> clk,
 		reset_n 	=> not(sig_ir_busy),
 		miso 		=> miso,
-		--busy 		=> open, --sig_spi_busy,
 		mosi 		=> mosi,
 		sclk_out 	=> sclk,
 		nCS_out 	=> nCS,
-		--state_out 	=> open, --sig_spi_state,
 		rx_data 	=> sig_pot_data
 	);
 	
@@ -406,20 +382,17 @@ begin
 
 	Inst_IR_decoder: ir_decoder PORT MAP(
 		clk		=>	clk,
-		reset	=>	sw(0),
+		reset	=>	sw(5),
 		ir		=>	ir,
 		data	=>	ir_decoded,
 		busy	=>	sig_ir_busy,
 		done	=>	sig_ir_done
-		--curstate => open --sig_ir_state
 	);
 	
 	Inst_ir_mapping_module: ir_mapping_module PORT MAP(
 		clk => clk,
 		ir_signal => ir_decoded,
 		ir_en => sig_ir_done,
-		--ir_mapped_en => open,-- ir_mapped_en,
-	   --ir_vol_en => open, --ir_vol_en, -- Maybe don't need
 		ir_mapped_out => ir_mapped
 	);
 	
@@ -429,7 +402,12 @@ begin
 		toggle => proximity_toggle
 	);
 	
---	led <= sig_pot_data(7 downto 0);
+		Inst_switching_btn_function_module: switching_btn_function_module PORT MAP(
+		clk => clk,
+		btn => btn,
+		sw => sw(4 downto 0),
+		btn_out => sig_btn_out
+	);
 	
 	toggle_test: process(clk, proximity_toggle)
 	begin
@@ -442,6 +420,5 @@ begin
 	led(7) <= sig_led;
 	led(6) <= proximity_toggle;
 	led(5 downto 0) <= "000000";
-	--sig_7_seg <= "000000" & sig_pot_data;
 end Behavioral;
 
