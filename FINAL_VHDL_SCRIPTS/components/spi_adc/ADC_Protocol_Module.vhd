@@ -108,6 +108,5 @@ begin
 			end if;
 		end process;
 		
-		--output(11 downto 8) <= "0100";
 end Behavioral;
 
