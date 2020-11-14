@@ -433,7 +433,7 @@ begin
 	
 	toggle_test: process(clk, proximity_toggle)
 	begin
-        if(clk'event and clk = '1') then
+		if (clk'event and clk = '1') then
 			if proximity_toggle = '1' then
 				sig_led <= not sig_led;
 			end if;
