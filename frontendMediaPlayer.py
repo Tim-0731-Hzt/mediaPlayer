@@ -300,7 +300,11 @@ def openSong():
     if new_song == None:
         return
     new_path = os.path.basename(new_song.name)
-    new_name = new_path.split(".")[0]
+    new_media = player.media_new(new_path) 
+    new_media.parse()
+    new_name = new_media.get_meta(0)
+    if new_name == None:
+        new_name = new_path.split(".")[0]
     print(new_name)
     global playlist
     if playlist == []:
