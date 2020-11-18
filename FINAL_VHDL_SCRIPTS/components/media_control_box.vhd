@@ -382,7 +382,7 @@ begin
 
 	Inst_IR_decoder: ir_decoder PORT MAP(
 		clk		=>	clk,
-		reset	=>	sw(5),
+		reset	=>	'1',
 		ir		=>	ir,
 		data	=>	ir_decoded,
 		busy	=>	sig_ir_busy,
@@ -412,7 +412,7 @@ begin
 	toggle_test: process(clk, proximity_toggle)
 	begin
 		if (clk'event and clk = '1') then
-			if proximity_toggle = '1' then
+			if proximity_toggle = '1' and sig_ir_busy = '0' then
 				sig_led <= not sig_led;
 			end if;
 		end if;

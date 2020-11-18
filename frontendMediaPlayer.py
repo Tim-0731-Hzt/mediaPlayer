@@ -135,7 +135,7 @@ def udp_server():
             playSong()
 
         sleep(0.1)
-        git 
+        # git 
 
 # change song by direction
 def changeSong(direction):

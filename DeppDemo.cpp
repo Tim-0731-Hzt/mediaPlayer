@@ -281,6 +281,7 @@ void DoGetReg(SOCKET s) {
     else {
         r4 = "0";
         puts(r4);
+
         send(s, r4, strlen(r4), 0);
     }
 
