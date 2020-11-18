@@ -22,6 +22,9 @@ media_player = vlc.MediaListPlayer()
 player = vlc.Instance() 
 media_list = player.media_list_new() 
 media_player.get_media_player().audio_set_volume(volume)
+
+global is_enabled
+is_enabled = True
 # media_player.set_playback_mode(1)
 # add song   
 for entry in os.listdir(path='./audio/'):
@@ -103,6 +106,10 @@ def udp_server():
     server = socket(AF_INET, SOCK_DGRAM)
     server.bind(("127.0.0.1", 12000))
     while True:
+        global is_enabled
+        if is_enabled == False:
+            player_interrupt.wait()
+
         message, clientAddress = server.recvfrom(2048)
         result = message.decode().split()
         operation = result[0]
@@ -116,14 +123,6 @@ def udp_server():
             other_operation = 'next'
         elif (operation == 'back'):
             other_operation = 'back'
-        # elif (operation == 'volume'):
-        #     if (len(result) < 2):
-        #         print("Volume error")
-            
-        #     global volume
-        #     volume = int(result[1])
-        #     volumeVariable.set(volume)
-        #     media_player.get_media_player().audio_set_volume(volume)
         elif operation == 'volumeup':
             increaseVolume()
         elif operation == 'volumedown':
@@ -327,6 +326,9 @@ def disableControls():
         button.state(["disabled"])
 
     volume_control.config(state=DISABLED)
+    global is_enabled
+    is_enabled = False
+    
 
 def enableControls():
     buttons = [play_button, stop_button, ffwd_button, rewind_button, next_button, decrease_volume_button, increase_volume_button, back_button]
@@ -334,6 +336,9 @@ def enableControls():
         button.state(["!disabled"])
 
     volume_control.config(state=NORMAL)
+    global is_enabled
+    is_enabled = False
+    player_interrupt.set()
 
 def rewind():
     p =  media_player.get_media_player()
@@ -475,10 +480,13 @@ if __name__ == "__main__":
     # select the first song in playlist as default
     # print ("select " + playlist[num] + " from " + str(playlist))
     # create threads
-    mediaPlayer = threading.Thread(target = mediaPlayer)
-    mediaPlayer.start()
-    server = threading.Thread(target = udp_server)
-    server.start()
+
+    player_interrupt = threading.Event()
+
+    media_player_thread = threading.Thread(target = mediaPlayer)
+    media_player_thread.start()
+    server_thread = threading.Thread(target = udp_server)
+    server_thread.start()
 
     # disableControls()
 
@@ -487,9 +495,8 @@ if __name__ == "__main__":
 
 
 
-    # root.tk.call('source', 'scidthemes.0.9.3/scidthemes.tcl')
-    # icon_image = PhotoImage(file="mute.png")
-    # root.iconphoto(False, icon_image)
+    icon_image = PhotoImage(file="./Logo/logo_no_background.png")
+    root.iconphoto(False, icon_image)
     s = ttk.Style()
     # print(s.element_options('Button.label'))
     s.theme_use('clam')
