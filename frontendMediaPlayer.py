@@ -22,15 +22,18 @@ media_player = vlc.MediaListPlayer()
 player = vlc.Instance() 
 media_list = player.media_list_new() 
 media_player.get_media_player().audio_set_volume(volume)
+
+global is_enabled
+is_enabled = True
 # media_player.set_playback_mode(1)
 # add song   
-for entry in os.listdir(path='./audio/'):
-    if (".mp3" in entry or ".wav" in entry):
-        playlist.append(entry.split(".")[0])
-        media = player.media_new("audio/" + entry) 
-        media_list.add_media(media) 
+# for entry in os.listdir(path='./audio/'):
+#     if (".mp3" in entry or ".wav" in entry):
+#         playlist.append(entry.split(".")[0])
+#         media = player.media_new("audio/" + entry) 
+#         media_list.add_media(media) 
 
-media_player.set_media_list(media_list)
+# media_player.set_media_list(media_list)
 
 for song in playlist:
     print(song)
@@ -49,6 +52,8 @@ def mediaPlayer():
     global is_pause
     is_pause = False
     while True:
+        if is_enabled == False:
+            player_interrupt.wait()
         if (is_playing):
             if (is_pause):
                 # continue playing
@@ -56,12 +61,14 @@ def mediaPlayer():
                 print ("continue playing " + playlist[num])
             else:    
                 media_player.play_item_at_index(num) 
-                song_name.set(playlist[num])
                 # print ("playing " + playlist[num])
                 sleep(0.15)
                 set_meta_data()
+                song_name.set(playlist[num])
             # sleep(5)
             while media_player.is_playing():
+                if is_enabled == False:
+                    player_interrupt.wait()
                 updateProgress()
                 checkSongEnd()
                 # check if user press stop button when the song is playing
@@ -103,6 +110,10 @@ def udp_server():
     server = socket(AF_INET, SOCK_DGRAM)
     server.bind(("127.0.0.1", 12000))
     while True:
+        global is_enabled
+        if is_enabled == False:
+            player_interrupt.wait()
+
         message, clientAddress = server.recvfrom(2048)
         result = message.decode().split()
         operation = result[0]
@@ -116,14 +127,6 @@ def udp_server():
             other_operation = 'next'
         elif (operation == 'back'):
             other_operation = 'back'
-        # elif (operation == 'volume'):
-        #     if (len(result) < 2):
-        #         print("Volume error")
-            
-        #     global volume
-        #     volume = int(result[1])
-        #     volumeVariable.set(volume)
-        #     media_player.get_media_player().audio_set_volume(volume)
         elif operation == 'volumeup':
             increaseVolume()
         elif operation == 'volumedown':
@@ -191,6 +194,7 @@ def noSongDisplay():
     song_time.set("0:00")
     song_duration.set("0:00")
     song_name.set("")
+    artist_name.set("")
     resetProgress()
 
 
@@ -314,8 +318,14 @@ def openFolder():
     for entry in os.listdir(directory):
         print(entry)
         if (".mp3" in entry or ".wav" in entry):
-            new_playlist.append(entry.split(".")[0])
             media = player.media_new(directory +  "/" + entry) 
+            media.parse()
+            new_name = media.get_meta(0)
+            if new_name == None:
+                new_playlist.append(entry.split(".")[0])
+            else:
+                new_playlist.append(new_name)
+
             new_medialist.add_media(media) 
 
     print(new_medialist.count())
@@ -336,6 +346,9 @@ def disableControls():
         button.state(["disabled"])
 
     volume_control.config(state=DISABLED)
+    global is_enabled
+    is_enabled = False
+    
 
 def enableControls():
     buttons = [play_button, stop_button, ffwd_button, rewind_button, next_button, decrease_volume_button, increase_volume_button, back_button]
@@ -343,6 +356,11 @@ def enableControls():
         button.state(["!disabled"])
 
     volume_control.config(state=NORMAL)
+    global is_enabled
+    is_enabled = False
+    player_interrupt.set()
+    global is_pause
+    is_pause = False
 
 def rewind():
     p =  media_player.get_media_player()
@@ -484,21 +502,23 @@ if __name__ == "__main__":
     # select the first song in playlist as default
     # print ("select " + playlist[num] + " from " + str(playlist))
     # create threads
-    mediaPlayer = threading.Thread(target = mediaPlayer)
-    mediaPlayer.start()
-    server = threading.Thread(target = udp_server)
-    server.start()
 
-    # disableControls()
+    player_interrupt = threading.Event()
+
+    media_player_thread = threading.Thread(target = mediaPlayer)
+    media_player_thread.start()
+    server_thread = threading.Thread(target = udp_server)
+    server_thread.start()
+
+    disableControls()
 
     root.protocol("WM_DELETE_WINDOW", close_window)
     noSongDisplay()
 
 
 
-    # root.tk.call('source', 'scidthemes.0.9.3/scidthemes.tcl')
-    # icon_image = PhotoImage(file="mute.png")
-    # root.iconphoto(False, icon_image)
+    icon_image = PhotoImage(file="./Logo/logo_no_background.png")
+    root.iconphoto(False, icon_image)
     s = ttk.Style()
     # print(s.element_options('Button.label'))
     s.theme_use('clam')
