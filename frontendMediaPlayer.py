@@ -134,9 +134,10 @@ def udp_server():
             rewind()
         elif operation == 'toggle':
             playSong()
+        elif operation == 'mute':
+            muteButton()
 
         sleep(0.1)
-        git 
 
 # change song by direction
 def changeSong(direction):
@@ -487,6 +488,8 @@ if __name__ == "__main__":
 
 
     # root.tk.call('source', 'scidthemes.0.9.3/scidthemes.tcl')
+    # icon_image = PhotoImage(file="mute.png")
+    # root.iconphoto(False, icon_image)
     s = ttk.Style()
     # print(s.element_options('Button.label'))
     s.theme_use('clam')
