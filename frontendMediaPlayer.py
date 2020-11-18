@@ -27,13 +27,13 @@ global is_enabled
 is_enabled = True
 # media_player.set_playback_mode(1)
 # add song   
-for entry in os.listdir(path='./audio/'):
-    if (".mp3" in entry or ".wav" in entry):
-        playlist.append(entry.split(".")[0])
-        media = player.media_new("audio/" + entry) 
-        media_list.add_media(media) 
+# for entry in os.listdir(path='./audio/'):
+#     if (".mp3" in entry or ".wav" in entry):
+#         playlist.append(entry.split(".")[0])
+#         media = player.media_new("audio/" + entry) 
+#         media_list.add_media(media) 
 
-media_player.set_media_list(media_list)
+# media_player.set_media_list(media_list)
 
 for song in playlist:
     print(song)
@@ -52,6 +52,8 @@ def mediaPlayer():
     global is_pause
     is_pause = False
     while True:
+        if is_enabled == False:
+            player_interrupt.wait()
         if (is_playing):
             if (is_pause):
                 # continue playing
@@ -59,12 +61,14 @@ def mediaPlayer():
                 print ("continue playing " + playlist[num])
             else:    
                 media_player.play_item_at_index(num) 
-                song_name.set(playlist[num])
                 # print ("playing " + playlist[num])
                 sleep(0.15)
                 set_meta_data()
+                song_name.set(playlist[num])
             # sleep(5)
             while media_player.is_playing():
+                if is_enabled == False:
+                    player_interrupt.wait()
                 updateProgress()
                 checkSongEnd()
                 # check if user press stop button when the song is playing
@@ -190,6 +194,7 @@ def noSongDisplay():
     song_time.set("0:00")
     song_duration.set("0:00")
     song_name.set("")
+    artist_name.set("")
     resetProgress()
 
 
@@ -304,8 +309,14 @@ def openFolder():
     for entry in os.listdir(directory):
         print(entry)
         if (".mp3" in entry or ".wav" in entry):
-            new_playlist.append(entry.split(".")[0])
             media = player.media_new(directory +  "/" + entry) 
+            media.parse()
+            new_name = media.get_meta(0)
+            if new_name == None:
+                new_playlist.append(entry.split(".")[0])
+            else:
+                new_playlist.append(new_name)
+
             new_medialist.add_media(media) 
 
     print(new_medialist.count())
@@ -339,6 +350,8 @@ def enableControls():
     global is_enabled
     is_enabled = False
     player_interrupt.set()
+    global is_pause
+    is_pause = False
 
 def rewind():
     p =  media_player.get_media_player()
@@ -488,7 +501,7 @@ if __name__ == "__main__":
     server_thread = threading.Thread(target = udp_server)
     server_thread.start()
 
-    # disableControls()
+    disableControls()
 
     root.protocol("WM_DELETE_WINDOW", close_window)
     noSongDisplay()
