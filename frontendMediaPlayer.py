@@ -243,6 +243,15 @@ def barVolume(newVal):
     volume_variable.set(newVal)
     media_player.get_media_player().audio_set_volume(volume)
 
+def increaseVolumeRemote():
+    global volume
+    if volume == 100:
+        return
+    else:
+        volume += 7
+    volume_variable.set(volume)
+    media_player.get_media_player().audio_set_volume(volume)
+
 def increaseVolume():
     global volume
     if volume == 100:
