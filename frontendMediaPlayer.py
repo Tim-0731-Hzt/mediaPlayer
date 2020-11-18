@@ -370,7 +370,7 @@ def enableControls():
 
     volume_control.config(state=NORMAL)
     global is_enabled
-    is_enabled = False
+    is_enabled = True
     player_interrupt.set()
     global is_pause
     is_pause = False
