@@ -8,12 +8,9 @@ ENTITY spi_master is
     PORT (  clk    : IN    std_logic;
             reset_n : IN    std_logic;
             miso    : IN    std_logic;
-
-           -- busy    : OUT   std_logic;
             mosi    : OUT   std_logic;
-			sclk_out	: OUT	std_logic;
-			nCS_out		: OUT	std_logic;
-			state_out	: OUT	std_logic_vector(4 downto 0);
+				sclk_out	: OUT	std_logic;
+				nCS_out		: OUT	std_logic;
             rx_data : OUT   std_logic_vector(d-1 DOWNTO 0));
 END spi_master;
 
@@ -62,45 +59,22 @@ BEGIN
 
     fsm_outputs: process(state, sclk,rx_buffer)
     begin
-		state_out <= (others => '0');
         case state is
             when reset =>
-                state_out(0) <= '1';
-
---                rx_data <= (others => '0');
---                rx_buffer <= (others => '0');
---                rx_count <= 0;
-				shift_reset <= '1';
-              --  busy <= '0';
-				nCS <= '1';						-- Chip select active low
-				shift_en <= '0';
+					shift_reset <= '1';
+					nCS <= '1';						-- Chip select active low
+					shift_en <= '0';
             when start =>
-                state_out(1) <= '1';
-
-              --  busy <= '1';
-                nCS <= '0';                     -- Bring nCS low before sclk starts to initialise to mode 0,0
-				shift_reset <= '0';
+               nCS <= '0';                     -- Bring nCS low before sclk starts to initialise to mode 0,0
+					shift_reset <= '0';
             when config =>
-                state_out(2) <= '1';
-				mosi <= '1';
+					mosi <= '1';
             when receive =>                             --  In the execute phase read miso on sclk rising edge
-                state_out(3) <= '1';
-
---				rx_data <= rx_buffer;
-
-                nCS <= '0';
-				shift_en <= '1';
-                -- if (sclk'event and sclk = '1') then
-                --     rx_buffer(d-1 downto 1) <= rx_buffer(d-2 downto 0);
-                --     rx_buffer(0) <= miso;
-                --     rx_count <= rx_count + 1;
-                -- end if;
+               nCS <= '0';
+					shift_en <= '1';
             when done =>
-                state_out(4) <= '1';
-				rx_data <= rx_buffer;
-
-               -- busy <= '0';
-				shift_en <= '0';
+					rx_data <= rx_buffer;
+					shift_en <= '0';
         end case;
     end process;
 	
@@ -113,7 +87,6 @@ BEGIN
             sclk <= '0';
 			counter <= 0;
         elsif(clk'event and clk = '1') then
---			if counter = 10000000 then
 			if counter = 10 then
 				sclk <= not sclk;
 				counter <= 0;

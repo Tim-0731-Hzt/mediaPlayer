@@ -57,7 +57,7 @@ architecture Behavioral of seven_seg_display is
 	END COMPONENT;
 	
 	signal sig_mux_select : std_logic_vector(1 downto 0);
-	--signal mux_data_out : std_logic_vector (3 downto 0);
+
 begin
 
 	mux_4_to_1_segments: mux_4_to_1 PORT MAP(
