@@ -128,9 +128,9 @@ def udp_server():
         elif (operation == 'back'):
             other_operation = 'back'
         elif operation == 'volumeup':
-            increaseVolume()
+            increaseVolumeRemote()
         elif operation == 'volumedown':
-            decreaseVolume()
+            decreaseVolumeRemote()
         elif operation == "ffwd":
             fastForward()
         elif operation == 'rwd':
@@ -248,7 +248,16 @@ def increaseVolumeRemote():
     if volume == 100:
         return
     else:
-        volume += 7
+        volume += 10
+    volume_variable.set(volume)
+    media_player.get_media_player().audio_set_volume(volume)
+
+def decreaseVolumeRemote():
+    global volume
+    if volume == 0:
+        return
+    else:
+        volume -= 10
     volume_variable.set(volume)
     media_player.get_media_player().audio_set_volume(volume)
 
